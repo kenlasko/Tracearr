@@ -1,0 +1,150 @@
+name: Fork Sync
+
+# Fork-only workflow: keeps main in sync with upstream and mirrors every new
+# upstream release as "upstream tag + this fork's own commits", then hands the
+# tag to fork-release.yml to build images and publish the GitHub release.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Mirror this upstream tag even if it is older than the newest fork release (e.g. v2.5.1)'
+        required: false
+
+concurrency:
+  group: fork-sync
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_REPO: connorgallopo/Tracearr
+  # Set to 'false' to mirror stable releases only
+  INCLUDE_PRERELEASES: 'true'
+  # Upstream workflows allowed to keep running in the fork; every other
+  # workflow is disabled so upstream's release/nightly/reddit/npm jobs never
+  # fire here (they are re-disabled each run, covering newly added ones)
+  KEEP_WORKFLOWS: 'ci.yml fork-sync.yml fork-release.yml'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  sync:
+    name: Sync upstream and mirror releases
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Disable upstream-only workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows" --paginate -q '.workflows[] | select(.state == "active") | .path' |
+            while read -r path; do
+              name="${path##*/}"
+              if [[ " $KEEP_WORKFLOWS " == *" $name "* ]]; then
+                continue
+              fi
+              echo "Disabling $name"
+              gh workflow disable "$name" -R "$GITHUB_REPOSITORY"
+            done
+
+      # A PAT is required: the default token cannot push commits that touch
+      # .github/workflows (upstream changes them regularly)
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.FORK_SYNC_PAT }}
+
+      - name: Merge upstream main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch --no-tags upstream main
+          git fetch upstream 'refs/tags/*:refs/tags/*' --force
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "main already contains upstream/main"
+          elif ! git merge --no-edit upstream/main; then
+            git merge --abort
+            echo "::error::Merge conflict syncing upstream/main into main. Resolve locally: git fetch upstream && git merge upstream/main"
+            exit 1
+          fi
+          git push origin main
+
+      - name: Find new upstream releases
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE_TAG: ${{ inputs.tag }}
+        run: |
+          # Upstream releases, oldest first
+          gh release list -R "$UPSTREAM_REPO" --limit 100 --exclude-drafts \
+            --json tagName,isPrerelease,publishedAt \
+            -q 'sort_by(.publishedAt) | .[] | "\(.tagName) \(.isPrerelease)"' > upstream.txt
+          # The upstream tags fetched earlier are local only, so the fork's
+          # remote tags are the record of what has been mirrored
+          git ls-remote --tags --refs origin | awk '{ sub("refs/tags/", "", $2); print $2 }' > fork-tags.txt
+
+          if [ -n "$FORCE_TAG" ]; then
+            grep -q "^$FORCE_TAG " upstream.txt || { echo "::error::$FORCE_TAG is not an upstream release"; exit 1; }
+            echo "$FORCE_TAG" > new.txt
+          else
+            # Line of the newest upstream release the fork already mirrors
+            LAST=$(awk 'NR == FNR { have[$1] = 1; next } ($1 in have) { n = FNR } END { print n + 0 }' fork-tags.txt upstream.txt)
+            if [ "$LAST" -eq 0 ]; then
+              # First run: mirror only the newest release instead of backfilling history
+              START=$(wc -l < upstream.txt)
+            else
+              START=$((LAST + 1))
+            fi
+            tail -n +"$START" upstream.txt |
+              awk -v pre="$INCLUDE_PRERELEASES" 'pre == "true" || $2 == "false" { print $1 }' > new.txt
+          fi
+          echo "Tags to mirror:"; cat new.txt
+          echo "tags=$(paste -sd' ' new.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Create patched tags
+        if: steps.find.outputs.tags != ''
+        id: tag
+        env:
+          TAGS: ${{ steps.find.outputs.tags }}
+        run: |
+          # This fork's own commits, oldest first, skipping merges and anything
+          # upstream already has an equivalent of
+          git log --no-merges --cherry-pick --right-only --reverse --format=%H upstream/main...main > patches.txt
+          echo "Fork patches:"
+          if [ -s patches.txt ]; then git log --no-walk=unsorted --oneline --stdin < patches.txt; fi
+
+          CREATED=""
+          for TAG in $TAGS; do
+            git checkout --quiet --detach "refs/tags/$TAG"
+            while read -r sha; do
+              [ -n "$sha" ] || continue
+              if ! git cherry-pick --allow-empty --keep-redundant-commits "$sha"; then
+                git cherry-pick --abort
+                echo "::error::Fork commit $sha does not apply cleanly on $TAG"
+                exit 1
+              fi
+            done < patches.txt
+            # Replace the local copy of the upstream tag with the patched commit
+            git tag -f -a "$TAG" -m "$TAG (upstream $TAG + fork patches)"
+            git push origin "refs/tags/$TAG"
+            CREATED="$CREATED $TAG"
+          done
+          echo "created=${CREATED# }" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch release builds
+        if: steps.tag.outputs.created != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAGS: ${{ steps.tag.outputs.created }}
+        run: |
+          for TAG in $TAGS; do
+            echo "Dispatching fork-release for $TAG"
+            gh workflow run fork-release.yml -R "$GITHUB_REPOSITORY" --ref main -f tag="$TAG"
+          done
