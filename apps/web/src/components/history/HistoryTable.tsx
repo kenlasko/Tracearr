@@ -552,7 +552,7 @@ const COLUMN_WIDTHS = {
   date: 'w-[140px]',
   user: 'w-[150px]',
   // an explicit share, or fixed layout hands this column every spare pixel
-  content: 'w-[26%]',
+  content: 'w-[300px]',
   server: 'w-[150px]',
   platform: 'w-[130px]',
   location: 'w-[170px]',
