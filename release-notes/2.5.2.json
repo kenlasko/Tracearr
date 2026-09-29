@@ -11,6 +11,11 @@
       "type": "fix",
       "text": "avatars and images from phone photos no longer show sideways or upside down",
       "refs": ["#1258"]
+    },
+    {
+      "type": "fix",
+      "text": "merging users keeps the name of the one you kept, and only accounts a merge brought in offer Split",
+      "refs": ["#1263"]
     }
   ]
 }

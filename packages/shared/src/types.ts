@@ -197,6 +197,7 @@ export interface ServerUserFullDetail {
       trustScore: number;
       sessionCount: number;
       removedAt: Date | null;
+      mergedIn: boolean;
     }[];
     stats: { totalSessions: number; totalWatchTime: number };
   };
