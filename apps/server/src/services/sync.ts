@@ -11,6 +11,7 @@ import { servers, serverUsers } from '../db/schema.js';
 import { createMediaServerClient, PlexClient, type MediaUser } from './mediaServer/index.js';
 import { syncUserFromMediaServer, type SyncUserOptions } from './userService.js';
 import { ensureServerIdentifier } from './serverIdentity.js';
+import { ServerHistoricalError } from './liveServers.js';
 
 export interface SyncResult {
   usersAdded: number;
@@ -252,6 +253,10 @@ export async function syncServer(
   if (!server) {
     result.errors.push(`Server not found: ${serverId}`);
     return result;
+  }
+
+  if (server.historicalAt) {
+    throw new ServerHistoricalError(serverId);
   }
 
   const token = server.token;

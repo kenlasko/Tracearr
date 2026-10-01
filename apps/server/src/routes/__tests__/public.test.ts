@@ -29,6 +29,10 @@ vi.mock('../../services/cache.js', () => ({
   getCacheService: vi.fn(() => null),
 }));
 
+vi.mock('../../services/termination.js', () => ({
+  terminateSession: vi.fn(),
+}));
+
 vi.mock('../stats/queries.js', () => ({
   queryPlaysOverTime: vi.fn(async () => []),
   queryConcurrentStreams: vi.fn(async () => []),
@@ -39,6 +43,8 @@ vi.mock('../stats/queries.js', () => ({
 }));
 
 import { db } from '../../db/client.js';
+import { getCacheService } from '../../services/cache.js';
+import { terminateSession } from '../../services/termination.js';
 import { publicRoutes } from '../public.js';
 
 /** Completed policy runs: nothing else is a violation. */
@@ -337,5 +343,75 @@ describe('GET /api/v1/public/activity', () => {
     ]);
     expect(Object.keys(body.range).sort()).toEqual(['end', 'start']);
     expect(body.period).toBe('month');
+  });
+});
+
+describe('GET /api/v1/public/health', () => {
+  let app: FastifyInstance;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it('reports a historical server as historical and offline, with exactly the documented keys', async () => {
+    const live = randomUUID();
+    const gone = randomUUID();
+    vi.mocked(db.select).mockReturnValue(
+      queryChain(vi.fn, [
+        { id: live, name: 'Attic', type: 'jellyfin', historicalAt: null },
+        {
+          id: gone,
+          name: 'Old Plex',
+          type: 'plex',
+          historicalAt: new Date('2026-09-01T00:00:00Z'),
+        },
+      ])
+    );
+    app = await buildTestApp();
+
+    const response = await app.inject({ method: 'GET', url: '/api/v1/public/health' });
+
+    expect(response.statusCode).toBe(200);
+    const servers = response.json().servers as Record<string, unknown>[];
+    expect(servers.map((s) => Object.keys(s).sort())).toEqual([
+      ['activeStreams', 'historical', 'id', 'name', 'online', 'type'],
+      ['activeStreams', 'historical', 'id', 'name', 'online', 'type'],
+    ]);
+    expect(servers[0]).toMatchObject({ id: live, online: true, historical: false });
+    expect(servers[1]).toMatchObject({ id: gone, online: false, historical: true });
+  });
+});
+
+describe('POST /api/v1/public/streams/:id/terminate', () => {
+  let app: FastifyInstance;
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it('returns 409 with the resume message when the server is historical', async () => {
+    const sessionId = randomUUID();
+    vi.mocked(getCacheService).mockReturnValueOnce({
+      getAllActiveSessions: vi.fn().mockResolvedValue([{ id: sessionId }]),
+    } as never);
+    vi.mocked(terminateSession).mockResolvedValue({
+      success: false,
+      error: 'Server is historical',
+      outcome: 'server_historical',
+    } as never);
+    app = await buildTestApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/v1/public/streams/${sessionId}/terminate`,
+      payload: {},
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json().message).toBe('Resume this server to end its streams');
   });
 });

@@ -1,12 +1,17 @@
 {
   "version": "2.6.0",
-  "date": "2026-09-30",
-  "headline": "Your own notification text, and priority for Pushover, Gotify and ntfy",
+  "date": "2026-10-01",
+  "headline": "Your own notification text and priority, plus historical servers",
   "highlights": [
     {
       "title": "Write your own notifications",
       "body": "A send action can set its own title and body, using the trigger's variables, a fallback for empty values, and lines that only show when a value is there. The builder previews the message for each destination you picked, cut to that destination's limits. Sends to Pushover, Gotify and ntfy can also pick a priority, from silent to urgent.",
       "docs": "https://docs.tracearr.com/configuration/automations"
+    },
+    {
+      "title": "Keep a retired server's history",
+      "body": "Mark a server historical when you move off it or are only testing it for a while. Tracearr stops polling it, syncing it and checking it for updates, and the unreachable banner goes away. Its sessions, users and libraries stay on every page, listed after your live servers, and Resume brings it back.",
+      "docs": "https://docs.tracearr.com/configuration/servers"
     }
   ],
   "changes": [
@@ -17,6 +22,11 @@
     {
       "type": "new",
       "text": "a send action can set a priority for Pushover, Gotify and ntfy, replacing each one's built-in level"
+    },
+    {
+      "type": "new",
+      "text": "a server can be marked historical: Tracearr stops contacting it and keeps its history, users and libraries",
+      "docs": "https://docs.tracearr.com/configuration/servers"
     },
     {
       "type": "fix",
@@ -32,6 +42,14 @@
       "type": "fix",
       "text": "merging users keeps the name of the one you kept, and only accounts a merge brought in offer Split",
       "refs": ["#1263"]
+    },
+    {
+      "type": "fix",
+      "text": "the remove-server warning now says the server's history is deleted; it used to say history was kept"
+    },
+    {
+      "type": "fix",
+      "text": "a newly added server gets its 12-hourly library sync right away instead of after the next restart"
     }
   ]
 }

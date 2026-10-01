@@ -104,6 +104,16 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     return events ? events.has(eventType) : true;
   }, []);
 
+  // Health check is best-effort: a failed fetch leaves the current list alone.
+  const refreshUnhealthyServers = useCallback(() => {
+    api.servers
+      .health()
+      .then((servers) => {
+        setUnhealthyServers(servers.map((s) => ({ ...s, since: new Date() })));
+      })
+      .catch(() => undefined);
+  }, []);
+
   // Fetch initial server health status on authentication
   useEffect(() => {
     if (!isAuthenticated) {
@@ -111,15 +121,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    api.servers
-      .health()
-      .then((servers) => {
-        setUnhealthyServers(servers.map((s) => ({ ...s, since: new Date() })));
-      })
-      .catch(() => {
-        // Ignore errors - health check is best-effort
-      });
-  }, [isAuthenticated]);
+    refreshUnhealthyServers();
+  }, [isAuthenticated, refreshUnhealthyServers]);
 
   // Fetch initial connection statuses on authentication
   useEffect(() => {
@@ -174,6 +177,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         void queryClient.invalidateQueries({ queryKey: ['sessions', 'active'] });
         void queryClient.invalidateQueries({ queryKey: ['tasks', 'running'] });
         void queryClient.invalidateQueries({ queryKey: ['stats', 'dashboard'] });
+        refreshUnhealthyServers();
       }
       hasConnectedRef.current = true;
     });
@@ -441,7 +445,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         runsRefreshThrottleRef.current = null;
       }
     };
-  }, [isAuthenticated, isInMaintenance, queryClient, isWebToastEnabled]);
+  }, [isAuthenticated, isInMaintenance, queryClient, isWebToastEnabled, refreshUnhealthyServers]);
 
   const subscribeSessions = useCallback(() => {
     if (socket && isConnected) {

@@ -22,7 +22,7 @@ import type {
   NotificationSource,
   ServerEventPayload,
 } from '../../notifications/events.js';
-import type { ActionExecutor, EvaluationContext } from '../types.js';
+import type { ActionExecutor, ActionExecutorResult, EvaluationContext } from '../types.js';
 
 /**
  * Result of executing an action.
@@ -79,7 +79,7 @@ export interface ActionExecutorDeps {
     // Returns the kill queue job id when a job was created or already exists,
     // or undefined when the enqueue was dropped (queue not initialized).
   ) => Promise<string | undefined>;
-  sendClientMessage: (sessionId: string, message: string) => Promise<void>;
+  sendClientMessage: (sessionId: string, message: string) => Promise<void | { skipReason: string }>;
   checkCooldown: (ruleId: string, targetId: string, cooldownMinutes: number) => Promise<boolean>;
   setCooldown: (ruleId: string, targetId: string, cooldownMinutes: number) => Promise<void>;
 }
@@ -580,7 +580,7 @@ const executeKillStream: ActionExecutor = async (
 const executeMessageClient: ActionExecutor = async (
   context: EvaluationContext,
   action: Action
-): Promise<void> => {
+): Promise<ActionExecutorResult> => {
   const { session, activeSessions, rule, identityServerUserIds } = context;
   if (!session) return;
   const typedAction = action as MessageClientAction;
@@ -608,8 +608,13 @@ const executeMessageClient: ActionExecutor = async (
     identityServerUserIds: rule.enforceAcrossServers ? identityServerUserIds : undefined,
   });
 
+  let historicalTargets = 0;
   for (const targetSession of sessionsToMessage) {
-    await currentDeps.sendClientMessage(targetSession.id, message);
+    const outcome = await currentDeps.sendClientMessage(targetSession.id, message);
+    if (outcome?.skipReason === 'server_historical') historicalTargets += 1;
+  }
+  if (sessionsToMessage.length > 0 && historicalTargets === sessionsToMessage.length) {
+    return { skipReason: 'server_historical' };
   }
 };
 

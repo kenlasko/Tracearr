@@ -436,7 +436,7 @@ async function runMissPipeline(args: MissPipelineArgs): Promise<ProxyResult> {
   const { serverId, imagePath, width, height, fallback, cachePath, shardDir, resizedOnly } = args;
 
   const server = await getServerRow(serverId);
-  if (!server) {
+  if (!server || server.historicalAt) {
     return {
       data: getFallbackImage(fallback, width, height),
       contentType: 'image/svg+xml',

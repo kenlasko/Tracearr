@@ -32,6 +32,7 @@ import { MediaTypeToggle } from '@/components/media-browse/MediaTypeToggle';
 import { stableSerialize, type CatalogSort } from '@/hooks/queries';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatBytes } from '@/lib/formatters';
+import { liveFirst } from '@/lib/servers';
 import { cn } from '@/lib/utils';
 
 export type { CatalogSort };
@@ -181,7 +182,7 @@ interface CatalogToolbarProps {
   filters: PersistedGridFilters;
   onFiltersChange: (next: PersistedGridFilters) => void;
   genres: GenreRow[];
-  servers: { id: string; name: string }[];
+  servers: { id: string; name: string; historicalAt?: string | null }[];
   libraries: LibraryOption[];
   totalItems: number | undefined;
   totalFileSize: number | undefined;
@@ -559,9 +560,14 @@ export function CatalogToolbar({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL_SENTINEL}>{t('media.grid.toolbar.serverAll')}</SelectItem>
-            {servers.map((server) => (
+            {liveFirst(servers).map((server) => (
               <SelectItem key={server.id} value={server.id}>
                 {server.name}
+                {server.historicalAt && (
+                  <Badge variant="outline" className="ml-auto">
+                    {t('common:serverSelector.historical')}
+                  </Badge>
+                )}
               </SelectItem>
             ))}
           </SelectContent>

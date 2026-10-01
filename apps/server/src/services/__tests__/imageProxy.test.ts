@@ -220,6 +220,30 @@ describe('proxyImage cache-miss pipeline', () => {
     fetchSpy.mockRestore();
   });
 
+  it('returns the placeholder for a historical server without fetching', async () => {
+    mockSelectChain([
+      {
+        id: 'server-h',
+        type: 'plex',
+        url: 'http://localhost:32400',
+        token: 'token',
+        historicalAt: new Date('2026-09-01T00:00:00Z'),
+      },
+    ]);
+
+    const result = await proxyImage({
+      serverId: randomUUID(),
+      imagePath: '/library/metadata/1/thumb/1',
+      width: 240,
+      height: 360,
+    });
+
+    expect(result.contentType).toBe('image/svg+xml');
+    expect(result.cached).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled();
+  });
+
   it('writes atomically: tmp path named after the pid, written before the rename into place', async () => {
     mockSelectChain([
       { id: 'server-1', type: 'plex', url: 'http://localhost:32400', token: 'token' },

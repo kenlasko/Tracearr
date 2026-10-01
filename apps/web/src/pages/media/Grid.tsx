@@ -490,7 +490,7 @@ export function MediaGrid() {
         filters={filters}
         onFiltersChange={handleFiltersChange}
         genres={genres}
-        servers={servers.map((s) => ({ id: s.id, name: s.name }))}
+        servers={servers.map((s) => ({ id: s.id, name: s.name, historicalAt: s.historicalAt }))}
         libraries={gridLibraries}
         totalItems={totalItems ?? undefined}
         totalFileSize={totalFileSize ?? undefined}

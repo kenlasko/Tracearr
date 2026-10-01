@@ -62,7 +62,7 @@ export function Dashboard() {
   // (Jellyfin/Emby until the SSE plugin samples them) return empty series
   // and contribute no line.
   const statsServerIds = useMemo(
-    () => (isMultiServer ? selectedServers.map((s) => s.id) : []),
+    () => (isMultiServer ? selectedServers.filter((s) => !s.historicalAt).map((s) => s.id) : []),
     [isMultiServer, selectedServers]
   );
 
@@ -73,13 +73,21 @@ export function Dashboard() {
     bandwidthAverages,
     clockSkewMs: singleClockSkewMs,
     isLoading: liveStatsLoading,
-  } = useServerLiveStats(selectedServerId ?? undefined, !!singleServer);
+  } = useServerLiveStats(
+    selectedServerId ?? undefined,
+    !!singleServer && !singleServer.historicalAt
+  );
 
-  const showServerResources = !!singleServer && (singleIsPlex || (serverStats?.length ?? 0) > 0);
+  const showServerResources =
+    !!singleServer &&
+    !singleServer.historicalAt &&
+    (singleIsPlex || (serverStats?.length ?? 0) > 0);
+
+  const liveSelected = selectedServers.filter((s) => !s.historicalAt);
 
   // Plex measures bandwidth; Jellyfin/Emby have no source for it
   const showBandwidthChart =
-    singleIsPlex || (isMultiServer && selectedServers.some((s) => s.type === 'plex'));
+    singleIsPlex || (isMultiServer && liveSelected.some((s) => s.type === 'plex'));
   const singleProcessLabel = singleServer
     ? { plex: 'Plex Media Server', jellyfin: 'Jellyfin', emby: 'Emby' }[singleServer.type]
     : undefined;
@@ -96,7 +104,7 @@ export function Dashboard() {
     (s) => s.statistics.length > 0 || s.bandwidth.length > 0
   );
   const showMultiServerResources =
-    isMultiServer && (hasAnyMultiData || selectedServers.some((s) => s.type === 'plex'));
+    isMultiServer && (hasAnyMultiData || liveSelected.some((s) => s.type === 'plex'));
 
   const seriesMeta = useCallback(
     (serverId: string) => {

@@ -1622,6 +1622,10 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
       reason,
     });
 
+    if (result.outcome === 'server_historical') {
+      return reply.conflict('Resume this server to end its streams');
+    }
+
     if (!result.success) {
       app.log.error(
         { sessionId: id, error: result.error, terminationLogId: result.terminationLogId },

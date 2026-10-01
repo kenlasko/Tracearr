@@ -41,6 +41,7 @@ import {
   useReorderServers,
   useRequestServices,
   useServers,
+  useSetServerHistorical,
   useSyncServer,
   useUpdateServer,
 } from '@/hooks/queries';
@@ -52,6 +53,7 @@ export function Connections() {
   const syncServer = useSyncServer();
   const updateServer = useUpdateServer();
   const reorderServers = useReorderServers();
+  const setHistorical = useSetServerHistorical();
   const queryClient = useQueryClient();
   const { refetch: refetchUser, user } = useAuth();
   const { serverConnectionStatuses } = useSocket();
@@ -61,6 +63,7 @@ export function Connections() {
   });
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [historicalId, setHistoricalId] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editServer, setEditServer] = useState<Server | null>(null);
   const [serverType, setServerType] = useState<'plex' | 'jellyfin' | 'emby'>('plex');
@@ -270,8 +273,15 @@ export function Connections() {
                   onSync={() => syncServer.mutate(server.id)}
                   onDelete={() => setDeleteId(server.id)}
                   onEdit={() => setEditServer(server)}
+                  onSetHistorical={(historical) =>
+                    historical
+                      ? setHistoricalId(server.id)
+                      : setHistorical.mutate({ id: server.id, historical: false })
+                  }
+                  isSwitching={setHistorical.isPending && setHistorical.variables?.id === server.id}
                   isSyncing={syncServer.isPending && syncServer.variables === server.id}
                   isDraggable={isOwner}
+                  isOwner={isOwner}
                   requestService={
                     isOwner && !requestServicesLoading
                       ? { service: requestServices?.find((s) => s.serverId === server.id) }
@@ -346,6 +356,25 @@ export function Connections() {
               void queryClient.invalidateQueries({ queryKey: ['plex-accounts'] });
             },
           });
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!historicalId}
+        onOpenChange={() => setHistoricalId(null)}
+        title={t('servers.markHistoricalTitle', {
+          name: servers.find((s) => s.id === historicalId)?.name ?? '',
+        })}
+        description={t('servers.markHistoricalConfirm')}
+        confirmLabel={t('servers.markHistorical')}
+        variant="default"
+        isLoading={setHistorical.isPending}
+        onConfirm={() => {
+          if (!historicalId) return;
+          setHistorical.mutate(
+            { id: historicalId, historical: true },
+            { onSuccess: () => setHistoricalId(null) }
+          );
         }}
       />
 

@@ -19,6 +19,7 @@ import { servers, serverUserExternalAliases, serverUsers, sessions, users } from
 import { getGeoIPSettings } from '../routes/settings.js';
 import type { CacheService, PubSubService } from '../services/cache.js';
 import { createMediaServerClient } from '../services/mediaServer/index.js';
+import { isLiveServer } from '../services/liveServers.js';
 import { extractLiveUuid } from '../services/mediaServer/plex/plexUtils.js';
 import { resolveSessionGeo } from '../services/serverLocations.js';
 import {
@@ -276,6 +277,16 @@ export function stopSSEProcessor(): void {
 
   // Clear notified down servers state
   notifiedDownServers.clear();
+}
+
+/** The historical switch forgets the server's pending and sent down state so no up or down follows. */
+export function clearServerDownState(serverId: string): void {
+  const pending = pendingServerDownNotifications.get(serverId);
+  if (pending) {
+    clearTimeout(pending);
+    pendingServerDownNotifications.delete(serverId);
+  }
+  notifiedDownServers.delete(serverId);
 }
 
 /**
@@ -879,18 +890,24 @@ function handleFallbackActivated(event: FallbackEvent): void {
   const timeout = setTimeout(() => {
     pendingServerDownNotifications.delete(serverId);
 
-    if (notifiedDownServers.size >= MAX_NOTIFIED_DOWN_SERVERS) {
-      console.warn(
-        `[SSEProcessor] notifiedDownServers reached ${MAX_NOTIFIED_DOWN_SERVERS}, clearing oldest entries`
-      );
-      notifiedDownServers.clear();
-    }
+    void (async () => {
+      if (!(await isLiveServer(serverId))) return;
 
-    notifiedDownServers.add(serverId); // Mark as down so we know to send server_up later
-    console.log(`[SSEProcessor] Server ${serverName} is DOWN (threshold exceeded)`);
+      if (notifiedDownServers.size >= MAX_NOTIFIED_DOWN_SERVERS) {
+        console.warn(
+          `[SSEProcessor] notifiedDownServers reached ${MAX_NOTIFIED_DOWN_SERVERS}, clearing oldest entries`
+        );
+        notifiedDownServers.clear();
+      }
 
-    // The closure holds no row: the automations and the server are read when the timer fires.
-    void dispatchServerHealthById('server.down', serverId, new Date());
+      notifiedDownServers.add(serverId); // Mark as down so we know to send server_up later
+      console.log(`[SSEProcessor] Server ${serverName} is DOWN (threshold exceeded)`);
+
+      // The closure holds no row: the automations and the server are read when the timer fires.
+      await dispatchServerHealthById('server.down', serverId, new Date());
+    })().catch((error: unknown) => {
+      console.error(`[SSEProcessor] server.down dispatch failed for ${serverName}:`, error);
+    });
   }, SERVER_DOWN_THRESHOLD_MS);
 
   pendingServerDownNotifications.set(serverId, timeout);

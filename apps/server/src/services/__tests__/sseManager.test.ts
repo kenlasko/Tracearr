@@ -4,6 +4,11 @@ vi.mock('../../db/client.js', () => ({
   db: { select: vi.fn().mockReturnValue({ from: vi.fn().mockResolvedValue([]) }) },
 }));
 
+const { mockLiveServers } = vi.hoisted(() => ({ mockLiveServers: vi.fn() }));
+vi.mock('../liveServers.js', () => ({
+  liveServers: (...args: unknown[]) => mockLiveServers(...args),
+}));
+
 vi.mock('../../websocket/index.js', () => ({
   broadcastToAll: vi.fn(),
 }));
@@ -65,7 +70,6 @@ vi.mock('../leaderLease.js', () => ({
   isLeader: vi.fn().mockReturnValue(true),
 }));
 
-import { db } from '../../db/client.js';
 import { SSEManager } from '../sseManager.js';
 import { PlexEventSource } from '../mediaServer/plex/eventSource.js';
 import type { CacheService, PubSubService } from '../cache.js';
@@ -368,11 +372,9 @@ describe('SSEManager.nudgeReconnect', () => {
 describe('SSEManager.refresh', () => {
   let manager: SSEManager;
 
-  /** refresh() reads the whole servers table; the chain ends at .from(). */
+  /** refresh() reads the live servers through liveServers(). */
   function mockServerRows(rows: unknown[]) {
-    vi.mocked(db.select).mockReturnValue({
-      from: vi.fn().mockResolvedValue(rows),
-    } as never);
+    mockLiveServers.mockResolvedValue(rows);
   }
 
   const row = {
@@ -440,5 +442,25 @@ describe('SSEManager.refresh', () => {
     // Reconciliation runs every 30s; rebuilding on every pass would drop the
     // stream continuously.
     expect(PlexEventSource).not.toHaveBeenCalled();
+  });
+
+  it('starts connections for the live servers only', async () => {
+    await manager.initialize(makeCacheService(), makePubSubService());
+    mockServerRows([row]);
+
+    await manager.start();
+
+    expect(mockLiveServers).toHaveBeenCalledTimes(1);
+    expect(PlexEventSource).toHaveBeenCalledTimes(1);
+  });
+
+  it('drops the connection of a server that is no longer live', async () => {
+    await manager.initialize(makeCacheService(), makePubSubService());
+    await manager.addServer(row.id, row.name, row.type, row.url, row.token);
+
+    mockServerRows([]);
+    await manager.refresh();
+
+    expect((manager as unknown as PrivateManagerInternals).connections.has('plex-1')).toBe(false);
   });
 });

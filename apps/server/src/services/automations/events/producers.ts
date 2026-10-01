@@ -2,6 +2,7 @@ import { WS_EVENTS, type EngineAutomation, type Session } from '@tracearr/shared
 import { getActiveAutomations } from '../../../jobs/poller/database.js';
 import { automationsLogger } from '../../../utils/logger.js';
 import { getPubSubService } from '../../cache.js';
+import { isLiveServer } from '../../liveServers.js';
 import {
   assembleEvaluationInputs,
   installInputs,
@@ -216,6 +217,7 @@ export async function dispatchServerHealth(
   at: Date
 ): Promise<void> {
   await guarded(type, async () => {
+    if (!(await isLiveServer(server.id))) return;
     await publishServerHealth(type, server);
     const rules = await serverListeningRules(type, server.id);
     if (!rules) return;
@@ -231,6 +233,7 @@ export async function dispatchServerHealthById(
   at: Date
 ): Promise<void> {
   await guarded(type, async () => {
+    if (!(await isLiveServer(serverId))) return;
     const rules = await serverListeningRules(type, serverId);
     // The banner needs the name either way, so the row is read whether or not anything listens.
     const context = await loadServerContext(serverId, rules ?? []);

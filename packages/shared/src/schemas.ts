@@ -193,6 +193,10 @@ export const reorderServersSchema = z.object({
   ),
 });
 
+export const setServerHistoricalSchema = z.object({
+  historical: z.boolean(),
+});
+
 export const updateServerSchema = z
   .object({
     name: z.string().min(1).max(100).optional(),

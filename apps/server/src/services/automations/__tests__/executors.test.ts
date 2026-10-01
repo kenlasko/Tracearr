@@ -1176,6 +1176,20 @@ describe('Action Executor Registry', () => {
           expect(mockDeps.sendClientMessage).toHaveBeenCalledWith('s2', 'Warning!');
         });
       });
+
+      it('records the action as skipped when every target sits on a historical server', async () => {
+        (mockDeps.sendClientMessage as ReturnType<typeof vi.fn>).mockResolvedValue({
+          skipReason: 'server_historical',
+        });
+        const context = createMockContext();
+        const action: MessageClientAction = { type: 'message_client', message: 'Please stop!' };
+
+        const result = await executeAction(context, action);
+
+        expect(result.success).toBe(true);
+        expect(result.skipped).toBe(true);
+        expect(result.skipReason).toBe('server_historical');
+      });
     });
 
     describe('Cooldown Handling', () => {

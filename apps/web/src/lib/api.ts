@@ -754,6 +754,11 @@ class ApiClient {
         method: 'PATCH',
         body: JSON.stringify({ servers }),
       }),
+    setHistorical: (id: string, historical: boolean) =>
+      this.request<Server>(`/servers/${id}/historical`, {
+        method: 'POST',
+        body: JSON.stringify({ historical }),
+      }),
     liveStats: (id: string) =>
       this.request<{
         serverId: string;

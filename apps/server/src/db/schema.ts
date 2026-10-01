@@ -113,6 +113,8 @@ export const servers = pgTable(
     // Bumped on every save of this server's server_locations; the sync job records the version it applied
     locationVersion: integer('location_version').notNull().default(1),
     locationSyncedVersion: integer('location_synced_version').notNull().default(0),
+    // Set when Tracearr stops contacting this server; its history stays. Null while live.
+    historicalAt: timestamp('historical_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },

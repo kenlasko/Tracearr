@@ -4,8 +4,14 @@ vi.mock('../../serverState.js', () => ({
   isMaintenance: vi.fn().mockReturnValue(false),
 }));
 
-const { mockDbServers } = vi.hoisted(() => ({
+const { mockDbServers, mockIsLiveServer } = vi.hoisted(() => ({
   mockDbServers: vi.fn(async (): Promise<Array<{ id: string; name: string }>> => []),
+  mockIsLiveServer: vi.fn(async (_id: string) => true),
+}));
+
+vi.mock('../../services/liveServers.js', () => ({
+  liveServers: (...args: unknown[]) => mockDbServers(...(args as [])),
+  isLiveServer: (...args: [string]) => mockIsLiveServer(...args),
 }));
 
 vi.mock('../../db/client.js', () => ({
@@ -82,6 +88,7 @@ import {
   getAllActiveLibrarySyncs,
   hasPendingLibrarySync,
   scheduleAutoSync,
+  rebuildAutoSyncSchedules,
   shutdownLibrarySyncQueue,
   startLibrarySyncWorker,
   invalidateLibraryCaches,
@@ -307,6 +314,43 @@ describe('scheduleAutoSync - boot sync pending-job check', () => {
     initLibrarySyncQueue('redis://localhost:6379');
   });
 
+  it('builds the schedule from the live servers only', async () => {
+    await scheduleAutoSync();
+
+    expect(mockDbServers).toHaveBeenCalledTimes(1);
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'auto-sync-srv-1',
+      { serverId: 'srv-1', triggeredBy: 'scheduled' },
+      expect.objectContaining({ jobId: 'scheduled-srv-1' })
+    );
+  });
+
+  it('rebuilds only the schedulers and never queues a boot sync', async () => {
+    mockGetJobSchedulers.mockResolvedValue([{ key: 'old' }]);
+
+    await rebuildAutoSyncSchedules();
+
+    expect(mockRemoveJobScheduler).toHaveBeenCalledWith('old');
+    expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'auto-sync-srv-1',
+      expect.anything(),
+      expect.anything()
+    );
+    expect(mockQueueGetJobs).not.toHaveBeenCalled();
+  });
+
+  it('leaves no schedulers when no live server remains', async () => {
+    mockGetJobSchedulers.mockResolvedValue([{ key: 'old' }]);
+    mockDbServers.mockResolvedValue([]);
+
+    await rebuildAutoSyncSchedules();
+    await scheduleAutoSync();
+
+    expect(mockRemoveJobScheduler).toHaveBeenCalledTimes(2);
+    expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
   it('still queues boot sync when the only delayed job is the scheduler placeholder it just planted', async () => {
     mockQueueGetJobs.mockImplementation(async (states: string[]) =>
       states.includes('delayed') ? [schedulerJob('srv-1')] : []
@@ -480,6 +524,24 @@ describe('library sync worker - cache invalidation gating', () => {
       updateProgress: vi.fn(),
     });
   }
+
+  it('skips the job without syncing when the server is historical', async () => {
+    mockIsLiveServer.mockResolvedValueOnce(false);
+    vi.mocked(librarySyncService.syncServer).mockResolvedValue([]);
+    startLibrarySyncWorker();
+    const processor = vi.mocked(Worker).mock.calls[0]![1] as (job: unknown) => Promise<unknown>;
+
+    const result = await processor({
+      id: 'job-h',
+      name: 'auto-sync-srv-1',
+      data: { serverId: 'srv-1', triggeredBy: 'scheduled' },
+      updateProgress: vi.fn(),
+    });
+
+    expect(result).toEqual({ skipped: true, reason: 'server historical' });
+    expect(librarySyncService.syncServer).not.toHaveBeenCalled();
+    expect(syncServer).not.toHaveBeenCalled();
+  });
 
   it('skips cache invalidation when the sync processed nothing', async () => {
     await runSyncJob([fakeSyncResult({ itemsProcessed: 0 })]);

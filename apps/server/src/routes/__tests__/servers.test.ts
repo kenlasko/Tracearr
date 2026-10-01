@@ -71,6 +71,8 @@ vi.mock('../../services/cache.js', () => ({
 
 vi.mock('../../jobs/librarySyncQueue.js', () => ({
   enqueueLibrarySync: vi.fn().mockResolvedValue(undefined),
+  rebuildAutoSyncSchedules: vi.fn().mockResolvedValue(undefined),
+  scheduleAutoSync: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../../services/serverLiveStats.js', () => ({
@@ -89,11 +91,20 @@ vi.mock('../../services/sseManager.js', () => ({
   },
 }));
 
+vi.mock('../../services/historicalServers.js', () => ({
+  markServerHistorical: vi.fn(),
+  resumeServer: vi.fn(),
+}));
+
 vi.mock('../../services/settings.js', () => ({
   rearmImportedHistoryLink: vi.fn().mockResolvedValue(undefined),
 }));
 
+import type { SQL } from 'drizzle-orm';
 import { db } from '../../db/client.js';
+import { rebuildAutoSyncSchedules, scheduleAutoSync } from '../../jobs/librarySyncQueue.js';
+import { markServerHistorical, resumeServer } from '../../services/historicalServers.js';
+import { renderSql } from '../../test/helpers.js';
 import { rearmImportedHistoryLink } from '../../services/settings.js';
 import { PlexClient, JellyfinClient, EmbyClient } from '../../services/mediaServer/index.js';
 import { getServerLiveStats, getServerResourceStats } from '../../services/serverLiveStats.js';
@@ -203,6 +214,7 @@ const mockServer = {
   type: 'plex' as const,
   url: 'http://localhost:32400',
   token: 'encrypted_test-token',
+  historicalAt: null as Date | null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -227,6 +239,7 @@ describe('Server Routes', () => {
           url: mockServer.url,
           displayOrder: 0,
           color: '#4B8BFF',
+          historicalAt: null,
           createdAt: mockServer.createdAt,
           updatedAt: mockServer.updatedAt,
         },
@@ -241,6 +254,7 @@ describe('Server Routes', () => {
       const body = response.json();
       expect(body.data).toHaveLength(1);
       expect(body.data[0].name).toBe('Test Plex Server');
+      expect(body.data[0].historicalAt).toBeNull();
       // Should not include token
       expect(body.data[0].token).toBeUndefined();
     });
@@ -397,6 +411,45 @@ describe('Server Routes', () => {
       expect(body.name).toBe('New Plex');
       expect(body.type).toBe('plex');
       expect(rearmImportedHistoryLink).toHaveBeenCalledWith({ keepProviderPass: false });
+    });
+
+    it('rebuilds the sync schedules for the new server without queuing a boot sync', async () => {
+      app = await buildTestApp(ownerUser);
+      vi.mocked(PlexClient.getAccountInfo).mockResolvedValue({
+        id: 'plex-account-123',
+        username: 'admin',
+        isAdmin: true,
+      });
+
+      let selectCall = 0;
+      vi.mocked(db.select).mockImplementation(() => {
+        selectCall++;
+        const chain = {
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([]),
+        };
+        if (selectCall === 3) {
+          chain.from = vi.fn().mockResolvedValue([]);
+        }
+        return chain as never;
+      });
+      mockDbInsert([{ ...mockServer, id: randomUUID(), name: 'Scheduled Plex' }]);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/servers',
+        payload: {
+          name: 'Scheduled Plex',
+          type: 'plex',
+          url: 'http://plex.local:32400',
+          token: 'my-plex-token',
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      expect(rebuildAutoSyncSchedules).toHaveBeenCalledTimes(1);
+      expect(scheduleAutoSync).not.toHaveBeenCalled();
     });
 
     it('creates a new Jellyfin server for owner', async () => {
@@ -1004,6 +1057,43 @@ describe('Server Routes', () => {
       expect(response.statusCode).toBe(404);
       expect(response.json().message).toBe('Server not found');
     });
+
+    it('refuses a URL or key change on a historical server but still renames it', async () => {
+      app = await buildTestApp(ownerUser);
+      const historical = {
+        ...mockServer,
+        type: 'jellyfin' as const,
+        historicalAt: new Date('2026-09-01T00:00:00Z'),
+      };
+
+      mockDbSelectLimit([historical]);
+      let response = await app.inject({
+        method: 'PATCH',
+        url: `/servers/${historical.id}`,
+        payload: { url: 'http://moved.local:8096' },
+      });
+      expect(response.statusCode).toBe(409);
+      expect(response.json().message).toBe('Resume this server to change its address or key');
+      expect(JellyfinClient.verifyServerAdmin).not.toHaveBeenCalled();
+
+      mockDbSelectLimit([historical]);
+      response = await app.inject({
+        method: 'PATCH',
+        url: `/servers/${historical.id}`,
+        payload: { apiKey: 'new-key' },
+      });
+      expect(response.statusCode).toBe(409);
+
+      mockDbSelectLimit([historical]);
+      mockDbUpdateReturning([{ ...historical, name: 'Old Attic' }]);
+      response = await app.inject({
+        method: 'PATCH',
+        url: `/servers/${historical.id}`,
+        payload: { name: 'Old Attic' },
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().name).toBe('Old Attic');
+    });
   });
 
   describe('DELETE /servers/:id', () => {
@@ -1499,6 +1589,140 @@ describe('Server Routes', () => {
       expect(getServerLiveStats).toHaveBeenCalledWith(
         undefined,
         expect.objectContaining({ id: mockServer.id, url: mockServer.url, token: mockServer.token })
+      );
+    });
+  });
+
+  describe('POST /servers/:id/historical', () => {
+    const flagged = { ...mockServer, historicalAt: new Date('2026-10-01T12:00:00Z') };
+
+    it('marks a server historical for the owner and returns it without its token', async () => {
+      app = await buildTestApp(ownerUser);
+      mockDbSelectLimit([mockServer]);
+      vi.mocked(markServerHistorical).mockResolvedValue(flagged as never);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/servers/${mockServer.id}/historical`,
+        payload: { historical: true },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(markServerHistorical).toHaveBeenCalledWith(mockServer);
+      expect(resumeServer).not.toHaveBeenCalled();
+      const body = response.json();
+      expect(body.historicalAt).toBe('2026-10-01T12:00:00.000Z');
+      expect(body.token).toBeUndefined();
+    });
+
+    it('resumes a historical server', async () => {
+      app = await buildTestApp(ownerUser);
+      mockDbSelectLimit([flagged]);
+      vi.mocked(resumeServer).mockResolvedValue(mockServer as never);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/servers/${mockServer.id}/historical`,
+        payload: { historical: false },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(resumeServer).toHaveBeenCalledWith(flagged);
+      expect(response.json().historicalAt).toBeNull();
+    });
+
+    it('is owner only and validates its input', async () => {
+      app = await buildTestApp(viewerUser);
+      let response = await app.inject({
+        method: 'POST',
+        url: `/servers/${mockServer.id}/historical`,
+        payload: { historical: true },
+      });
+      expect(response.statusCode).toBe(403);
+      await app.close();
+
+      app = await buildTestApp(ownerUser);
+      response = await app.inject({
+        method: 'POST',
+        url: `/servers/${mockServer.id}/historical`,
+        payload: { historical: 'yes' },
+      });
+      expect(response.statusCode).toBe(400);
+
+      mockDbSelectLimit([]);
+      response = await app.inject({
+        method: 'POST',
+        url: `/servers/${randomUUID()}/historical`,
+        payload: { historical: true },
+      });
+      expect(response.statusCode).toBe(404);
+      expect(markServerHistorical).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('historical servers elsewhere in the routes', () => {
+    const historical = { ...mockServer, historicalAt: new Date('2026-09-01T00:00:00Z') };
+
+    it('refuses a manual sync with 409 and never calls syncServer', async () => {
+      app = await buildTestApp(ownerUser);
+      mockDbSelectLimit([historical]);
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/servers/${historical.id}/sync`,
+        payload: {},
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(response.json().message).toBe('Resume this server to sync it');
+      expect(syncServer).not.toHaveBeenCalled();
+    });
+
+    it('serves empty live stats and statistics without asking the server', async () => {
+      app = await buildTestApp(ownerUser);
+
+      mockDbSelectLimit([historical]);
+      let response = await app.inject({
+        method: 'GET',
+        url: `/servers/${historical.id}/live-stats`,
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({
+        serverId: historical.id,
+        statistics: [],
+        bandwidth: [],
+        bandwidthSamples: [],
+        bandwidthAccounts: [],
+        bandwidthDevices: [],
+      });
+      expect(getServerLiveStats).not.toHaveBeenCalled();
+
+      mockDbSelectLimit([historical]);
+      response = await app.inject({ method: 'GET', url: `/servers/${historical.id}/statistics` });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().data).toEqual([]);
+      expect(getServerResourceStats).not.toHaveBeenCalled();
+    });
+
+    it('leaves historical servers out of /health and /connection-status', async () => {
+      app = await buildTestApp(ownerUser);
+
+      const healthChain = mockDbSelectWhere([]);
+      let response = await app.inject({ method: 'GET', url: '/servers/health' });
+      expect(response.statusCode).toBe(200);
+      expect(renderSql(healthChain.where.mock.calls[0]?.[0] as SQL).sql).toContain(
+        'servers.historical_at is null'
+      );
+
+      const statusChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue([]),
+      };
+      vi.mocked(db.select).mockReturnValue(statusChain as never);
+      response = await app.inject({ method: 'GET', url: '/servers/connection-status' });
+      expect(response.statusCode).toBe(200);
+      expect(renderSql(statusChain.where.mock.calls[0]?.[0] as SQL).sql).toContain(
+        'servers.historical_at is null'
       );
     });
   });

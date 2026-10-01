@@ -66,7 +66,12 @@ export function SendMessageSection({ action, variables, dispatch }: SendMessageS
           />
           <FieldDescription>{t('automations.message.blankHint')}</FieldDescription>
         </Field>
-        <NotificationPreview title={action.title} body={action.body} to={action.to} />
+        <NotificationPreview
+          title={action.title}
+          body={action.body}
+          to={action.to}
+          priority={action.priority}
+        />
       </CollapsibleContent>
     </Collapsible>
   );

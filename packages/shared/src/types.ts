@@ -60,6 +60,8 @@ export interface Server {
   /** What the server reports running, and the newest release the update checker saw. */
   version?: string | null;
   latestVersion?: string | null;
+  /** When Tracearr stopped contacting this server. Null, or absent on older payloads, while it is live. */
+  historicalAt?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1733,6 +1735,7 @@ export interface PlexAccount {
   plexThumbnail: string | null;
   allowLogin: boolean; // Whether this account can be used for authentication
   serverCount: number; // Number of Tracearr servers linked to this account
+  liveServerCount: number; // Those still contacted; historical servers no longer block unlinking
   createdAt: Date;
 }
 

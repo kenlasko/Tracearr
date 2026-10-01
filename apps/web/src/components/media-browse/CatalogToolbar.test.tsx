@@ -494,4 +494,22 @@ describe('CatalogToolbar', () => {
     expect(await screen.findByLabelText('media.grid.toolbar.hdrLabel')).toBeInTheDocument();
     expect(screen.queryByLabelText('media.grid.toolbar.libraryLabel')).not.toBeInTheDocument();
   });
+
+  it('badges a historical server in the server select and lists it after live ones', async () => {
+    const user = userEvent.setup();
+    render(
+      <CatalogToolbar
+        {...baseProps}
+        servers={[
+          { id: 'srv-old', name: 'Old Plex', historicalAt: '2026-09-01T12:00:00.000Z' },
+          { id: 'srv-1', name: 'Plex', historicalAt: null },
+        ]}
+      />
+    );
+    await user.click(screen.getByRole('button', { name: /media.grid.toolbar.filtersLabel/ }));
+    await user.click(screen.getByRole('combobox', { name: 'media.grid.toolbar.serverLabel' }));
+
+    const names = screen.getAllByRole('option').map((option) => option.textContent);
+    expect(names.slice(1)).toEqual(['Plex', 'Old Plexcommon:serverSelector.historical']);
+  });
 });

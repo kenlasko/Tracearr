@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DESTINATION_TEXT_PROFILES,
@@ -7,21 +7,28 @@ import {
   SEND_TITLE_MAX,
   VARIABLE_SAMPLES,
   escapeFor,
-  fitText,
   renderText,
   resolveVariable,
-  textSize,
   type DestinationKind,
   type DestinationTextProfile,
-  type TextLimit,
+  type NotificationPriority,
 } from '@tracearr/shared';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDestinations } from '@/hooks/queries/useDestinations';
+import { DiscordPreview } from './preview/DiscordPreview';
+import { EmailPreview } from './preview/EmailPreview';
+import { fieldData, type FieldData } from './preview/fieldData';
+import { PreviewPanel } from './preview/PreviewPanel';
+import { PushPreview } from './preview/PushPreview';
+import { ToastPreview } from './preview/ToastPreview';
+import { WebhookPreview } from './preview/WebhookPreview';
 
 interface NotificationPreviewProps {
   title?: string;
   body?: string;
   to: readonly string[];
+  priority?: NotificationPriority;
 }
 
 const PLAIN: DestinationTextProfile = {
@@ -30,104 +37,125 @@ const PLAIN: DestinationTextProfile = {
   body: { max: SEND_BODY_MAX, unit: 'chars' },
 };
 
+const PRIORITY_KINDS: readonly DestinationKind[] = ['pushover', 'gotify', 'ntfy'];
+
 const samples: Record<string, string> = VARIABLE_SAMPLES;
 const lookup = (name: string) => samples[resolveVariable(name)];
-const DISCORD_ESCAPED = /\\([\\*_~`|>#\-[\]()])/g;
 
-/** Fits the text the way the server does, after escaping, then drops the escapes Discord hides. */
-function shown(sent: string, profile: DestinationTextProfile, limit: TextLimit | null) {
-  const fitted = limit ? fitText(sent, limit) : sent;
-  const out = profile.escape === 'discordMarkdown' ? fitted.replace(DISCORD_ESCAPED, '$1') : fitted;
-  return out.trim() === '' ? undefined : out;
+interface PanelProps {
+  kind: DestinationKind;
+  label: string;
+  title: FieldData;
+  message: FieldData;
+  priority?: NotificationPriority;
+}
+
+function Panel({ kind, label, title, message, priority }: PanelProps) {
+  const { t } = useTranslation('pages');
+  switch (kind) {
+    case 'discord':
+      return <DiscordPreview title={title} message={message} />;
+    case 'email':
+      return <EmailPreview title={title} message={message} />;
+    case 'push':
+      return <PushPreview title={title} message={message} />;
+    case 'web_toast':
+      return <ToastPreview title={title} message={message} />;
+    case 'json_webhook':
+      return <WebhookPreview title={title} message={message} />;
+    default:
+      return (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-medium">{label}</span>
+            {PRIORITY_KINDS.includes(kind) && (
+              <Badge variant="outline">
+                {t('automations.message.previewPriority', {
+                  priority: t(`automations.priorities.${priority ?? 'automatic'}`),
+                })}
+              </Badge>
+            )}
+          </div>
+          <PreviewPanel title={title} message={message} />
+        </div>
+      );
+  }
 }
 
 /** The text as it would arrive, rendered from sample values in the browser. */
-export function NotificationPreview({ title, body, to }: NotificationPreviewProps) {
+export function NotificationPreview({ title, body, to, priority }: NotificationPreviewProps) {
   const { t } = useTranslation('pages');
+  const headingId = useId();
   const { data: destinations } = useDestinations();
   const [picked, setPicked] = useState<string>();
-  const chosen = new Set(
-    (destinations ?? [])
-      .filter((destination) => to.includes(destination.id))
-      .map((destination) => destination.type)
-  );
-  const kinds = [...chosen].filter(
-    (kind): kind is Exclude<DestinationKind, 'json_webhook'> => kind !== 'json_webhook'
-  );
-  const tabs: { key: string; label: string; profile: DestinationTextProfile }[] =
-    kinds.length === 0
-      ? [
-          {
-            key: 'plain',
-            label: t('automations.message.plainTab'),
-            profile: chosen.has('json_webhook') ? DESTINATION_TEXT_PROFILES.json_webhook : PLAIN,
-          },
-        ]
-      : kinds.map((kind) => ({
-          key: kind,
-          label: t(`settings.destinations.types.${DESTINATION_TYPES[kind].label}`),
-          profile: DESTINATION_TEXT_PROFILES[kind],
-        }));
-  const first = tabs[0]?.key ?? 'plain';
-  const active = tabs.some((tab) => tab.key === picked) ? picked : first;
+  const kinds = [
+    ...new Set(
+      (destinations ?? [])
+        .filter((destination) => to.includes(destination.id))
+        .map((destination) => destination.type)
+    ),
+  ];
+  const tabs = kinds.map((kind) => ({
+    kind,
+    label: t(`settings.destinations.types.${DESTINATION_TYPES[kind].label}`),
+    profile: DESTINATION_TEXT_PROFILES[kind],
+  }));
+  const active = tabs.some((tab) => tab.kind === picked) ? picked : tabs[0]?.kind;
+
+  const fields = (profile: DestinationTextProfile) => {
+    const escape = escapeFor(profile);
+    const sent = (text: string | undefined) =>
+      text === undefined ? '' : renderText(text, lookup, escape);
+    return {
+      title: fieldData(sent(title), profile, profile.title),
+      message: fieldData(sent(body), profile, profile.body),
+    };
+  };
 
   return (
-    <div className="space-y-2">
-      <p className="text-muted-foreground text-xs font-medium">
-        {t('automations.message.preview')}
-      </p>
-      <Tabs value={active} onValueChange={setPicked}>
-        <TabsList>
+    <section aria-labelledby={headingId} className="space-y-2">
+      <div>
+        <h3 id={headingId} className="text-muted-foreground text-xs font-medium">
+          {t('automations.message.preview')}
+        </h3>
+        <p className="text-muted-foreground text-xs">
+          {t('automations.message.previewSamples', { user: samples['user.username'] })}
+        </p>
+      </div>
+      {tabs.length === 0 ? (
+        <>
+          <div className="bg-muted/40 rounded-md border p-3">
+            <PreviewPanel {...fields(PLAIN)} />
+          </div>
+          <p className="text-muted-foreground text-xs">
+            {t('automations.message.previewPickDestination')}
+          </p>
+        </>
+      ) : (
+        <Tabs value={active} onValueChange={setPicked}>
+          <TabsList>
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.kind} value={tab.kind}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.key} value={tab.key}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {tabs.map((tab) => {
-          const escape = escapeFor(tab.profile);
-          const sentTitle = title === undefined ? '' : renderText(title, lookup, escape);
-          const sentBody = body === undefined ? '' : renderText(body, lookup, escape);
-          const shownTitle = shown(sentTitle, tab.profile, tab.profile.title);
-          const shownBody = shown(sentBody, tab.profile, tab.profile.body);
-          const limit = tab.profile.body;
-          return (
             <TabsContent
-              key={tab.key}
-              value={tab.key}
+              key={tab.kind}
+              value={tab.kind}
               className="bg-muted/40 rounded-md border p-3"
             >
-              <p className={shownTitle ? 'font-medium' : 'text-muted-foreground'}>
-                {shownTitle ?? t('automations.message.previewDefault')}
-              </p>
-              <p
-                className={
-                  shownBody ? 'text-sm whitespace-pre-line' : 'text-muted-foreground text-sm'
-                }
-              >
-                {shownBody ?? t('automations.message.previewDefault')}
-              </p>
-              {limit && (
-                <p className="text-muted-foreground mt-2 text-right text-xs tabular-nums">
-                  {t('automations.message.previewCount', {
-                    used: Math.min(textSize(sentBody, limit.unit), limit.max),
-                    max: limit.max,
-                    unit:
-                      limit.unit === 'bytes'
-                        ? t('automations.message.unitBytes')
-                        : t('automations.message.unitChars'),
-                  })}
-                </p>
-              )}
-              {(tab.key === 'discord' || tab.key === 'email') && (
-                <p className="text-muted-foreground mt-1 text-xs">
-                  {t('automations.message.addedByTracearr')}
-                </p>
-              )}
+              <Panel
+                kind={tab.kind}
+                label={tab.label}
+                priority={priority}
+                {...fields(tab.profile)}
+              />
             </TabsContent>
-          );
-        })}
-      </Tabs>
-    </div>
+          ))}
+        </Tabs>
+      )}
+    </section>
   );
 }

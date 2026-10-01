@@ -41,6 +41,11 @@ vi.mock('../../../serverState.js', () => ({
   isMaintenance: vi.fn().mockReturnValue(false),
 }));
 
+vi.mock('../../../services/liveServers.js', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  isLiveServer: async () => true,
+}));
+
 vi.mock('../../../services/mediaServer/index.js', () => ({
   createMediaServerClient: mockCreateMediaServerClient,
 }));

@@ -232,6 +232,10 @@ const ServerStatus = z
     name: z.string().openapi({ example: 'Main Plex Server' }),
     type: ServerTypeEnum,
     online: z.boolean(),
+    historical: z.boolean().openapi({
+      description:
+        'Tracearr no longer contacts this server; online is false while it is historical',
+    }),
     activeStreams: z.number().int().openapi({ example: 3 }),
   })
   .openapi('ServerStatus');

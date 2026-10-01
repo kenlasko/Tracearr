@@ -52,6 +52,7 @@ import { getDashboardStats } from '../services/dashboardStats.js';
 import { buildAvatarUrl, buildPosterUrl } from '../services/imageProxy.js';
 import { terminateSession } from '../services/termination.js';
 import { getCurrentVersion } from '../utils/buildInfo.js';
+import { serverOrderBy } from '../utils/serverOrder.js';
 import { generateOpenAPIDocument } from './public.openapi.js';
 import {
   queryConcurrentStreams,
@@ -189,7 +190,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const allServers = await db
       .select({ id: servers.id, name: servers.name })
       .from(servers)
-      .orderBy(servers.displayOrder);
+      .orderBy(...serverOrderBy());
 
     if (allServers.length > 0) {
       const serverIds = allServers.map((s) => s.id);
@@ -232,9 +233,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         id: servers.id,
         name: servers.name,
         type: servers.type,
+        historicalAt: servers.historicalAt,
       })
       .from(servers)
-      .orderBy(servers.displayOrder);
+      .orderBy(...serverOrderBy());
 
     // Get cached health state and active sessions
     const cacheService = getCacheService();
@@ -244,16 +246,19 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const serverStatus = await Promise.all(
       allServers.map(async (server) => {
         const serverActiveStreams = activeSessions.filter((s) => s.serverId === server.id).length;
+        const historical = server.historicalAt !== null;
         // Use cached health state set by the poller (null = unknown/not yet checked)
-        const cachedHealth = cacheService ? await cacheService.getServerHealth(server.id) : null;
+        const cachedHealth =
+          cacheService && !historical ? await cacheService.getServerHealth(server.id) : null;
         // Consider online if explicitly healthy, or unknown (null) with benefit of doubt
-        const online = cachedHealth !== false;
+        const online = !historical && cachedHealth !== false;
 
         return {
           id: server.id,
           name: server.name,
           type: server.type,
           online,
+          historical,
           activeStreams: serverActiveStreams,
         };
       })
@@ -1059,6 +1064,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         trigger: 'manual',
         reason,
       });
+
+      if (result.outcome === 'server_historical') {
+        return reply.conflict('Resume this server to end its streams');
+      }
 
       if (!result.success) {
         return reply.internalServerError(result.error ?? 'Failed to terminate session');

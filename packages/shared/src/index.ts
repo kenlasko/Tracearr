@@ -468,6 +468,7 @@ export {
   publicUrlSchema,
   serverIdParamSchema,
   reorderServersSchema,
+  setServerHistoricalSchema,
   updateServerSchema,
   serverLocationEntrySchema,
   serverLocationsSchema,

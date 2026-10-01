@@ -21,6 +21,7 @@ import {
 import { importPlaybackReporting } from '../services/playbackReporting.js';
 import { getPubSubService } from '../services/cache.js';
 import { syncServer } from '../services/sync.js';
+import { HISTORICAL_IMPORT_MESSAGE } from '../services/liveServers.js';
 import { JellyfinClient, EmbyClient } from '../services/mediaServer/index.js';
 import { db } from '../db/client.js';
 import { servers } from '../db/schema.js';
@@ -67,6 +68,18 @@ export const importRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const { serverId, overwriteFriendlyNames = false, includeStreamDetails = false } = body.data;
+
+    const [server] = await db
+      .select({ historicalAt: servers.historicalAt })
+      .from(servers)
+      .where(eq(servers.id, serverId))
+      .limit(1);
+    if (!server) {
+      return reply.notFound('Server not found');
+    }
+    if (server.historicalAt) {
+      return reply.conflict(HISTORICAL_IMPORT_MESSAGE);
+    }
 
     // Sync server users first to ensure we have all users before importing history
     try {
@@ -328,6 +341,9 @@ export const importRoutes: FastifyPluginAsync = async (app) => {
     if (server.type !== 'jellyfin' && server.type !== 'emby') {
       return reply.badRequest('Jellystat import only supports Jellyfin/Emby servers');
     }
+    if (server.historicalAt) {
+      return reply.conflict(HISTORICAL_IMPORT_MESSAGE);
+    }
 
     const backupPath = await saveJellystatUpload(data.file);
     if (data.file.truncated) {
@@ -493,6 +509,9 @@ export const importRoutes: FastifyPluginAsync = async (app) => {
     if (server.type !== 'jellyfin' && server.type !== 'emby') {
       return reply.badRequest('Playback Reporting import only supports Jellyfin/Emby servers');
     }
+    if (server.historicalAt) {
+      return reply.conflict(HISTORICAL_IMPORT_MESSAGE);
+    }
 
     try {
       app.log.info({ serverId }, 'Syncing server before Playback Reporting import');
@@ -575,6 +594,9 @@ export const importRoutes: FastifyPluginAsync = async (app) => {
       }
       if (server.type !== 'jellyfin' && server.type !== 'emby') {
         return reply.badRequest('Playback Reporting import only supports Jellyfin/Emby servers');
+      }
+      if (server.historicalAt) {
+        return reply.conflict(HISTORICAL_IMPORT_MESSAGE);
       }
 
       const clientConfig = {
