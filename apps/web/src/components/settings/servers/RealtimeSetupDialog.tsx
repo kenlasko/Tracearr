@@ -32,7 +32,7 @@ export function RealtimeSetupDialog({
   mode?: 'setup' | 'update';
   connectionStatus?: ServerConnectionStatus;
 }) {
-  const { t } = useTranslation(['settings']);
+  const { t } = useTranslation(['settings', 'common']);
   const repoUrl = t('servers.realtimeDialog.jellyfinRepoUrl');
   const issueKey =
     connectionStatus?.pluginIssue && connectionStatus.pluginIssue in ISSUE_KEYS
@@ -117,7 +117,7 @@ export function RealtimeSetupDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            {t('servers.realtimeDialog.close')}
+            {t('common:actions.close')}
           </Button>
         </DialogFooter>
       </DialogContent>

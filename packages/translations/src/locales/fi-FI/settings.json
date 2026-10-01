@@ -49,14 +49,9 @@
     }
   },
   "general": {
-    "title": "Yleiset Asetukset",
     "unitSystem": "Yksikkö Järjestelmä",
     "metric": "Metrinen (km, km/h)",
     "imperial": "Imperiaalinen (mi, mph)",
-    "timezone": "",
-    "primaryAuth": "Ensisijainen Todennusmenetelmä",
-    "localAccount": "Paikallinen Tili",
-    "plexAccount": "Plex Tili",
     "language": "Kieli",
     "languageDescription": "Valitse haluamasi näytön kieli.",
     "helpTranslate": "Auta kääntämään Tracearr",
@@ -127,7 +122,6 @@
       "size": "",
       "files": "",
       "need": "",
-      "needHint": "",
       "free": "",
       "freeOf": "",
       "floor": "",
@@ -138,18 +132,16 @@
       "never": "",
       "diskLimited": "",
       "loadError": "",
-      "notPersisting": ""
+      "notPersisting": "",
+      "needHint_one": "",
+      "needHint_other": ""
     }
   },
   "servers": {
-    "title": "Yhdistetyt Palvelimet",
     "addServer": "Lisää Palvelin",
     "serverName": "Palvelimen Nimi",
     "serverUrl": "Palvelimen URL",
-    "syncInterval": "Synkronoinnin Aikaväli",
     "testConnection": "Testaa Yhteys",
-    "connectionSuccess": "Yhteys onnistui",
-    "connectionFailed": "Yhteys epäonnistui",
     "noServersConnected": "Palvelimia ei yhdistetty",
     "noServersConnectedHint": "Klikkaa \"Add Server\" yhdistääksesi Jellyfin- tai Emby- palvelimen",
     "serverType": "Palvelimen Tyyppi",
@@ -162,11 +154,8 @@
     "allServersConnected": "Kaikki Palvelimet Yhdistetty",
     "allServersConnectedDesc": "Kaikki tämän tilin palvelimet on jo yhdistetty.",
     "serverUrlPlaceholder": "",
-    "serverUrlHelp": "Suora URL Jellyfinille tai Emby palvelimelle. Käytä IP:porttia parhaan luotettavuuden takaamiseksi.",
     "serverNamePlaceholder": "Oma Mediapalvelin",
     "apiKeyPlaceholder": "Syötä API-avain",
-    "apiKeyHelp": "Löydetty mediapalvelimen hallintapaneelista API-avaimista tai Edistyneistä asetuksista.",
-    "connecting": "Yhdistetään...",
     "connectServer": "Yhdistä Palvelin",
     "removeServer": "Poista Palvelin",
     "removeServerConfirm": "Oletko varma, että haluat poistaa tämän palvelimen? Kaikki liittyvät istunnon tiedot säilytetään, mutta et voi seurata uusia istuntoja tältä palvelimelta.",
@@ -178,7 +167,6 @@
     "allFieldsRequired": "Kaikki kentät ovat pakollisia",
     "addServerDialogDescPlex": "Valitse Plex palvelin linkitetystä tililtäsi.",
     "addServerDialogDescOther": "Yhdistä Jellyfin tai Emby palvelin.",
-    "description": "",
     "discoveringServers": "Löydät saatavilla olevat Plex palvelimet...",
     "discoveringConnections": "Löytää yhteyksiä...",
     "plexAccount": "Plex Tili",
@@ -208,7 +196,6 @@
       "addMove": "",
       "fromBeginning": "",
       "movedOn": "",
-      "remove": "",
       "latitude": "",
       "longitude": "",
       "country": "",
@@ -232,14 +219,11 @@
       "copyUrl": "",
       "jellyfinRepoUrl": "",
       "autoDetectNote": "",
-      "close": "",
       "issueBlocked": "",
       "issueRestartRequired": "",
       "issueMalfunctioned": ""
     },
     "posterSource": {
-      "title": "",
-      "titleDesc": "",
       "label": "",
       "description": "",
       "automatic": "",
@@ -271,7 +255,6 @@
     "enableMobileAccess": "Ota Mobiilikäyttö Käyttöön",
     "enabling": "Poistetaan...",
     "devicesConnected": "",
-    "pendingTokens": "{{count}} odottaa parinumeroa",
     "addDevice": "Lisää Laite",
     "disableMobileAccess": "Poista Mobiilikäyttö Käytöstä",
     "revokeAllSessions": "Peruuta Kaikki",
@@ -294,7 +277,9 @@
     "removeDeviceConfirm": "Oletko varma, että haluat poistaa {{deviceName}}? Tämän laitteen on muodostettava pari, jotta yhteys muodostetaan uudelleen.",
     "externalUrlBanner": "Käytetäänkö käänteistä välityspalvelinta vai etäännyttä? Aseta sinun",
     "externalUrlBannerLink": "Ulkoinen URL",
-    "externalUrlBannerSuffix": "jotta mobiilisovellus voi muodostaa yhteyden palvelimellesi."
+    "externalUrlBannerSuffix": "jotta mobiilisovellus voi muodostaa yhteyden palvelimellesi.",
+    "pendingTokens_one": "",
+    "pendingTokens_other": "{{count}} odottaa parinumeroa"
   },
   "tailscale": {
     "title": "",
@@ -316,8 +301,6 @@
     "showLogs": "Näytä Lokit",
     "hideLogs": "Piilota Lokit",
     "noLogs": "Lokitietoja ei ole saatavilla.",
-    "exitNodeNone": "Ei Mitään",
-    "exitNodeOffline": "",
     "unknownError": "Tapahtui tuntematon virhe.",
     "disableConfirmTitle": "Poistetaanko Tailscale?",
     "disableConfirmDescription": "Tämä katkaisee Tracearr- yhteyden hännänverkkoon. Voit ottaa uudelleen käyttöön ilman uudelleenvaltuutusta.",
@@ -361,33 +344,12 @@
     "automatic": "",
     "startJob": "Aloita Työ"
   },
-  "advanced": {
-    "title": "Edistyneet Asetukset",
-    "externalUrl": "Ulkoinen URL",
-    "trustProxy": "Luota Välityspalvelimen Otsikkoihin",
-    "reverseProxy": "Käänteinen Välityspalvelin",
-    "connectionScenarios": "Yhteyden Skenaariot"
-  },
   "accessControl": {
-    "title": "Käyttöoikeuksien Hallinta",
-    "description": "",
     "allowGuestAccess": "Salli Vieraiden Käyttö",
     "allowGuestAccessDesc": "Kun poistettu käytöstä, vain palvelimen omistaja voi kirjautua tracearr:iin",
     "singleOwnerNote": "Huomautus: Kun vierailijoiden käyttö on poistettu käytöstä, vain palvelimen omistaja voi kirjautua sisään. Kaikki muut käyttäjät näkevät \"Pääsy estetty\" -viestin."
   },
   "import": {
-    "title": "Tuo Tiedot",
-    "jellystat": "Tuo Jellystatista",
-    "tautulli": "Tuo Tautulli",
-    "importProgress": "Tuo Edistyminen",
-    "importComplete": "Tuonti Valmis",
-    "importFailed": "Tuonti Epäonnistui",
-    "processed": "Käsitelty",
-    "page": "Sivu",
-    "imported": "Tuotu",
-    "skipped": "Ohitettu",
-    "enriched": "Rikastettu",
-    "errors": "Virheet",
     "noServers": "Palvelimia Ei Yhdistetty",
     "noServersHint": "Tietojen tuonti vaatii ainakin yhden yhdistetyn palvelimen.",
     "tautulliUrl": "",
@@ -424,8 +386,6 @@
     "uploadingBackup": "Ladataan varmuuskopiotiedostoa...",
     "plex": "",
     "jellyfinEmby": "",
-    "step1": "",
-    "step2": "",
     "apiKeyPlaceholder": "Tautulli API avain",
     "skipUserNotFoundPlex": "Käyttäjää ei löydy — Plex-käyttäjää ei ole olemassa Tracearrissa. Synkronoi palvelin ensin lisätäksesi kaikki käyttäjät.",
     "skipDuplicate": "Kaksoiskappale istunto — Istunto on jo tuotu aiemmin.",
@@ -446,10 +406,12 @@
     "serverTimezoneHelp": "",
     "importFullRange": "",
     "importFullRangeHelp": "",
-    "overlapSkipped": "",
-    "duplicates": "",
     "skipOverlap": "",
-    "skipDuplicatePlugin": ""
+    "skipDuplicatePlugin": "",
+    "overlapSkipped_one": "",
+    "overlapSkipped_other": "",
+    "duplicates_one": "",
+    "duplicates_other": ""
   },
   "plex": {
     "signInWithPlex": "Kirjaudu sisään Plexillä",
@@ -461,10 +423,7 @@
     "createAccount": "Luo Tili",
     "email": "Sähköposti",
     "password": "Salasana",
-    "displayName": "Näytön Nimi",
-    "createYourAccount": "Luo tilisi päästäksesi alkuun",
-    "signInToAccount": "Kirjaudu sisään tilillesi",
-    "useLocalAccount": "Käytä paikallista tiliä sen sijaan"
+    "displayName": "Näytön Nimi"
   },
   "update": {
     "title": "Päivitys Saatavilla",
@@ -489,8 +448,6 @@
     "earlier": "",
     "installedBadge": "",
     "latestBadge": "",
-    "changeCount_one": "",
-    "changeCount_other": "",
     "series": "",
     "docs": "",
     "source": "",
@@ -501,11 +458,14 @@
       "fix": "",
       "security": "",
       "note": ""
-    }
+    },
+    "changeCount_one": "",
+    "changeCount_other": ""
   },
   "serverHealth": {
     "unreachable": "{{serverName}} ei ole tavoitettavissa",
-    "multipleUnreachable": ""
+    "multipleUnreachable_one": "",
+    "multipleUnreachable_other": ""
   },
   "ipWarning": {
     "message": "Kaikki käyttäjät näyttävät käyttävän samaa IP-osoitetta tai paikallisia verkko-osoitteita. Tämä saattaa vaikuttaa sääntöpohjaiseen sijainti- tai IP-osoitteiden logiikkaan.",
@@ -524,9 +484,6 @@
     "lowDiskSpace": "Alhainen levytila — varmuuskopiot ja palautukset vaativat vähintään kaksi kertaa tietokannan koko vapaassa tilassa.",
     "backupHistory": "Varmuuskopioinnin Historia",
     "noBackups": "Ei vielä varmuuskopioita. Luo ensimmäinen varmuuskopiosi yllä.",
-    "size": "Koko",
-    "date": "Päivämäärä",
-    "type": "Tyyppi",
     "version": "Versio",
     "actions": "Toiminnot",
     "rowActions": "",
@@ -599,7 +556,6 @@
     "noDestinationDescription": "",
     "noDestinationHint": "",
     "addEmailDestination": "",
-    "enabled": "",
     "rowActions": "",
     "duplicate": "",
     "sendNow": "",
@@ -641,7 +597,6 @@
       "link": "",
       "bulletList": "",
       "linkHref": "",
-      "linkApply": "",
       "counter": ""
     },
     "editor": {
@@ -689,10 +644,12 @@
       },
       "windowSentence": {
         "fallback": "",
-        "fallbackLabel": "",
         "fixed": "",
         "fixedAfter": "",
-        "fixedLabel": ""
+        "fallbackLabel_one": "",
+        "fallbackLabel_other": "",
+        "fixedLabel_one": "",
+        "fixedLabel_other": ""
       },
       "windowMax": "",
       "days": "",
@@ -700,14 +657,12 @@
       "allServers": "",
       "searchServers": "",
       "noServers": "",
-      "serversSelected": "",
       "variantsNote": "",
       "serversHelp": "",
       "libraries": "",
       "allLibraries": "",
       "searchLibraries": "",
       "noLibraries": "",
-      "librariesSelected": "",
       "librariesHelp": "",
       "clear": "",
       "unknownLibrary": "",
@@ -729,11 +684,16 @@
           "mostPlayed": ""
         },
         "labels": {
-          "movies": "",
-          "shows": "",
-          "seasons": "",
-          "music": "",
-          "mostWatched": ""
+          "movies_one": "",
+          "movies_other": "",
+          "shows_one": "",
+          "shows_other": "",
+          "seasons_one": "",
+          "seasons_other": "",
+          "music_one": "",
+          "music_other": "",
+          "mostWatched_one": "",
+          "mostWatched_other": ""
         },
         "musicHelp": "",
         "mostWatchedHelp": ""
@@ -741,9 +701,6 @@
       "message": "",
       "senderName": "",
       "senderNameHelp": "",
-      "senderNameRequiredMulti": "",
-      "previewVariant_one": "",
-      "previewVariant_other": "",
       "variantHeading": "",
       "subject": "",
       "subjectHelp": "",
@@ -778,10 +735,8 @@
         "loadFailed": "",
         "willReceive": "",
         "excludedCount": "",
-        "notIncludable": "",
         "noAddress": "",
         "suppressedCount": "",
-        "joinedSinceLastSend": "",
         "newSinceLastSend": "",
         "manage": "",
         "manageHelp": "",
@@ -796,7 +751,6 @@
         },
         "selectAll": "",
         "selectPerson": "",
-        "selectedCount": "",
         "excludeSelected": "",
         "includeSelected": "",
         "noMatches": "",
@@ -816,7 +770,6 @@
         "include": "",
         "includeAction": "",
         "excludedHelp": "",
-        "notIncludableHelp": "",
         "excludedAfterSave": "",
         "includedAfterSave": "",
         "reasons": {
@@ -826,7 +779,15 @@
           "noServer": ""
         },
         "emptyTitle": "",
-        "emptyDescription": ""
+        "emptyDescription": "",
+        "notIncludable_one": "",
+        "notIncludable_other": "",
+        "joinedSinceLastSend_one": "",
+        "joinedSinceLastSend_other": "",
+        "selectedCount_one": "",
+        "selectedCount_other": "",
+        "notIncludableHelp_one": "",
+        "notIncludableHelp_other": ""
       },
       "delivery": {
         "title": "",
@@ -875,13 +836,13 @@
         "fromDomain": "",
         "fromDomainFail": "",
         "fromDomainUnknown": "",
-        "recipients_one": "",
-        "recipients_other": "",
         "recipientsFail": "",
         "recipientsChecking": "",
         "recipientsLoadFailed": "",
         "dns": "",
-        "dnsLink": ""
+        "dnsLink": "",
+        "recipients_one": "",
+        "recipients_other": ""
       },
       "actions": {
         "preview": "",
@@ -926,13 +887,22 @@
       "send": {
         "title": "",
         "previewing": "",
-        "summary": "",
         "nobody": "",
-        "trimmed_one": "",
-        "trimmed_other": "",
         "confirm": "",
-        "sending": ""
-      }
+        "sending": "",
+        "summary_one": "",
+        "summary_other": "",
+        "trimmed_one": "",
+        "trimmed_other": ""
+      },
+      "serversSelected_one": "",
+      "serversSelected_other": "",
+      "librariesSelected_one": "",
+      "librariesSelected_other": "",
+      "senderNameRequiredMulti_one": "",
+      "senderNameRequiredMulti_other": "",
+      "previewVariant_one": "",
+      "previewVariant_other": ""
     },
     "history": {
       "empty": "",
@@ -944,7 +914,6 @@
         "test": ""
       },
       "window": "",
-      "recipients": "",
       "recipientsEmpty": "",
       "finished": "",
       "open": "",
@@ -957,7 +926,6 @@
         "suppressed": "",
         "unknown": ""
       },
-      "attempts": "",
       "unknownHelp": "",
       "openSnapshot": "",
       "variant": "",
@@ -965,7 +933,11 @@
       "openVariantSnapshot": "",
       "snapshotTitle": "",
       "pruned": "",
-      "retryFailed": ""
+      "retryFailed": "",
+      "recipients_one": "",
+      "recipients_other": "",
+      "attempts_one": "",
+      "attempts_other": ""
     }
   },
   "email": {
@@ -1055,7 +1027,6 @@
       "hideKey": "",
       "test": "",
       "testing": "",
-      "save": "",
       "saveHint": "",
       "match": "",
       "mismatch": "",

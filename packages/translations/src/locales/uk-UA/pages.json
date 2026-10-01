@@ -27,9 +27,7 @@
     "plexAuthFailed": "Невдала авторизація Plex",
     "plexStartFailed": "Не вдалося виконати вхід до Plex",
     "serverConnectFailed": "Не вдалося підключитися до сервера",
-    "signupFailed": "Не вдалося зареєструватися",
     "createAccountFailed": "Не вдалося створити обліковий запис",
-    "loginFailed": "Не вдалося увійти",
     "invalidCredentials": "Невірна адреса електронної пошти або пароль",
     "claimCodeRequired": "Початкове налаштування потребує коду підтвердження",
     "enterClaimCode": "Введіть код захоплення",
@@ -55,12 +53,8 @@
     "title": "Користувачі",
     "showRemoved": "",
     "noUsersFound": "Користувачів не знайдено.",
-    "searchPlaceholder": "Пошук користувачів...",
-    "selectAllUsers": "Вибрати всіх користувачів {{count}}",
     "serversColumn": "Сервери",
     "resetTrustScore": "Скинути рейтинг довіри",
-    "resetTrustScoreTitle_one": "Скинути рейтинг довіри для {{count}} користувача",
-    "resetTrustScoreTitle_other": "Скинути рейтинг довіри для {{count}} користувачів",
     "resetTrustScoreConfirm": "Ви впевнені, що хочете скинути рейтинг довіри до 100? Цю дію не можна скасувати.",
     "mergeUsers": "Об'єднати користувачів",
     "mergeTitleSuggestion": "Це одна й та сама людина?",
@@ -74,12 +68,8 @@
     "mergeRequired": "{{name}} може увійти до Tracearr, тому {{name}} збережено.",
     "mergeLastActive": "Остання активність {{relative}}",
     "mergeNeverActive": "Ніколи не активний",
-    "mergeSessions_one": "",
-    "mergeSessions_other": "",
     "mergeMoreServers": "+{{count}}",
     "mergeWhatHappens": "Що відбувається",
-    "mergeMoves_one": "",
-    "mergeMoves_other": "",
     "mergeMovesNoCount": "",
     "mergeCarriesOver": "",
     "mergeDeleted": "",
@@ -95,17 +85,9 @@
     "mergeSameIdentity": "Ці облікові записи вже належать одному й тому самому користувачеві",
     "mergeSelectAllActive": "",
     "suggestionsTitle": "",
-    "suggestionsCount_one": "",
-    "suggestionsCount_other": "",
     "suggestionsPairEmail": "",
-    "suggestionsPairEmailMore_one": "",
-    "suggestionsPairEmailMore_other": "",
     "suggestionsPairEmailUsername": "",
-    "suggestionsPairEmailUsernameMore_one": "",
-    "suggestionsPairEmailUsernameMore_other": "",
     "suggestionsPairUsername": "",
-    "suggestionsPairUsernameMore_one": "",
-    "suggestionsPairUsernameMore_other": "",
     "suggestionsSheetDescription": "",
     "suggestionsReview": "",
     "suggestionsNotSame": "Не та сама людина",
@@ -120,7 +102,35 @@
     "suggestionsError": "",
     "filterHasAccessTo": "Має доступ до",
     "filterHasAccessToPlaceholder": "Будь-який сервер",
-    "filterHasAccessToHint": ""
+    "filterHasAccessToHint": "",
+    "selectAllUsers_one": "",
+    "selectAllUsers_few": "",
+    "selectAllUsers_many": "",
+    "selectAllUsers_other": "Вибрати всіх користувачів {{count}}",
+    "resetTrustScoreTitle_one": "Скинути рейтинг довіри для {{count}} користувача",
+    "resetTrustScoreTitle_few": "",
+    "resetTrustScoreTitle_many": "",
+    "resetTrustScoreTitle_other": "Скинути рейтинг довіри для {{count}} користувачів",
+    "mergeMoves_one": "",
+    "mergeMoves_few": "",
+    "mergeMoves_many": "",
+    "mergeMoves_other": "",
+    "suggestionsCount_one": "",
+    "suggestionsCount_few": "",
+    "suggestionsCount_many": "",
+    "suggestionsCount_other": "",
+    "suggestionsPairEmailMore_one": "",
+    "suggestionsPairEmailMore_few": "",
+    "suggestionsPairEmailMore_many": "",
+    "suggestionsPairEmailMore_other": "",
+    "suggestionsPairEmailUsernameMore_one": "",
+    "suggestionsPairEmailUsernameMore_few": "",
+    "suggestionsPairEmailUsernameMore_many": "",
+    "suggestionsPairEmailUsernameMore_other": "",
+    "suggestionsPairUsernameMore_one": "",
+    "suggestionsPairUsernameMore_few": "",
+    "suggestionsPairUsernameMore_many": "",
+    "suggestionsPairUsernameMore_other": ""
   },
   "userDetail": {
     "backToUsers": "Назад до користувачів",
@@ -159,12 +169,6 @@
   "history": {
     "title": "Історія",
     "description": "",
-    "loadingMore": "Завантажується більше...",
-    "scrollForMore": "Прокрутіть для додаткової інформації",
-    "showingAllResults": "Показано всі {{total}} результати",
-    "deleteSession_one": "Видалити {{count}} сеанс",
-    "deleteSession_other": "Видалити {{count}} сеансів",
-    "deleteSessionsConfirm": "Ви впевнені, що хочете видалити? Цю дію не можна скасувати.",
     "totalPlays": "",
     "uniqueTitles": "",
     "uniqueUsers": ""
@@ -234,7 +238,6 @@
       "noDuplicatesTitle": "",
       "noDuplicatesDesc": "",
       "colTitle": "",
-      "colType": "",
       "colMatchType": "",
       "colCopies": "",
       "colRecoverable": "",
@@ -296,7 +299,10 @@
         "title": "",
         "fallbackBody": "",
         "progress": "",
-        "snapshotsSuffix": ""
+        "snapshotsSuffix_one": "",
+        "snapshotsSuffix_few": "",
+        "snapshotsSuffix_many": "",
+        "snapshotsSuffix_other": ""
       },
       "multiServer": {
         "title": "",
@@ -319,8 +325,11 @@
     "versionsBackfill": {
       "banner": "",
       "action": "",
-      "syncFailed": "",
-      "syncStarted": ""
+      "syncStarted": "",
+      "syncFailed_one": "",
+      "syncFailed_few": "",
+      "syncFailed_many": "",
+      "syncFailed_other": ""
     }
   },
   "activity": {
@@ -340,11 +349,8 @@
   "violations": {
     "title": "Порушення",
     "tryAdjustingFilters": "Спробуйте налаштувати фільтри",
-    "selectAllViolations": "Виберіть усі {{count}} порушень, що відповідають фільтрам",
     "dismissViolation": "Відхилити порушення",
     "dismissViolationConfirm": "Ви впевнені, що хочете відхилити це порушення? Це назавжди видалить його з журналу порушень.",
-    "dismissViolation_one": "Відхилити {{count}} порушення",
-    "dismissViolation_other": "Відхилити {{count}} порушень",
     "dismissViolationsConfirm": "Ви впевнені, що хочете відхилити? Їх буде видалено з журналу порушень і відновлення пов'язаних з ним очок довіри.",
     "noViolationsFound": "Порушень не знайдено",
     "noViolationsRecorded": "Порушень поки що не зафіксовано.",
@@ -353,7 +359,6 @@
     "allRules": "Всі правила",
     "filterPeople": "Люди",
     "allPeople": "Усі люди",
-    "peopleSelectedCount": "",
     "personFilterPlaceholder": "",
     "personFilterEmpty": "",
     "personFilterError": "",
@@ -380,10 +385,23 @@
       "conditionGroup": "Група умов {{index}}",
       "matched": "",
       "actual": "Актуальне",
-      "relatedSessions": "Сумісна сесія {{count}}",
       "relatedSessions_one": "Сумісна сесія {{count}}",
+      "relatedSessions_few": "",
+      "relatedSessions_many": "",
       "relatedSessions_other": ""
-    }
+    },
+    "selectAllViolations_one": "",
+    "selectAllViolations_few": "",
+    "selectAllViolations_many": "",
+    "selectAllViolations_other": "Виберіть усі {{count}} порушень, що відповідають фільтрам",
+    "dismissViolations_one": "Відхилити {{count}} порушення",
+    "dismissViolations_few": "",
+    "dismissViolations_many": "",
+    "dismissViolations_other": "Відхилити {{count}} порушень",
+    "peopleSelectedCount_one": "",
+    "peopleSelectedCount_few": "",
+    "peopleSelectedCount_many": "",
+    "peopleSelectedCount_other": ""
   },
   "automations": {
     "actions": {
@@ -487,10 +505,12 @@
       "openInEditor": "",
       "tabsLabel": "",
       "emptyRan": "",
-      "emptyRanDescription_one": "",
-      "emptyRanDescription_other": "",
       "item": "",
-      "recordedViolation": ""
+      "recordedViolation": "",
+      "emptyRanDescription_one": "",
+      "emptyRanDescription_few": "",
+      "emptyRanDescription_many": "",
+      "emptyRanDescription_other": ""
     },
     "allKinds": "",
     "allStatuses": "Всі статуси",
@@ -499,7 +519,6 @@
       "nameHelper": "",
       "namePlaceholder": "",
       "activeLabel": "",
-      "back": "Назад",
       "submit": "",
       "submitting": "",
       "customize": "",
@@ -564,7 +583,6 @@
       "searchPlaceholder": "",
       "noMatches": "",
       "clearSelection": "",
-      "selectedCount": "",
       "scope": {
         "label": "",
         "global": "",
@@ -684,12 +702,16 @@
         "placeholderAction": ""
       },
       "footer": {
+        "ready": "",
+        "search": "",
         "problems_one": "",
+        "problems_few": "",
+        "problems_many": "",
         "problems_other": "",
         "remaining_one": "",
-        "remaining_other": "",
-        "ready": "",
-        "search": ""
+        "remaining_few": "",
+        "remaining_many": "",
+        "remaining_other": ""
       },
       "leave": {
         "title": "",
@@ -710,7 +732,11 @@
         "sampleTitle": "",
         "sampleGone": "",
         "backToLive": ""
-      }
+      },
+      "selectedCount_one": "",
+      "selectedCount_few": "",
+      "selectedCount_many": "",
+      "selectedCount_other": ""
     },
     "categories": {
       "session_behavior": "",
@@ -724,12 +750,8 @@
     "createAutomation": "",
     "customAutomation": "",
     "deleteAutomationConfirm": "",
-    "deleteAutomation_one": "",
-    "deleteAutomation_other": "",
     "deleteAutomationsConfirm": "",
     "describe": {
-      "more_one": "",
-      "more_other": "",
       "noValues": "",
       "includesSameDevice": "",
       "uniqueIps": "",
@@ -748,8 +770,12 @@
       "appliesTo": "",
       "duration": {
         "minutes_one": "",
+        "minutes_few": "",
+        "minutes_many": "",
         "minutes_other": "",
         "days_one": "",
+        "days_few": "",
+        "days_many": "",
         "days_other": ""
       },
       "triggers": {
@@ -883,16 +909,22 @@
         "text": "",
         "boolean": "",
         "listed": ""
-      }
+      },
+      "more_one": "",
+      "more_few": "",
+      "more_many": "",
+      "more_other": ""
     },
     "description": "",
     "detail": {
       "notFound": "",
       "title": "",
       "unsaved": "",
+      "noRuns": "",
       "runsLine_one": "",
-      "runsLine_other": "",
-      "noRuns": ""
+      "runsLine_few": "",
+      "runsLine_many": "",
+      "runsLine_other": ""
     },
     "disable": "",
     "editAutomation": "",
@@ -1583,7 +1615,11 @@
       "trigger": "",
       "allTriggers": ""
     },
-    "openGallery": ""
+    "openGallery": "",
+    "deleteAutomation_one": "",
+    "deleteAutomation_few": "",
+    "deleteAutomation_many": "",
+    "deleteAutomation_other": ""
   },
   "terminateStream": {
     "title": "Завершити потік",
@@ -1591,13 +1627,7 @@
     "messageLabel": "Повідомлення користувачу (необов'язково)",
     "messagePlaceholder": "наприклад, Будь ласка, не діліться своїм обліковим записом",
     "messageHint": "Це повідомлення буде показано їм під час відтворення",
-    "terminating": "Завершення...",
-    "killStream": "Завершити потік"
-  },
-  "notFound": {
-    "title": "",
-    "heading": "Сторінку не знайдено",
-    "description": "Сторінка, яку ви шукаєте, не існує, або була переміщена."
+    "terminating": "Завершення..."
   },
   "settings": {
     "plex": {
@@ -1622,10 +1652,8 @@
         "unknown": ""
       },
       "connectionsReachable": "{{reachable}} зі списку контактів {{total}}",
-      "connectionsAvailable": "Доступні {{count}} з'єднання",
       "hideFiltered": "Приховати фільтровані",
       "showAll": "Показати всі",
-      "moreConnections": "+{{count}} більше підключень",
       "connectingTo": "Підключення до {{name}}...",
       "ownerOnly": "",
       "noAccountsLinked": "Немає пов'язаних облікових записів Plex",
@@ -1634,21 +1662,28 @@
       "linkAnotherAccount": "Прив'язати інший обліковий запис Plex",
       "linking": "Посилання...",
       "loginEnabled": "Вхід увімкнено",
-      "serversConnected_one": "{{count}} сервер підключений",
-      "serversConnected_other": "{{count}} серверів підключено",
       "unlinkAccount": "Від'єднати обліковий запис Plex",
       "reauthorizeAccount": "",
       "deleteServersFirst": "Спочатку видаліть підключені сервери, щоб від'єднати цей обліковий запис",
       "unlinkPlexAccount": "Від'єднати акаунт Plex",
-      "unlinkConfirm": "Ви впевнені, що хочете від'єднати цей обліковий запис Plex? Ви не зможете додавати сервери з цього акаунту, доки не прив'яжете його знову."
+      "unlinkConfirm": "Ви впевнені, що хочете від'єднати цей обліковий запис Plex? Ви не зможете додавати сервери з цього акаунту, доки не прив'яжете його знову.",
+      "connectionsAvailable_one": "",
+      "connectionsAvailable_few": "",
+      "connectionsAvailable_many": "",
+      "connectionsAvailable_other": "Доступні {{count}} з'єднання",
+      "moreConnections_one": "",
+      "moreConnections_few": "",
+      "moreConnections_many": "",
+      "moreConnections_other": "+{{count}} більше підключень",
+      "serversConnected_one": "{{count}} сервер підключений",
+      "serversConnected_few": "",
+      "serversConnected_many": "",
+      "serversConnected_other": "{{count}} серверів підключено"
     },
     "destinations": {
       "add": "",
-      "alertsGoTo": "",
-      "alertsGoTo_other": "",
       "builtinNote": "",
       "clearSecret": "",
-      "delete": "",
       "deleteConfirm": "",
       "description": "",
       "emailDescription": "",
@@ -1744,13 +1779,21 @@
         "push": "",
         "webToast": ""
       },
-      "usedBy": "",
-      "usedBy_other": "",
-      "usedByNewsletters": "",
-      "usedByNewsletters_other": "",
       "violationsOff": "",
       "violationsOn": "",
-      "webToastNote": ""
+      "webToastNote": "",
+      "alertsGoTo_one": "",
+      "alertsGoTo_few": "",
+      "alertsGoTo_many": "",
+      "alertsGoTo_other": "",
+      "usedBy_one": "",
+      "usedBy_few": "",
+      "usedBy_many": "",
+      "usedBy_other": "",
+      "usedByNewsletters_one": "",
+      "usedByNewsletters_few": "",
+      "usedByNewsletters_many": "",
+      "usedByNewsletters_other": ""
     },
     "jobs": {
       "runNow": "Запустити зараз",
@@ -1803,14 +1846,12 @@
     "basemapMissing": "",
     "webglUnavailable": "",
     "webglHint": "",
-    "basemapShadowed": "",
     "badMounts": ""
   },
   "devices": {
     "title": "Сумісність пристроїв",
     "description": "",
     "analyzedSessions": "",
-    "analyzedSessionsTooltip": "",
     "directPlayRate": "Час безпоритви",
     "videoAndAudio": "",
     "uniqueDevices": "Унікальні пристрої",
@@ -1832,7 +1873,11 @@
     "directPlayLow": "",
     "topTranscodingUsers": "Топ користувачів з транскодування",
     "topTranscodingUsersDesc": "",
-    "noTranscodingUsers": "Користувачів з транскодування не знайдено"
+    "noTranscodingUsers": "Користувачів з транскодування не знайдено",
+    "analyzedSessionsTooltip_one": "",
+    "analyzedSessionsTooltip_few": "",
+    "analyzedSessionsTooltip_many": "",
+    "analyzedSessionsTooltip_other": ""
   },
   "statsBandwidth": {
     "title": "Пропускна здатність",
@@ -1880,9 +1925,6 @@
     "libraryItems": "Елементи бібліотеки",
     "environment": "Навколишнє середовище",
     "systemInformation": "Інформація про систему",
-    "cpu": "",
-    "memory": "Пам'ять",
-    "uptime": "Час роботи",
     "database": "База даних",
     "databaseDesc": "",
     "totalSize": "Загальний розмір",
@@ -1944,27 +1986,36 @@
         }
       },
       "card": {
-        "newEpisodes_one": "{{count}} нова серія",
-        "newEpisodes_other": "{{count}} нових серій",
-        "replacedEpisodes_one": "",
-        "replacedEpisodes_other": "",
         "addedAgo": "додано {{date}}",
         "addedCompactAgo": "",
-        "newEpisodesChip": ""
+        "newEpisodes_one": "{{count}} нова серія",
+        "newEpisodes_few": "",
+        "newEpisodes_many": "",
+        "newEpisodes_other": "{{count}} нових серій",
+        "replacedEpisodes_one": "",
+        "replacedEpisodes_few": "",
+        "replacedEpisodes_many": "",
+        "replacedEpisodes_other": "",
+        "newEpisodesChip_one": "",
+        "newEpisodesChip_few": "",
+        "newEpisodesChip_many": "",
+        "newEpisodesChip_other": ""
       },
       "deadWeight": {
         "title": "",
-        "summary": "",
         "empty": "",
         "columns": {
           "poster": "",
           "title": "",
-          "size": "",
           "added": "",
           "servers": ""
         },
         "viewAll": "",
-        "viewAllTooltip": ""
+        "viewAllTooltip": "",
+        "summary_one": "",
+        "summary_few": "",
+        "summary_many": "",
+        "summary_other": ""
       },
       "loadError": ""
     },
@@ -1980,15 +2031,16 @@
       "chart": {
         "title": "",
         "valueLabel": "",
+        "ariaLabel": "",
         "itemCount_one": "",
-        "itemCount_other": "",
-        "ariaLabel": ""
+        "itemCount_few": "",
+        "itemCount_many": "",
+        "itemCount_other": ""
       },
       "table": {
         "title": "",
         "columns": {
           "genre": "",
-          "items": "",
           "plays": "",
           "watchTime": ""
         },
@@ -2015,8 +2067,12 @@
         "loadError": "",
         "meta": {
           "seasons_one": "",
+          "seasons_few": "",
+          "seasons_many": "",
           "seasons_other": "",
           "episodes_one": "",
+          "episodes_few": "",
+          "episodes_many": "",
           "episodes_other": ""
         },
         "availability": {
@@ -2061,7 +2117,6 @@
         "lastWatchedAgo": "",
         "completionLabel": "",
         "columns": {
-          "user": "",
           "plays": "",
           "episodes": "",
           "completion": "",
@@ -2072,15 +2127,17 @@
         "title": "",
         "loadError": "",
         "empty": "",
-        "episodeCount_one": "",
-        "episodeCount_other": "",
         "watchedPct": "",
         "stripSummary": "",
         "episodeLabel": {
           "watched": "",
           "partial": "",
           "unwatched": ""
-        }
+        },
+        "episodeCount_one": "",
+        "episodeCount_few": "",
+        "episodeCount_many": "",
+        "episodeCount_other": ""
       },
       "platforms": {
         "title": "",
@@ -2088,7 +2145,6 @@
         "empty": "",
         "unknown": "",
         "columns": {
-          "platform": "",
           "plays": "",
           "watchTime": ""
         }
@@ -2100,10 +2156,6 @@
         "watched": "",
         "notWatched": "",
         "columns": {
-          "date": "",
-          "user": "",
-          "content": "",
-          "server": "",
           "duration": ""
         }
       },
@@ -2112,11 +2164,8 @@
         "loadError": "",
         "unknownLibrary": "",
         "columns": {
-          "server": "",
           "library": "",
-          "quality": "",
           "episodes": "",
-          "size": "",
           "added": ""
         },
         "versionLabel": ""
@@ -2126,10 +2175,6 @@
       "rankSuffix": ", місце {{rank}}",
       "onServers": "На {{servers}}",
       "addedLabel": "Додано {{date}}",
-      "plays_one": "{{count}} перегляд",
-      "plays_other": "{{count}} переглядів",
-      "viewers_one": "{{count}} глядач",
-      "viewers_other": "{{count}} глядачів",
       "watchedState": {
         "watched": "Переглянуто",
         "partial": "Частково переглянуто",
@@ -2143,12 +2188,20 @@
         "resolution": ""
       },
       "rankChip": "",
-      "playsCompact_one": "",
-      "playsCompact_other": "",
       "versionsChip": "",
+      "moreServers": "",
+      "viewers_one": "{{count}} глядач",
+      "viewers_few": "",
+      "viewers_many": "",
+      "viewers_other": "{{count}} глядачів",
+      "playsCompact_one": "",
+      "playsCompact_few": "",
+      "playsCompact_many": "",
+      "playsCompact_other": "",
       "versions_one": "",
-      "versions_other": "",
-      "moreServers": ""
+      "versions_few": "",
+      "versions_many": "",
+      "versions_other": ""
     },
     "grid": {
       "toolbar": {
@@ -2158,7 +2211,6 @@
         "showsToggle": "",
         "searchPlaceholder": "",
         "searchLabel": "",
-        "removeFilter": "",
         "filtersLabel": "",
         "filtersSheetTitle": "",
         "done": "",
@@ -2200,6 +2252,8 @@
         },
         "count": "",
         "countTotal_one": "",
+        "countTotal_few": "",
+        "countTotal_many": "",
         "countTotal_other": ""
       },
       "scrubber": {
@@ -2229,7 +2283,6 @@
     "columns": {
       "requester": "",
       "title": "",
-      "status": "",
       "requested": "",
       "wait": "",
       "seasons": "",
@@ -2284,11 +2337,14 @@
       "linkSeerr": "",
       "kpi": {
         "requested": "",
-        "landedOf": "",
         "watched": "",
         "neverPlayed": "",
         "ofLanded": "",
-        "onDisk": ""
+        "onDisk": "",
+        "landedOf_one": "",
+        "landedOf_few": "",
+        "landedOf_many": "",
+        "landedOf_other": ""
       }
     },
     "funnel": {

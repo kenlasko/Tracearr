@@ -49,14 +49,9 @@
     }
   },
   "general": {
-    "title": "Γενικές Ρυθμίσεις",
     "unitSystem": "Σύστημα Μονάδων",
     "metric": "Μετρικό (χλμ, χλμ/ώρα)",
     "imperial": "Αυτοκρατορικό (mi, mph)",
-    "timezone": "",
-    "primaryAuth": "Κύρια Μέθοδος Ταυτοποίησης",
-    "localAccount": "Τοπικός Λογαριασμός",
-    "plexAccount": "Λογαριασμός Plex",
     "language": "Γλώσσα",
     "languageDescription": "Επιλέξτε την προτιμώμενη γλώσσα εμφάνισης.",
     "helpTranslate": "Βοηθήστε στη μετάφραση του Tracearr",
@@ -127,7 +122,6 @@
       "size": "",
       "files": "",
       "need": "",
-      "needHint": "",
       "free": "",
       "freeOf": "",
       "floor": "",
@@ -138,18 +132,16 @@
       "never": "",
       "diskLimited": "",
       "loadError": "",
-      "notPersisting": ""
+      "notPersisting": "",
+      "needHint_one": "",
+      "needHint_other": ""
     }
   },
   "servers": {
-    "title": "Συνδεδεμένοι Διακομιστές",
     "addServer": "Προσθήκη Διακομιστή",
     "serverName": "Όνομα Διακομιστή",
     "serverUrl": "Url Διακομιστή",
-    "syncInterval": "Διάστημα Συγχρονισμού",
     "testConnection": "Δοκιμή Σύνδεσης",
-    "connectionSuccess": "Επιτυχής σύνδεση",
-    "connectionFailed": "Αποτυχία σύνδεσης",
     "noServersConnected": "Δεν υπάρχουν συνδεδεμένοι διακομιστές",
     "noServersConnectedHint": "Κάντε κλικ στο κουμπί \"Προσθήκη διακομιστή\" για να συνδέσετε έναν εξυπηρετητή Jellyfin ή Emby",
     "serverType": "Τύπος Διακομιστή",
@@ -162,11 +154,8 @@
     "allServersConnected": "Όλοι Οι Διακομιστές Συνδεδεμένοι",
     "allServersConnectedDesc": "Όλοι οι διακομιστές αυτού του λογαριασμού είναι ήδη συνδεδεμένοι.",
     "serverUrlPlaceholder": "",
-    "serverUrlHelp": "Άμεση διεύθυνση URL στον εξυπηρετητή Jellyfin ή Emby. Χρησιμοποιήστε το IP:port για καλύτερη αξιοπιστία.",
     "serverNamePlaceholder": "Ο Διακομιστής Μέσων Μου",
     "apiKeyPlaceholder": "Εισάγετε το κλειδί API σας",
-    "apiKeyHelp": "Βρέθηκε στον πίνακα εργαλείων του διακομιστή πολυμέσων σας κάτω από τα κλειδιά API ή τις ρυθμίσεις για προχωρημένους.",
-    "connecting": "Σύνδεση...",
     "connectServer": "Σύνδεση Διακομιστή",
     "removeServer": "Αφαίρεση Διακομιστή",
     "removeServerConfirm": "Είστε βέβαιοι ότι θέλετε να καταργήσετε αυτόν τον διακομιστή? Όλα τα συσχετιζόμενα δεδομένα συνεδρίας θα διατηρηθούν, αλλά δεν θα μπορείτε να παρακολουθείτε νέες συνεδρίες από αυτόν το διακομιστή.",
@@ -178,7 +167,6 @@
     "allFieldsRequired": "Όλα τα πεδία είναι υποχρεωτικά",
     "addServerDialogDescPlex": "Επιλέξτε έναν διακομιστή Plex από τον συνδεδεμένο λογαριασμό σας.",
     "addServerDialogDescOther": "Συνδέστε ένα διακομιστή Jellyfin ή Emby.",
-    "description": "",
     "discoveringServers": "Ανακαλύπτοντας διαθέσιμους διακομιστές Plex...",
     "discoveringConnections": "Ανακαλύπτοντας συνδέσεις...",
     "plexAccount": "Λογαριασμός Plex",
@@ -208,7 +196,6 @@
       "addMove": "",
       "fromBeginning": "",
       "movedOn": "",
-      "remove": "",
       "latitude": "",
       "longitude": "",
       "country": "",
@@ -232,14 +219,11 @@
       "copyUrl": "",
       "jellyfinRepoUrl": "",
       "autoDetectNote": "",
-      "close": "",
       "issueBlocked": "",
       "issueRestartRequired": "",
       "issueMalfunctioned": ""
     },
     "posterSource": {
-      "title": "",
-      "titleDesc": "",
       "label": "",
       "description": "",
       "automatic": "",
@@ -271,7 +255,6 @@
     "enableMobileAccess": "Ενεργοποίηση Πρόσβασης Για Κινητά",
     "enabling": "Ενεργοποίηση...",
     "devicesConnected": "",
-    "pendingTokens": "{{count}} tokens σε αναμονή ζεύγους",
     "addDevice": "Προσθήκη Συσκευής",
     "disableMobileAccess": "Απενεργοποίηση Πρόσβασης Για Κινητά",
     "revokeAllSessions": "Ανάκληση Όλων",
@@ -294,7 +277,9 @@
     "removeDeviceConfirm": "Είστε βέβαιοι ότι θέλετε να καταργήσετε το {{deviceName}}? Αυτή η συσκευή θα πρέπει να γίνει ξανά σύζευξη για να επανασυνδεθείτε.",
     "externalUrlBanner": "Χρησιμοποιώντας έναν αντίστροφο διακομιστή μεσολάβησης ή πρόσβαση εξ αποστάσεως? Ορίστε σας",
     "externalUrlBannerLink": "Εξωτερική Διεύθυνση URL",
-    "externalUrlBannerSuffix": "ώστε η εφαρμογή για κινητά να μπορεί να συνδεθεί με το διακομιστή σας."
+    "externalUrlBannerSuffix": "ώστε η εφαρμογή για κινητά να μπορεί να συνδεθεί με το διακομιστή σας.",
+    "pendingTokens_one": "",
+    "pendingTokens_other": "{{count}} tokens σε αναμονή ζεύγους"
   },
   "tailscale": {
     "title": "Κλίμακα Ουράς VPN",
@@ -316,8 +301,6 @@
     "showLogs": "Εμφάνιση Αρχείων Καταγραφής",
     "hideLogs": "Απόκρυψη Αρχείων Καταγραφής",
     "noLogs": "Δεν υπάρχει διαθέσιμη έξοδος καταγραφής.",
-    "exitNodeNone": "Κανένα",
-    "exitNodeOffline": "(χωρίς σύνδεση)",
     "unknownError": "Παρουσιάστηκε ένα άγνωστο σφάλμα.",
     "disableConfirmTitle": "Απενεργοποίηση Κλίμακας Ουράς?",
     "disableConfirmDescription": "Αυτό θα αποσυνδέσει το Tracearr από το tailnet. Μπορείτε να το ενεργοποιήσετε ξανά χωρίς εκ νέου άδεια.",
@@ -361,33 +344,12 @@
     "automatic": "",
     "startJob": "Έναρξη Εργασίας"
   },
-  "advanced": {
-    "title": "Ρυθμίσεις Για Προχωρημένους",
-    "externalUrl": "Εξωτερική Διεύθυνση URL",
-    "trustProxy": "Εμπιστοσύνη Επικεφαλίδων Διαμεσολαβητή",
-    "reverseProxy": "Αντίστροφος Διακομιστής Μεσολάβησης",
-    "connectionScenarios": "Σενάρια Σύνδεσης"
-  },
   "accessControl": {
-    "title": "Έλεγχος Πρόσβασης",
-    "description": "",
     "allowGuestAccess": "Επιτρέψτε Την Πρόσβαση Επισκέπτη",
     "allowGuestAccessDesc": "Όταν είναι απενεργοποιημένη, μόνο ο ιδιοκτήτης του διακομιστή μπορεί να συνδεθεί στο Tracearr",
     "singleOwnerNote": "Σημείωση: Όταν η πρόσβαση του επισκέπτη είναι απενεργοποιημένη, μόνο ο ιδιοκτήτης του διακομιστή μπορεί να εισέλθει. Όλοι οι άλλοι χρήστες θα δουν ένα μήνυμα \"Απαγορεύεται η πρόσβαση\"."
   },
   "import": {
-    "title": "Εισαγωγή Δεδομένων",
-    "jellystat": "Εισαγωγή από Jellystat",
-    "tautulli": "Εισαγωγή από Tautulli",
-    "importProgress": "Πρόοδος Εισαγωγής",
-    "importComplete": "Η Εισαγωγή Ολοκληρώθηκε",
-    "importFailed": "Αποτυχία Εισαγωγής",
-    "processed": "Επεξεργάστηκε",
-    "page": "Σελίδα",
-    "imported": "Εισήχθησαν",
-    "skipped": "Παράλειψη",
-    "enriched": "Εμπλουτισμένο",
-    "errors": "Σφάλματα",
     "noServers": "Δεν Υπάρχουν Συνδεδεμένοι Διακομιστές",
     "noServersHint": "Χρειάζεστε τουλάχιστον έναν συνδεδεμένο διακομιστή για την εισαγωγή δεδομένων.",
     "tautulliUrl": "Διεύθυνση URL Tautulli",
@@ -424,8 +386,6 @@
     "uploadingBackup": "Μεταφόρτωση αρχείου αντιγράφου ασφαλείας...",
     "plex": "",
     "jellyfinEmby": "",
-    "step1": "",
-    "step2": "",
     "apiKeyPlaceholder": "Το Tautulli API κλειδί σας",
     "skipUserNotFoundPlex": "Χρήστης δεν βρέθηκε — Ο χρήστης Plex δεν υπάρχει στο Tracearr. Συγχρονίστε πρώτα το διακομιστή σας για να προσθέσετε όλους τους χρήστες.",
     "skipDuplicate": "Διπλότυπη συνεδρία - Η συνεδρία έχει ήδη εισαχθεί προηγουμένως.",
@@ -446,10 +406,12 @@
     "serverTimezoneHelp": "",
     "importFullRange": "",
     "importFullRangeHelp": "",
-    "overlapSkipped": "",
-    "duplicates": "",
     "skipOverlap": "",
-    "skipDuplicatePlugin": ""
+    "skipDuplicatePlugin": "",
+    "overlapSkipped_one": "",
+    "overlapSkipped_other": "",
+    "duplicates_one": "",
+    "duplicates_other": ""
   },
   "plex": {
     "signInWithPlex": "Συνδεθείτε με Plex",
@@ -461,10 +423,7 @@
     "createAccount": "Δημιουργία Λογαριασμού",
     "email": "E-mail",
     "password": "Κωδικός",
-    "displayName": "Εμφανιζόμενο Όνομα",
-    "createYourAccount": "Δημιουργήστε το λογαριασμό σας για να ξεκινήσετε",
-    "signInToAccount": "Συνδεθείτε στο λογαριασμό σας",
-    "useLocalAccount": "Χρήση τοπικού λογαριασμού"
+    "displayName": "Εμφανιζόμενο Όνομα"
   },
   "update": {
     "title": "Διαθέσιμη Ενημέρωση",
@@ -489,8 +448,6 @@
     "earlier": "",
     "installedBadge": "",
     "latestBadge": "",
-    "changeCount_one": "",
-    "changeCount_other": "",
     "series": "",
     "docs": "",
     "source": "",
@@ -501,11 +458,14 @@
       "fix": "",
       "security": "",
       "note": ""
-    }
+    },
+    "changeCount_one": "",
+    "changeCount_other": ""
   },
   "serverHealth": {
     "unreachable": "Το {{serverName}} δεν είναι προσβάσιμο",
-    "multipleUnreachable": "{{count}} διακομιστές απρόσιτοι: {{serverNames}}"
+    "multipleUnreachable_one": "",
+    "multipleUnreachable_other": "{{count}} διακομιστές απρόσιτοι: {{serverNames}}"
   },
   "ipWarning": {
     "message": "Όλοι οι χρήστες φαίνεται να χρησιμοποιούν την ίδια διεύθυνση IP ή IP τοπικού δικτύου. Αυτό μπορεί να επηρεάσει τη λογική βάσει κανόνων για την τοποθεσία ή τις διευθύνσεις IP.",
@@ -524,9 +484,6 @@
     "lowDiskSpace": "Χαμηλό χώρο στο δίσκο - αντίγραφα ασφαλείας και αποκαθιστά απαιτούν τουλάχιστον δύο φορές το μέγεθος της βάσης δεδομένων στον ελεύθερο χώρο.",
     "backupHistory": "Ιστορικό Αντιγράφων Ασφαλείας",
     "noBackups": "Δεν υπάρχουν αντίγραφα ασφαλείας. Δημιουργήστε το πρώτο σας αντίγραφο ασφαλείας παραπάνω.",
-    "size": "Μέγεθος",
-    "date": "Ημερομηνία",
-    "type": "Τύπος",
     "version": "Έκδοση",
     "actions": "Ενέργειες",
     "rowActions": "",
@@ -599,7 +556,6 @@
     "noDestinationDescription": "",
     "noDestinationHint": "",
     "addEmailDestination": "",
-    "enabled": "",
     "rowActions": "",
     "duplicate": "",
     "sendNow": "",
@@ -641,7 +597,6 @@
       "link": "",
       "bulletList": "",
       "linkHref": "",
-      "linkApply": "",
       "counter": ""
     },
     "editor": {
@@ -689,10 +644,12 @@
       },
       "windowSentence": {
         "fallback": "",
-        "fallbackLabel": "",
         "fixed": "",
         "fixedAfter": "",
-        "fixedLabel": ""
+        "fallbackLabel_one": "",
+        "fallbackLabel_other": "",
+        "fixedLabel_one": "",
+        "fixedLabel_other": ""
       },
       "windowMax": "",
       "days": "",
@@ -700,14 +657,12 @@
       "allServers": "",
       "searchServers": "",
       "noServers": "",
-      "serversSelected": "",
       "variantsNote": "",
       "serversHelp": "",
       "libraries": "",
       "allLibraries": "",
       "searchLibraries": "",
       "noLibraries": "",
-      "librariesSelected": "",
       "librariesHelp": "",
       "clear": "",
       "unknownLibrary": "",
@@ -729,11 +684,16 @@
           "mostPlayed": ""
         },
         "labels": {
-          "movies": "",
-          "shows": "",
-          "seasons": "",
-          "music": "",
-          "mostWatched": ""
+          "movies_one": "",
+          "movies_other": "",
+          "shows_one": "",
+          "shows_other": "",
+          "seasons_one": "",
+          "seasons_other": "",
+          "music_one": "",
+          "music_other": "",
+          "mostWatched_one": "",
+          "mostWatched_other": ""
         },
         "musicHelp": "",
         "mostWatchedHelp": ""
@@ -741,9 +701,6 @@
       "message": "",
       "senderName": "",
       "senderNameHelp": "",
-      "senderNameRequiredMulti": "",
-      "previewVariant_one": "",
-      "previewVariant_other": "",
       "variantHeading": "",
       "subject": "",
       "subjectHelp": "",
@@ -778,10 +735,8 @@
         "loadFailed": "",
         "willReceive": "",
         "excludedCount": "",
-        "notIncludable": "",
         "noAddress": "",
         "suppressedCount": "",
-        "joinedSinceLastSend": "",
         "newSinceLastSend": "",
         "manage": "",
         "manageHelp": "",
@@ -796,7 +751,6 @@
         },
         "selectAll": "",
         "selectPerson": "",
-        "selectedCount": "",
         "excludeSelected": "",
         "includeSelected": "",
         "noMatches": "",
@@ -816,7 +770,6 @@
         "include": "",
         "includeAction": "",
         "excludedHelp": "",
-        "notIncludableHelp": "",
         "excludedAfterSave": "",
         "includedAfterSave": "",
         "reasons": {
@@ -826,7 +779,15 @@
           "noServer": ""
         },
         "emptyTitle": "",
-        "emptyDescription": ""
+        "emptyDescription": "",
+        "notIncludable_one": "",
+        "notIncludable_other": "",
+        "joinedSinceLastSend_one": "",
+        "joinedSinceLastSend_other": "",
+        "selectedCount_one": "",
+        "selectedCount_other": "",
+        "notIncludableHelp_one": "",
+        "notIncludableHelp_other": ""
       },
       "delivery": {
         "title": "",
@@ -875,13 +836,13 @@
         "fromDomain": "",
         "fromDomainFail": "",
         "fromDomainUnknown": "",
-        "recipients_one": "",
-        "recipients_other": "",
         "recipientsFail": "",
         "recipientsChecking": "",
         "recipientsLoadFailed": "",
         "dns": "",
-        "dnsLink": ""
+        "dnsLink": "",
+        "recipients_one": "",
+        "recipients_other": ""
       },
       "actions": {
         "preview": "",
@@ -926,13 +887,22 @@
       "send": {
         "title": "",
         "previewing": "",
-        "summary": "",
         "nobody": "",
-        "trimmed_one": "",
-        "trimmed_other": "",
         "confirm": "",
-        "sending": ""
-      }
+        "sending": "",
+        "summary_one": "",
+        "summary_other": "",
+        "trimmed_one": "",
+        "trimmed_other": ""
+      },
+      "serversSelected_one": "",
+      "serversSelected_other": "",
+      "librariesSelected_one": "",
+      "librariesSelected_other": "",
+      "senderNameRequiredMulti_one": "",
+      "senderNameRequiredMulti_other": "",
+      "previewVariant_one": "",
+      "previewVariant_other": ""
     },
     "history": {
       "empty": "",
@@ -944,7 +914,6 @@
         "test": ""
       },
       "window": "",
-      "recipients": "",
       "recipientsEmpty": "",
       "finished": "",
       "open": "",
@@ -957,7 +926,6 @@
         "suppressed": "",
         "unknown": ""
       },
-      "attempts": "",
       "unknownHelp": "",
       "openSnapshot": "",
       "variant": "",
@@ -965,7 +933,11 @@
       "openVariantSnapshot": "",
       "snapshotTitle": "",
       "pruned": "",
-      "retryFailed": ""
+      "retryFailed": "",
+      "recipients_one": "",
+      "recipients_other": "",
+      "attempts_one": "",
+      "attempts_other": ""
     }
   },
   "email": {
@@ -1055,7 +1027,6 @@
       "hideKey": "",
       "test": "",
       "testing": "",
-      "save": "",
       "saveHint": "",
       "match": "",
       "mismatch": "",

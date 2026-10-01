@@ -10,16 +10,11 @@
         "message": "O servidor foi removido com sucesso"
       },
       "serverSynced": {
-        "title": "Servidor sincronizado",
-        "message": "Os dados do servidor foram sincronizados"
+        "title": "Servidor sincronizado"
       },
       "settingsUpdated": {
         "title": "Definições atualizadas",
         "message": "As suas definições foram guardadas"
-      },
-      "tokenCopied": {
-        "title": "Token copiado",
-        "message": "O token foi copiado para a área de transferência"
       },
       "violationAcknowledged": {
         "title": "Violação reconhecida",
@@ -38,19 +33,11 @@
         "message": "O nome do dispositivo foi atualizado"
       },
       "sessionsRevoked": {
-        "title": "Sessões revogadas",
-        "message": "Todas as sessões foram revogadas"
+        "title": "Sessões revogadas"
       },
       "loggedIn": {
         "title": "Sucesso",
         "message": "Sessão iniciada com sucesso"
-      },
-      "webhookTest": {
-        "title": "Teste válido",
-        "message": "O webhook está a funcionar corretamente"
-      },
-      "copiedToClipboard": {
-        "title": "Copiado para a área de transferência"
       },
       "plexAccountLinked": {
         "title": "Conta Plex associada",
@@ -62,27 +49,14 @@
       },
       "plexAccountReauthorized": {
         "title": "",
-        "message_one": "",
-        "message_other": "",
         "messageNoServers": "",
         "partial": "",
-        "unmatched": ""
-      },
-      "agentAdded": {
-        "title": "Agente adicionado",
-        "message": "O agente de notificação foi adicionado"
-      },
-      "agentUpdated": {
-        "title": "Agente atualizado",
-        "message": "O agente de notificação foi atualizado"
-      },
-      "agentRemoved": {
-        "title": "Agente removido",
-        "message": "O agente de notificação foi removido"
+        "unmatched": "",
+        "message_one": "",
+        "message_other": ""
       },
       "jobCompleted": {
-        "title": "Tarefa concluída",
-        "message": "{{name}} concluído com sucesso"
+        "title": "Tarefa concluída"
       },
       "automationCreated": {
         "title": "",
@@ -175,10 +149,11 @@
       "newsletterDuplicated": "",
       "newsletterTestQueued": "",
       "newsletterSendQueued": "",
-      "newsletterRetryQueued": "",
       "brandingSaved": "",
       "suppressionAdded": "",
-      "suppressionRemoved": ""
+      "suppressionRemoved": "",
+      "newsletterRetryQueued_one": "",
+      "newsletterRetryQueued_other": ""
     },
     "error": {
       "serverAddFailed": "Falha ao adicionar servidor",
@@ -189,7 +164,6 @@
       "acknowledgeFailed": "Falha ao reconhecer violação",
       "dismissFailed": "Falha ao descartar violação",
       "authFailed": "Autenticação falhou",
-      "webhookTestFailed": "Teste do webhook falhou",
       "automationCreateFailed": "",
       "automationUpdateFailed": "",
       "automationDeleteFailed": "",
@@ -208,14 +182,8 @@
       "sessionsRevokeFailed": "Falha ao revogar sessões",
       "identityUpdateFailed": "",
       "trustScoresResetFailed": "Falha ao redefinir pontuações de confiança",
-      "routingUpdateFailed": "Falha ao atualizar encaminhamento",
-      "clipboardFailed": "Falha ao copiar para a área de transferência",
       "plexUnlinkFailed": "Falha ao desassociar conta Plex",
       "plexReauthorizeFailed": "",
-      "agentAddFailed": "Falha ao adicionar agente",
-      "agentUpdateFailed": "Falha ao atualizar agente",
-      "agentRemoveFailed": "Falha ao remover agente",
-      "agentTestFailed": "Teste falhou",
       "jobAlreadyRunning": "Tarefa já em execução",
       "jobStartFailed": "Falha ao iniciar tarefa",
       "jobLoadFailed": "Falha ao carregar tarefas de manutenção",
@@ -248,8 +216,7 @@
     },
     "warning": {
       "jobFailed": {
-        "title": "Tarefa falhou",
-        "message": "{{name}} encontrou um erro"
+        "title": "Tarefa falhou"
       }
     },
     "info": {
@@ -263,43 +230,23 @@
       }
     }
   },
-  "push": {
-    "violationDetected": "Violação de partilha detetada",
-    "streamStarted": "Transmissão iniciada",
-    "streamEnded": "Transmissão terminada",
-    "serverDown": "Ligação ao servidor perdida",
-    "serverUp": "Servidor de volta online",
-    "newDevice": "",
-    "trustScoreChanged": ""
-  },
   "settings": {
-    "title": "Definições de notificações",
     "allSeverity": "Todas (Baixa, Aviso, Elevado)",
     "warningAndHigh": "Apenas Aviso e Elevado",
     "highOnly": "Apenas severidade elevada",
-    "allTypes": "Todos os tipos",
     "rateLimit": "Estado atual do ratelimit",
     "perMinute": "Por minuto",
     "perHour": "Por hora",
     "enablePushNotifications": "",
     "notificationEvents": "",
     "violationDetected": "",
-    "violationDetectedDesc": "Quando uma violação de compartilhamento é acionada",
     "streamStarted": "",
-    "streamStartedDesc": "Quando um usuário começa a assistir",
     "streamStopped": "",
-    "streamStoppedDesc": "Quando um usuário para de assistir",
     "concurrentStreams": "",
-    "concurrentStreamsDesc": "Quando o limite máximo de transmissão for excedido",
     "newDevice": "",
-    "newDeviceDesc": "Quando um novo dispositivo se conectar",
     "trustScoreChanged": "",
-    "trustScoreChangedDesc": "Quando o ponto de confiança de um usuário mudar",
     "serverDown": "",
-    "serverDownDesc": "Quando um servidor de mídia ficar offline",
     "serverUp": "",
-    "serverUpDesc": "Quando um servidor de mídia está online",
-    "violationFilters": "",
     "minimumSeverity": "",
     "quietHours": "",
     "enableQuietHours": "",

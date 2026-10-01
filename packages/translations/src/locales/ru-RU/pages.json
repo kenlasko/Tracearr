@@ -27,9 +27,7 @@
     "plexAuthFailed": "Ошибка аутентификации Plex",
     "plexStartFailed": "Не удалось запустить Plex логин",
     "serverConnectFailed": "Не удалось подключиться к серверу",
-    "signupFailed": "Регистрация не удалась",
     "createAccountFailed": "Не удалось создать аккаунт",
-    "loginFailed": "Вход не удался",
     "invalidCredentials": "Неверный email или пароль",
     "claimCodeRequired": "Первая настройка требует кода претензии",
     "enterClaimCode": "Введите код подтверждения",
@@ -55,12 +53,8 @@
     "title": "Пользователи",
     "showRemoved": "",
     "noUsersFound": "Пользователи не найдены.",
-    "searchPlaceholder": "Поиск пользователей...",
-    "selectAllUsers": "Выбрать всех {{count}} пользователей",
     "serversColumn": "",
     "resetTrustScore": "Сбросить счет доверия",
-    "resetTrustScoreTitle_one": "Сбросить счет доверия для пользователя {{count}}",
-    "resetTrustScoreTitle_other": "Сброс баллов доверия для {{count}} пользователей",
     "resetTrustScoreConfirm": "Вы уверены, что хотите сбросить счет доверия до 100? Это действие нельзя отменить.",
     "mergeUsers": "",
     "mergeTitleSuggestion": "",
@@ -74,12 +68,8 @@
     "mergeRequired": "",
     "mergeLastActive": "",
     "mergeNeverActive": "",
-    "mergeSessions_one": "",
-    "mergeSessions_other": "",
     "mergeMoreServers": "",
     "mergeWhatHappens": "",
-    "mergeMoves_one": "",
-    "mergeMoves_other": "",
     "mergeMovesNoCount": "",
     "mergeCarriesOver": "",
     "mergeDeleted": "",
@@ -95,17 +85,9 @@
     "mergeSameIdentity": "",
     "mergeSelectAllActive": "",
     "suggestionsTitle": "",
-    "suggestionsCount_one": "",
-    "suggestionsCount_other": "",
     "suggestionsPairEmail": "",
-    "suggestionsPairEmailMore_one": "",
-    "suggestionsPairEmailMore_other": "",
     "suggestionsPairEmailUsername": "",
-    "suggestionsPairEmailUsernameMore_one": "",
-    "suggestionsPairEmailUsernameMore_other": "",
     "suggestionsPairUsername": "",
-    "suggestionsPairUsernameMore_one": "",
-    "suggestionsPairUsernameMore_other": "",
     "suggestionsSheetDescription": "",
     "suggestionsReview": "",
     "suggestionsNotSame": "",
@@ -120,7 +102,35 @@
     "suggestionsError": "",
     "filterHasAccessTo": "",
     "filterHasAccessToPlaceholder": "",
-    "filterHasAccessToHint": ""
+    "filterHasAccessToHint": "",
+    "selectAllUsers_one": "",
+    "selectAllUsers_few": "",
+    "selectAllUsers_many": "",
+    "selectAllUsers_other": "Выбрать всех {{count}} пользователей",
+    "resetTrustScoreTitle_one": "Сбросить счет доверия для пользователя {{count}}",
+    "resetTrustScoreTitle_few": "",
+    "resetTrustScoreTitle_many": "",
+    "resetTrustScoreTitle_other": "Сброс баллов доверия для {{count}} пользователей",
+    "mergeMoves_one": "",
+    "mergeMoves_few": "",
+    "mergeMoves_many": "",
+    "mergeMoves_other": "",
+    "suggestionsCount_one": "",
+    "suggestionsCount_few": "",
+    "suggestionsCount_many": "",
+    "suggestionsCount_other": "",
+    "suggestionsPairEmailMore_one": "",
+    "suggestionsPairEmailMore_few": "",
+    "suggestionsPairEmailMore_many": "",
+    "suggestionsPairEmailMore_other": "",
+    "suggestionsPairEmailUsernameMore_one": "",
+    "suggestionsPairEmailUsernameMore_few": "",
+    "suggestionsPairEmailUsernameMore_many": "",
+    "suggestionsPairEmailUsernameMore_other": "",
+    "suggestionsPairUsernameMore_one": "",
+    "suggestionsPairUsernameMore_few": "",
+    "suggestionsPairUsernameMore_many": "",
+    "suggestionsPairUsernameMore_other": ""
   },
   "userDetail": {
     "backToUsers": "Вернуться к пользователям",
@@ -159,12 +169,6 @@
   "history": {
     "title": "История",
     "description": "",
-    "loadingMore": "Загрузка еще...",
-    "scrollForMore": "Прокрутите еще",
-    "showingAllResults": "Показаны все результаты {{total}}",
-    "deleteSession_one": "Удалить сеанс {{count}}",
-    "deleteSession_other": "Удалить сеансы {{count}}",
-    "deleteSessionsConfirm": "Вы уверены, что хотите удалить? Это действие нельзя отменить.",
     "totalPlays": "",
     "uniqueTitles": "",
     "uniqueUsers": ""
@@ -234,7 +238,6 @@
       "noDuplicatesTitle": "",
       "noDuplicatesDesc": "",
       "colTitle": "",
-      "colType": "",
       "colMatchType": "",
       "colCopies": "",
       "colRecoverable": "",
@@ -296,7 +299,10 @@
         "title": "",
         "fallbackBody": "",
         "progress": "",
-        "snapshotsSuffix": ""
+        "snapshotsSuffix_one": "",
+        "snapshotsSuffix_few": "",
+        "snapshotsSuffix_many": "",
+        "snapshotsSuffix_other": ""
       },
       "multiServer": {
         "title": "",
@@ -319,8 +325,11 @@
     "versionsBackfill": {
       "banner": "",
       "action": "",
-      "syncFailed": "",
-      "syncStarted": ""
+      "syncStarted": "",
+      "syncFailed_one": "",
+      "syncFailed_few": "",
+      "syncFailed_many": "",
+      "syncFailed_other": ""
     }
   },
   "activity": {
@@ -340,11 +349,8 @@
   "violations": {
     "title": "Нарушения",
     "tryAdjustingFilters": "Попробуйте изменить фильтры",
-    "selectAllViolations": "Выбрать все {{count}} нарушений, соответствующих фильтрам",
     "dismissViolation": "Прекратить нарушение",
     "dismissViolationConfirm": "Вы уверены, что хотите удалить это нарушение? Это окончательно удалит его из журнала нарушений.",
-    "dismissViolation_one": "Прекратить нарушение {{count}}",
-    "dismissViolation_other": "Прекратить нарушения {{count}}",
     "dismissViolationsConfirm": "Вы уверены, что хотите уволить? Это приведет к их удалению из журнала нарушений навсегда и восстановит связанные оценки доверия.",
     "noViolationsFound": "Нарушения не найдены",
     "noViolationsRecorded": "Пока никаких нарушений не зарегистрировано.",
@@ -353,7 +359,6 @@
     "allRules": "",
     "filterPeople": "",
     "allPeople": "",
-    "peopleSelectedCount": "",
     "personFilterPlaceholder": "",
     "personFilterEmpty": "",
     "personFilterError": "",
@@ -380,10 +385,23 @@
       "conditionGroup": "Группа условий {{index}}",
       "matched": "Соответствует {{matched}}/{{total}}",
       "actual": "Фактический",
-      "relatedSessions": "Связанная с {{count}} сессия",
       "relatedSessions_one": "Связанная с {{count}} сессия",
+      "relatedSessions_few": "",
+      "relatedSessions_many": "",
       "relatedSessions_other": "{{count}} связанные сессии"
-    }
+    },
+    "selectAllViolations_one": "",
+    "selectAllViolations_few": "",
+    "selectAllViolations_many": "",
+    "selectAllViolations_other": "Выбрать все {{count}} нарушений, соответствующих фильтрам",
+    "dismissViolations_one": "Прекратить нарушение {{count}}",
+    "dismissViolations_few": "",
+    "dismissViolations_many": "",
+    "dismissViolations_other": "Прекратить нарушения {{count}}",
+    "peopleSelectedCount_one": "",
+    "peopleSelectedCount_few": "",
+    "peopleSelectedCount_many": "",
+    "peopleSelectedCount_other": ""
   },
   "automations": {
     "actions": {
@@ -487,10 +505,12 @@
       "openInEditor": "",
       "tabsLabel": "",
       "emptyRan": "",
-      "emptyRanDescription_one": "",
-      "emptyRanDescription_other": "",
       "item": "",
-      "recordedViolation": ""
+      "recordedViolation": "",
+      "emptyRanDescription_one": "",
+      "emptyRanDescription_few": "",
+      "emptyRanDescription_many": "",
+      "emptyRanDescription_other": ""
     },
     "allKinds": "",
     "allStatuses": "",
@@ -499,7 +519,6 @@
       "nameHelper": "",
       "namePlaceholder": "",
       "activeLabel": "",
-      "back": "",
       "submit": "",
       "submitting": "",
       "customize": "",
@@ -564,7 +583,6 @@
       "searchPlaceholder": "",
       "noMatches": "",
       "clearSelection": "",
-      "selectedCount": "",
       "scope": {
         "label": "",
         "global": "",
@@ -684,12 +702,16 @@
         "placeholderAction": ""
       },
       "footer": {
+        "ready": "",
+        "search": "",
         "problems_one": "",
+        "problems_few": "",
+        "problems_many": "",
         "problems_other": "",
         "remaining_one": "",
-        "remaining_other": "",
-        "ready": "",
-        "search": ""
+        "remaining_few": "",
+        "remaining_many": "",
+        "remaining_other": ""
       },
       "leave": {
         "title": "",
@@ -710,7 +732,11 @@
         "sampleTitle": "",
         "sampleGone": "",
         "backToLive": ""
-      }
+      },
+      "selectedCount_one": "",
+      "selectedCount_few": "",
+      "selectedCount_many": "",
+      "selectedCount_other": ""
     },
     "categories": {
       "session_behavior": "",
@@ -724,12 +750,8 @@
     "createAutomation": "",
     "customAutomation": "",
     "deleteAutomationConfirm": "",
-    "deleteAutomation_one": "",
-    "deleteAutomation_other": "",
     "deleteAutomationsConfirm": "",
     "describe": {
-      "more_one": "",
-      "more_other": "",
       "noValues": "",
       "includesSameDevice": "",
       "uniqueIps": "",
@@ -748,8 +770,12 @@
       "appliesTo": "",
       "duration": {
         "minutes_one": "",
+        "minutes_few": "",
+        "minutes_many": "",
         "minutes_other": "",
         "days_one": "",
+        "days_few": "",
+        "days_many": "",
         "days_other": ""
       },
       "triggers": {
@@ -883,16 +909,22 @@
         "text": "",
         "boolean": "",
         "listed": ""
-      }
+      },
+      "more_one": "",
+      "more_few": "",
+      "more_many": "",
+      "more_other": ""
     },
     "description": "",
     "detail": {
       "notFound": "",
       "title": "",
       "unsaved": "",
+      "noRuns": "",
       "runsLine_one": "",
-      "runsLine_other": "",
-      "noRuns": ""
+      "runsLine_few": "",
+      "runsLine_many": "",
+      "runsLine_other": ""
     },
     "disable": "",
     "editAutomation": "",
@@ -1583,7 +1615,11 @@
       "trigger": "",
       "allTriggers": ""
     },
-    "openGallery": ""
+    "openGallery": "",
+    "deleteAutomation_one": "",
+    "deleteAutomation_few": "",
+    "deleteAutomation_many": "",
+    "deleteAutomation_other": ""
   },
   "terminateStream": {
     "title": "Завершить Поток",
@@ -1591,13 +1627,7 @@
     "messageLabel": "Сообщение пользователю (необязательно)",
     "messagePlaceholder": "например, пожалуйста, не делитесь своей учетной записью",
     "messageHint": "Это сообщение будет показано им во время воспроизведения",
-    "terminating": "Завершение работы...",
-    "killStream": "Поток убийств"
-  },
-  "notFound": {
-    "title": "",
-    "heading": "Страница не найдена",
-    "description": "Страница, которую вы ищете, не существует или была перемещена."
+    "terminating": "Завершение работы..."
   },
   "settings": {
     "plex": {
@@ -1622,10 +1652,8 @@
         "unknown": ""
       },
       "connectionsReachable": "{{reachable}} соединений {{total}} доступно",
-      "connectionsAvailable": "",
       "hideFiltered": "Скрыть отфильтрованные",
       "showAll": "Показать все",
-      "moreConnections": "",
       "connectingTo": "Подключение к {{name}}...",
       "ownerOnly": "",
       "noAccountsLinked": "Нет привязанных аккаунтов Plex",
@@ -1634,21 +1662,28 @@
       "linkAnotherAccount": "Связать другой аккаунт Plex",
       "linking": "Связь...",
       "loginEnabled": "Вход включен",
-      "serversConnected_one": "{{count}} сервер подключен",
-      "serversConnected_other": "{{count}} подключены к серверам",
       "unlinkAccount": "Отвязать этот аккаунт Plex",
       "reauthorizeAccount": "",
       "deleteServersFirst": "Сначала удалите подключенные сервера, чтобы отвязать этот аккаунт",
       "unlinkPlexAccount": "Отвязать аккаунт Plex",
-      "unlinkConfirm": "Вы уверены, что хотите отвязать этот Plex аккаунт? Вы не сможете добавить серверы из этого аккаунта, пока не привяжите его снова."
+      "unlinkConfirm": "Вы уверены, что хотите отвязать этот Plex аккаунт? Вы не сможете добавить серверы из этого аккаунта, пока не привяжите его снова.",
+      "connectionsAvailable_one": "",
+      "connectionsAvailable_few": "",
+      "connectionsAvailable_many": "",
+      "connectionsAvailable_other": "",
+      "moreConnections_one": "",
+      "moreConnections_few": "",
+      "moreConnections_many": "",
+      "moreConnections_other": "",
+      "serversConnected_one": "{{count}} сервер подключен",
+      "serversConnected_few": "",
+      "serversConnected_many": "",
+      "serversConnected_other": "{{count}} подключены к серверам"
     },
     "destinations": {
       "add": "",
-      "alertsGoTo": "",
-      "alertsGoTo_other": "",
       "builtinNote": "",
       "clearSecret": "",
-      "delete": "",
       "deleteConfirm": "",
       "description": "",
       "emailDescription": "",
@@ -1744,13 +1779,21 @@
         "push": "",
         "webToast": ""
       },
-      "usedBy": "",
-      "usedBy_other": "",
-      "usedByNewsletters": "",
-      "usedByNewsletters_other": "",
       "violationsOff": "",
       "violationsOn": "",
-      "webToastNote": ""
+      "webToastNote": "",
+      "alertsGoTo_one": "",
+      "alertsGoTo_few": "",
+      "alertsGoTo_many": "",
+      "alertsGoTo_other": "",
+      "usedBy_one": "",
+      "usedBy_few": "",
+      "usedBy_many": "",
+      "usedBy_other": "",
+      "usedByNewsletters_one": "",
+      "usedByNewsletters_few": "",
+      "usedByNewsletters_many": "",
+      "usedByNewsletters_other": ""
     },
     "jobs": {
       "runNow": "Запустить сейчас",
@@ -1803,14 +1846,12 @@
     "basemapMissing": "",
     "webglUnavailable": "",
     "webglHint": "",
-    "basemapShadowed": "",
     "badMounts": ""
   },
   "devices": {
     "title": "Совместимость устройства",
     "description": "",
     "analyzedSessions": "",
-    "analyzedSessionsTooltip": "",
     "directPlayRate": "Прямой курс игры",
     "videoAndAudio": "",
     "uniqueDevices": "Уникальные устройства",
@@ -1832,7 +1873,11 @@
     "directPlayLow": "",
     "topTranscodingUsers": "Лучшие пользователи транскодирования",
     "topTranscodingUsersDesc": "",
-    "noTranscodingUsers": "Перекодирование пользователей не найдено"
+    "noTranscodingUsers": "Перекодирование пользователей не найдено",
+    "analyzedSessionsTooltip_one": "",
+    "analyzedSessionsTooltip_few": "",
+    "analyzedSessionsTooltip_many": "",
+    "analyzedSessionsTooltip_other": ""
   },
   "statsBandwidth": {
     "title": "Трафик",
@@ -1880,9 +1925,6 @@
     "libraryItems": "Элементы библиотеки",
     "environment": "Среда",
     "systemInformation": "Информация о системе",
-    "cpu": "ЦП",
-    "memory": "Память",
-    "uptime": "Время работы",
     "database": "База данных",
     "databaseDesc": "",
     "totalSize": "Общий размер",
@@ -1944,27 +1986,36 @@
         }
       },
       "card": {
-        "newEpisodes_one": "{{count}} новая серия",
-        "newEpisodes_other": "{{count}} новых серий",
-        "replacedEpisodes_one": "",
-        "replacedEpisodes_other": "",
         "addedAgo": "добавлено {{date}}",
         "addedCompactAgo": "",
-        "newEpisodesChip": ""
+        "newEpisodes_one": "{{count}} новая серия",
+        "newEpisodes_few": "",
+        "newEpisodes_many": "",
+        "newEpisodes_other": "{{count}} новых серий",
+        "replacedEpisodes_one": "",
+        "replacedEpisodes_few": "",
+        "replacedEpisodes_many": "",
+        "replacedEpisodes_other": "",
+        "newEpisodesChip_one": "",
+        "newEpisodesChip_few": "",
+        "newEpisodesChip_many": "",
+        "newEpisodesChip_other": ""
       },
       "deadWeight": {
         "title": "",
-        "summary": "",
         "empty": "",
         "columns": {
           "poster": "",
           "title": "",
-          "size": "",
           "added": "",
           "servers": ""
         },
         "viewAll": "",
-        "viewAllTooltip": ""
+        "viewAllTooltip": "",
+        "summary_one": "",
+        "summary_few": "",
+        "summary_many": "",
+        "summary_other": ""
       },
       "loadError": ""
     },
@@ -1980,15 +2031,16 @@
       "chart": {
         "title": "",
         "valueLabel": "",
+        "ariaLabel": "",
         "itemCount_one": "",
-        "itemCount_other": "",
-        "ariaLabel": ""
+        "itemCount_few": "",
+        "itemCount_many": "",
+        "itemCount_other": ""
       },
       "table": {
         "title": "",
         "columns": {
           "genre": "",
-          "items": "",
           "plays": "",
           "watchTime": ""
         },
@@ -2015,8 +2067,12 @@
         "loadError": "",
         "meta": {
           "seasons_one": "",
+          "seasons_few": "",
+          "seasons_many": "",
           "seasons_other": "",
           "episodes_one": "",
+          "episodes_few": "",
+          "episodes_many": "",
           "episodes_other": ""
         },
         "availability": {
@@ -2061,7 +2117,6 @@
         "lastWatchedAgo": "",
         "completionLabel": "",
         "columns": {
-          "user": "",
           "plays": "",
           "episodes": "",
           "completion": "",
@@ -2072,15 +2127,17 @@
         "title": "",
         "loadError": "",
         "empty": "",
-        "episodeCount_one": "",
-        "episodeCount_other": "",
         "watchedPct": "",
         "stripSummary": "",
         "episodeLabel": {
           "watched": "",
           "partial": "",
           "unwatched": ""
-        }
+        },
+        "episodeCount_one": "",
+        "episodeCount_few": "",
+        "episodeCount_many": "",
+        "episodeCount_other": ""
       },
       "platforms": {
         "title": "",
@@ -2088,7 +2145,6 @@
         "empty": "",
         "unknown": "",
         "columns": {
-          "platform": "",
           "plays": "",
           "watchTime": ""
         }
@@ -2100,10 +2156,6 @@
         "watched": "",
         "notWatched": "",
         "columns": {
-          "date": "",
-          "user": "",
-          "content": "",
-          "server": "",
           "duration": ""
         }
       },
@@ -2112,11 +2164,8 @@
         "loadError": "",
         "unknownLibrary": "",
         "columns": {
-          "server": "",
           "library": "",
-          "quality": "",
           "episodes": "",
-          "size": "",
           "added": ""
         },
         "versionLabel": ""
@@ -2126,10 +2175,6 @@
       "rankSuffix": ", место {{rank}}",
       "onServers": "На {{servers}}",
       "addedLabel": "Добавлено {{date}}",
-      "plays_one": "{{count}} просмотр",
-      "plays_other": "{{count}} просмотров",
-      "viewers_one": "{{count}} зритель",
-      "viewers_other": "{{count}} зрителей",
       "watchedState": {
         "watched": "Просмотрено",
         "partial": "Частично просмотрено",
@@ -2143,12 +2188,20 @@
         "resolution": ""
       },
       "rankChip": "",
-      "playsCompact_one": "",
-      "playsCompact_other": "",
       "versionsChip": "",
+      "moreServers": "",
+      "viewers_one": "{{count}} зритель",
+      "viewers_few": "",
+      "viewers_many": "",
+      "viewers_other": "{{count}} зрителей",
+      "playsCompact_one": "",
+      "playsCompact_few": "",
+      "playsCompact_many": "",
+      "playsCompact_other": "",
       "versions_one": "",
-      "versions_other": "",
-      "moreServers": ""
+      "versions_few": "",
+      "versions_many": "",
+      "versions_other": ""
     },
     "grid": {
       "toolbar": {
@@ -2158,7 +2211,6 @@
         "showsToggle": "",
         "searchPlaceholder": "",
         "searchLabel": "",
-        "removeFilter": "",
         "filtersLabel": "",
         "filtersSheetTitle": "",
         "done": "",
@@ -2200,6 +2252,8 @@
         },
         "count": "",
         "countTotal_one": "",
+        "countTotal_few": "",
+        "countTotal_many": "",
         "countTotal_other": ""
       },
       "scrubber": {
@@ -2229,7 +2283,6 @@
     "columns": {
       "requester": "",
       "title": "",
-      "status": "",
       "requested": "",
       "wait": "",
       "seasons": "",
@@ -2284,11 +2337,14 @@
       "linkSeerr": "",
       "kpi": {
         "requested": "",
-        "landedOf": "",
         "watched": "",
         "neverPlayed": "",
         "ofLanded": "",
-        "onDisk": ""
+        "onDisk": "",
+        "landedOf_one": "",
+        "landedOf_few": "",
+        "landedOf_many": "",
+        "landedOf_other": ""
       }
     },
     "funnel": {

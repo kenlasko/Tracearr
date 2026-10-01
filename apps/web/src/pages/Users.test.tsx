@@ -139,7 +139,7 @@ describe('Users', () => {
     await userEvent.click(screen.getByRole('button', { name: 'common:actions.next' }));
     expect(lastQueryParams()).toMatchObject({ page: 2 });
 
-    await userEvent.type(screen.getByPlaceholderText('pages:users.searchPlaceholder'), 'bob');
+    await userEvent.type(screen.getByPlaceholderText('common:search.searchUsers'), 'bob');
 
     await waitFor(() => expect(lastQueryParams()).toMatchObject({ search: 'bob', page: 1 }));
   });

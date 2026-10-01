@@ -49,14 +49,9 @@
     }
   },
   "general": {
-    "title": "",
     "unitSystem": "",
     "metric": "",
     "imperial": "",
-    "timezone": "",
-    "primaryAuth": "",
-    "localAccount": "",
-    "plexAccount": "",
     "language": "",
     "languageDescription": "",
     "helpTranslate": "",
@@ -127,7 +122,6 @@
       "size": "",
       "files": "",
       "need": "",
-      "needHint": "",
       "free": "",
       "freeOf": "",
       "floor": "",
@@ -138,18 +132,15 @@
       "never": "",
       "diskLimited": "",
       "loadError": "",
-      "notPersisting": ""
+      "notPersisting": "",
+      "needHint_other": ""
     }
   },
   "servers": {
-    "title": "",
     "addServer": "",
     "serverName": "",
     "serverUrl": "",
-    "syncInterval": "",
     "testConnection": "",
-    "connectionSuccess": "",
-    "connectionFailed": "",
     "noServersConnected": "",
     "noServersConnectedHint": "",
     "serverType": "",
@@ -162,11 +153,8 @@
     "allServersConnected": "",
     "allServersConnectedDesc": "",
     "serverUrlPlaceholder": "",
-    "serverUrlHelp": "",
     "serverNamePlaceholder": "",
     "apiKeyPlaceholder": "",
-    "apiKeyHelp": "",
-    "connecting": "",
     "connectServer": "",
     "removeServer": "",
     "removeServerConfirm": "",
@@ -178,7 +166,6 @@
     "allFieldsRequired": "",
     "addServerDialogDescPlex": "",
     "addServerDialogDescOther": "",
-    "description": "",
     "discoveringServers": "",
     "discoveringConnections": "",
     "plexAccount": "",
@@ -208,7 +195,6 @@
       "addMove": "",
       "fromBeginning": "",
       "movedOn": "",
-      "remove": "",
       "latitude": "",
       "longitude": "",
       "country": "",
@@ -232,14 +218,11 @@
       "copyUrl": "",
       "jellyfinRepoUrl": "",
       "autoDetectNote": "",
-      "close": "",
       "issueBlocked": "",
       "issueRestartRequired": "",
       "issueMalfunctioned": ""
     },
     "posterSource": {
-      "title": "",
-      "titleDesc": "",
       "label": "",
       "description": "",
       "automatic": "",
@@ -271,7 +254,6 @@
     "enableMobileAccess": "",
     "enabling": "",
     "devicesConnected": "",
-    "pendingTokens": "",
     "addDevice": "",
     "disableMobileAccess": "",
     "revokeAllSessions": "",
@@ -294,7 +276,8 @@
     "removeDeviceConfirm": "",
     "externalUrlBanner": "",
     "externalUrlBannerLink": "",
-    "externalUrlBannerSuffix": ""
+    "externalUrlBannerSuffix": "",
+    "pendingTokens_other": ""
   },
   "tailscale": {
     "title": "",
@@ -316,8 +299,6 @@
     "showLogs": "",
     "hideLogs": "",
     "noLogs": "",
-    "exitNodeNone": "",
-    "exitNodeOffline": "",
     "unknownError": "",
     "disableConfirmTitle": "",
     "disableConfirmDescription": "",
@@ -361,33 +342,12 @@
     "automatic": "",
     "startJob": ""
   },
-  "advanced": {
-    "title": "",
-    "externalUrl": "",
-    "trustProxy": "",
-    "reverseProxy": "",
-    "connectionScenarios": ""
-  },
   "accessControl": {
-    "title": "",
-    "description": "",
     "allowGuestAccess": "",
     "allowGuestAccessDesc": "",
     "singleOwnerNote": ""
   },
   "import": {
-    "title": "",
-    "jellystat": "",
-    "tautulli": "",
-    "importProgress": "",
-    "importComplete": "",
-    "importFailed": "",
-    "processed": "",
-    "page": "",
-    "imported": "",
-    "skipped": "",
-    "enriched": "",
-    "errors": "",
     "noServers": "",
     "noServersHint": "",
     "tautulliUrl": "",
@@ -424,8 +384,6 @@
     "uploadingBackup": "",
     "plex": "",
     "jellyfinEmby": "",
-    "step1": "",
-    "step2": "",
     "apiKeyPlaceholder": "",
     "skipUserNotFoundPlex": "",
     "skipDuplicate": "",
@@ -446,10 +404,10 @@
     "serverTimezoneHelp": "",
     "importFullRange": "",
     "importFullRangeHelp": "",
-    "overlapSkipped": "",
-    "duplicates": "",
     "skipOverlap": "",
-    "skipDuplicatePlugin": ""
+    "skipDuplicatePlugin": "",
+    "overlapSkipped_other": "",
+    "duplicates_other": ""
   },
   "plex": {
     "signInWithPlex": "",
@@ -461,10 +419,7 @@
     "createAccount": "",
     "email": "",
     "password": "",
-    "displayName": "",
-    "createYourAccount": "",
-    "signInToAccount": "",
-    "useLocalAccount": ""
+    "displayName": ""
   },
   "update": {
     "title": "",
@@ -489,8 +444,6 @@
     "earlier": "",
     "installedBadge": "",
     "latestBadge": "",
-    "changeCount_one": "",
-    "changeCount_other": "",
     "series": "",
     "docs": "",
     "source": "",
@@ -501,11 +454,12 @@
       "fix": "",
       "security": "",
       "note": ""
-    }
+    },
+    "changeCount_other": ""
   },
   "serverHealth": {
     "unreachable": "",
-    "multipleUnreachable": ""
+    "multipleUnreachable_other": ""
   },
   "ipWarning": {
     "message": "",
@@ -524,9 +478,6 @@
     "lowDiskSpace": "",
     "backupHistory": "",
     "noBackups": "",
-    "size": "",
-    "date": "",
-    "type": "",
     "version": "",
     "actions": "",
     "rowActions": "",
@@ -599,7 +550,6 @@
     "noDestinationDescription": "",
     "noDestinationHint": "",
     "addEmailDestination": "",
-    "enabled": "",
     "rowActions": "",
     "duplicate": "",
     "sendNow": "",
@@ -625,13 +575,9 @@
       "skipped_empty": ""
     },
     "counts": {
-      "movies_one": "",
       "movies_other": "",
-      "shows_one": "",
       "shows_other": "",
-      "albums_one": "",
       "albums_other": "",
-      "watched_one": "",
       "watched_other": ""
     },
     "copyOf": "",
@@ -641,7 +587,6 @@
       "link": "",
       "bulletList": "",
       "linkHref": "",
-      "linkApply": "",
       "counter": ""
     },
     "editor": {
@@ -689,10 +634,10 @@
       },
       "windowSentence": {
         "fallback": "",
-        "fallbackLabel": "",
         "fixed": "",
         "fixedAfter": "",
-        "fixedLabel": ""
+        "fallbackLabel_other": "",
+        "fixedLabel_other": ""
       },
       "windowMax": "",
       "days": "",
@@ -700,14 +645,12 @@
       "allServers": "",
       "searchServers": "",
       "noServers": "",
-      "serversSelected": "",
       "variantsNote": "",
       "serversHelp": "",
       "libraries": "",
       "allLibraries": "",
       "searchLibraries": "",
       "noLibraries": "",
-      "librariesSelected": "",
       "librariesHelp": "",
       "clear": "",
       "unknownLibrary": "",
@@ -729,11 +672,11 @@
           "mostPlayed": ""
         },
         "labels": {
-          "movies": "",
-          "shows": "",
-          "seasons": "",
-          "music": "",
-          "mostWatched": ""
+          "movies_other": "",
+          "shows_other": "",
+          "seasons_other": "",
+          "music_other": "",
+          "mostWatched_other": ""
         },
         "musicHelp": "",
         "mostWatchedHelp": ""
@@ -741,9 +684,6 @@
       "message": "",
       "senderName": "",
       "senderNameHelp": "",
-      "senderNameRequiredMulti": "",
-      "previewVariant_one": "",
-      "previewVariant_other": "",
       "variantHeading": "",
       "subject": "",
       "subjectHelp": "",
@@ -778,10 +718,8 @@
         "loadFailed": "",
         "willReceive": "",
         "excludedCount": "",
-        "notIncludable": "",
         "noAddress": "",
         "suppressedCount": "",
-        "joinedSinceLastSend": "",
         "newSinceLastSend": "",
         "manage": "",
         "manageHelp": "",
@@ -796,7 +734,6 @@
         },
         "selectAll": "",
         "selectPerson": "",
-        "selectedCount": "",
         "excludeSelected": "",
         "includeSelected": "",
         "noMatches": "",
@@ -816,7 +753,6 @@
         "include": "",
         "includeAction": "",
         "excludedHelp": "",
-        "notIncludableHelp": "",
         "excludedAfterSave": "",
         "includedAfterSave": "",
         "reasons": {
@@ -826,7 +762,11 @@
           "noServer": ""
         },
         "emptyTitle": "",
-        "emptyDescription": ""
+        "emptyDescription": "",
+        "notIncludable_other": "",
+        "joinedSinceLastSend_other": "",
+        "selectedCount_other": "",
+        "notIncludableHelp_other": ""
       },
       "delivery": {
         "title": "",
@@ -875,13 +815,12 @@
         "fromDomain": "",
         "fromDomainFail": "",
         "fromDomainUnknown": "",
-        "recipients_one": "",
-        "recipients_other": "",
         "recipientsFail": "",
         "recipientsChecking": "",
         "recipientsLoadFailed": "",
         "dns": "",
-        "dnsLink": ""
+        "dnsLink": "",
+        "recipients_other": ""
       },
       "actions": {
         "preview": "",
@@ -926,13 +865,16 @@
       "send": {
         "title": "",
         "previewing": "",
-        "summary": "",
         "nobody": "",
-        "trimmed_one": "",
-        "trimmed_other": "",
         "confirm": "",
-        "sending": ""
-      }
+        "sending": "",
+        "summary_other": "",
+        "trimmed_other": ""
+      },
+      "serversSelected_other": "",
+      "librariesSelected_other": "",
+      "senderNameRequiredMulti_other": "",
+      "previewVariant_other": ""
     },
     "history": {
       "empty": "",
@@ -944,7 +886,6 @@
         "test": ""
       },
       "window": "",
-      "recipients": "",
       "recipientsEmpty": "",
       "finished": "",
       "open": "",
@@ -957,7 +898,6 @@
         "suppressed": "",
         "unknown": ""
       },
-      "attempts": "",
       "unknownHelp": "",
       "openSnapshot": "",
       "variant": "",
@@ -965,7 +905,9 @@
       "openVariantSnapshot": "",
       "snapshotTitle": "",
       "pruned": "",
-      "retryFailed": ""
+      "retryFailed": "",
+      "recipients_other": "",
+      "attempts_other": ""
     }
   },
   "email": {
@@ -1033,11 +975,8 @@
     "syncedAgo": "",
     "neverSynced": "",
     "counts": {
-      "requests_one": "",
       "requests_other": "",
-      "unmatchedMedia_one": "",
       "unmatchedMedia_other": "",
-      "unmatchedUsers_one": "",
       "unmatchedUsers_other": ""
     },
     "needsKey": "",
@@ -1055,7 +994,6 @@
       "hideKey": "",
       "test": "",
       "testing": "",
-      "save": "",
       "saveHint": "",
       "match": "",
       "mismatch": "",

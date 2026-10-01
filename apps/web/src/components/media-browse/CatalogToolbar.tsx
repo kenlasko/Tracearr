@@ -205,7 +205,7 @@ export function CatalogToolbar({
   mobileScrubber,
   className,
 }: CatalogToolbarProps) {
-  const { t } = useTranslation('pages');
+  const { t } = useTranslation(['pages', 'common']);
   const isMobile = useIsMobile();
   const [searchInput, setSearchInput] = useState(search);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -743,7 +743,7 @@ export function CatalogToolbar({
             <FilterChip
               key={chip.key}
               label={chip.label}
-              removeLabel={t('media.grid.toolbar.removeFilter', { label: chip.label })}
+              removeLabel={t('common:filters.remove', { label: chip.label })}
               onRemove={chip.onRemove}
             />
           ))}

@@ -10,16 +10,11 @@
         "message": "Serveren er blevet fjernet"
       },
       "serverSynced": {
-        "title": "Server Synkroniseret",
-        "message": "Serverdata er synkroniseret"
+        "title": "Server Synkroniseret"
       },
       "settingsUpdated": {
         "title": "Indstillinger Opdateret",
         "message": "Dine indstillinger er blevet gemt"
-      },
-      "tokenCopied": {
-        "title": "Token Kopieret",
-        "message": "Par token kopieret til udklipsholder"
       },
       "violationAcknowledged": {
         "title": "Overtrædelse Anerkendt",
@@ -38,19 +33,11 @@
         "message": "Enhedens navn er blevet opdateret"
       },
       "sessionsRevoked": {
-        "title": "Sessioner Tilbagekaldt",
-        "message": "Alle mobilsessioner er blevet tilbagekaldt"
+        "title": "Sessioner Tilbagekaldt"
       },
       "loggedIn": {
         "title": "Succes",
         "message": "Logget ind"
-      },
-      "webhookTest": {
-        "title": "Test Lykkedes",
-        "message": "Webhook fungerer korrekt"
-      },
-      "copiedToClipboard": {
-        "title": "Kopieret til udklipsholder"
       },
       "plexAccountLinked": {
         "title": "Plex Konto Linket",
@@ -62,27 +49,14 @@
       },
       "plexAccountReauthorized": {
         "title": "",
-        "message_one": "",
-        "message_other": "",
         "messageNoServers": "",
         "partial": "",
-        "unmatched": ""
-      },
-      "agentAdded": {
-        "title": "Agent Tilføjet",
-        "message": "Anmeldelsesagenten er blevet tilføjet"
-      },
-      "agentUpdated": {
-        "title": "Agenten Opdateret",
-        "message": "Anmeldelsesagent er blevet opdateret"
-      },
-      "agentRemoved": {
-        "title": "Agenten Fjernet",
-        "message": "Anmeldelsesagenten er blevet fjernet"
+        "unmatched": "",
+        "message_one": "",
+        "message_other": ""
       },
       "jobCompleted": {
-        "title": "Job Afsluttet",
-        "message": "{{name}} afsluttet"
+        "title": "Job Afsluttet"
       },
       "automationCreated": {
         "title": "",
@@ -175,10 +149,11 @@
       "newsletterDuplicated": "",
       "newsletterTestQueued": "",
       "newsletterSendQueued": "",
-      "newsletterRetryQueued": "",
       "brandingSaved": "",
       "suppressionAdded": "",
-      "suppressionRemoved": ""
+      "suppressionRemoved": "",
+      "newsletterRetryQueued_one": "",
+      "newsletterRetryQueued_other": ""
     },
     "error": {
       "serverAddFailed": "Mislykkedes at tilføje server",
@@ -189,7 +164,6 @@
       "acknowledgeFailed": "Mislykkedes at anerkende overtrædelse",
       "dismissFailed": "Mislykkedes at afvise overtrædelse",
       "authFailed": "Godkendelse mislykkedes",
-      "webhookTestFailed": "Webhook-test mislykkedes",
       "automationCreateFailed": "",
       "automationUpdateFailed": "",
       "automationDeleteFailed": "",
@@ -208,14 +182,8 @@
       "sessionsRevokeFailed": "Mislykkedes at tilbagekalde sessioner",
       "identityUpdateFailed": "",
       "trustScoresResetFailed": "Mislykkedes at nulstille trust scores",
-      "routingUpdateFailed": "Kunne ikke opdatere routing",
-      "clipboardFailed": "Kunne ikke kopiere til udklipsholder",
       "plexUnlinkFailed": "Kunne ikke frakoble Plex konto",
       "plexReauthorizeFailed": "",
-      "agentAddFailed": "Mislykkedes at tilføje agent",
-      "agentUpdateFailed": "Mislykkedes at opdatere agent",
-      "agentRemoveFailed": "Mislykkedes at fjerne agent",
-      "agentTestFailed": "Test mislykkedes",
       "jobAlreadyRunning": "Job kører allerede",
       "jobStartFailed": "Mislykkedes at starte job",
       "jobLoadFailed": "Kunne ikke indlæse vedligeholdelsesjob",
@@ -248,8 +216,7 @@
     },
     "warning": {
       "jobFailed": {
-        "title": "Job Mislykkedes",
-        "message": "{{name}} stødte på en fejl"
+        "title": "Job Mislykkedes"
       }
     },
     "info": {
@@ -263,43 +230,23 @@
       }
     }
   },
-  "push": {
-    "violationDetected": "Deler Overtrædelse Fundet",
-    "streamStarted": "Stream Startet",
-    "streamEnded": "Stream Afsluttet",
-    "serverDown": "Serverforbindelse Mistet",
-    "serverUp": "Server Tilbage Online",
-    "newDevice": "Ny Enhed",
-    "trustScoreChanged": "Tillid Score Ændret"
-  },
   "settings": {
-    "title": "Indstillinger For Notifikationer",
     "allSeverity": "Alle (lav, Advarsel, Høj)",
     "warningAndHigh": "Kun advarsel og høj",
     "highOnly": "Kun høj sværhedsgrad",
-    "allTypes": "Alle Typer",
     "rateLimit": "Nuværende Rate Limit Status",
     "perMinute": "Pr. Minut",
     "perHour": "Pr. Time",
     "enablePushNotifications": "Aktiver Push-notifikationer",
     "notificationEvents": "Notifikation Begivenheder",
     "violationDetected": "Overtrædelse Registreret",
-    "violationDetectedDesc": "Når en deling overtrædelse er udløst",
     "streamStarted": "Stream Startet",
-    "streamStartedDesc": "Når en bruger begynder at se",
     "streamStopped": "Stream Stoppet",
-    "streamStoppedDesc": "Når en bruger stopper ser",
     "concurrentStreams": "Samtidige Streams",
-    "concurrentStreamsDesc": "Når maks. stream grænse er overskredet",
     "newDevice": "Ny Enhed",
-    "newDeviceDesc": "Når en ny enhed tilsluttes",
     "trustScoreChanged": "Tillid Score Ændret",
-    "trustScoreChangedDesc": "Når en brugers tillidsscore ændres",
     "serverDown": "Server Ned",
-    "serverDownDesc": "Når en medieserver går offline",
     "serverUp": "Server Op",
-    "serverUpDesc": "Når en medieserver kommer tilbage online",
-    "violationFilters": "Overtrædelse Filtre",
     "minimumSeverity": "Minimum Alvorlighed",
     "quietHours": "Stille Timer",
     "enableQuietHours": "Aktiver Stille Timer",

@@ -58,7 +58,7 @@ function TablePanelSkeleton() {
 }
 
 export function MediaGenres() {
-  const { t } = useTranslation('pages');
+  const { t } = useTranslation(['pages', 'common']);
   const { selectedServerIds, isLoading: serversLoading, refetch } = useServer();
   const [type, setType] = useState<'movie' | 'show'>('movie');
 
@@ -147,7 +147,7 @@ export function MediaGenres() {
                     {t('media.genres.table.columns.genre')}
                   </TableHead>
                   <TableHead className="text-muted-foreground text-right text-[10.5px] font-semibold tracking-[0.07em] uppercase">
-                    {t('media.genres.table.columns.items')}
+                    {t('common:labels.items')}
                   </TableHead>
                   <TableHead className="text-muted-foreground text-right text-[10.5px] font-semibold tracking-[0.07em] uppercase">
                     {t('media.genres.table.columns.plays')}

@@ -56,7 +56,7 @@ export function CopiesPanel({
   onRetry,
   serverById,
 }: CopiesPanelProps) {
-  const { t } = useTranslation('pages');
+  const { t } = useTranslation(['pages', 'common']);
 
   const activeCopies = (availability ?? []).filter((entry) => entry.removedAt == null);
   const hasEpisodeCounts = activeCopies.some((entry) => entry.episodeCount != null);
@@ -82,17 +82,15 @@ export function CopiesPanel({
             <TableCaption className="sr-only">{t('media.detail.copies.title')}</TableCaption>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>{t('media.detail.copies.columns.server')}</TableHead>
+                <TableHead>{t('common:labels.server')}</TableHead>
                 <TableHead>{t('media.detail.copies.columns.library')}</TableHead>
-                <TableHead>{t('media.detail.copies.columns.quality')}</TableHead>
+                <TableHead>{t('common:labels.quality')}</TableHead>
                 {hasEpisodeCounts && (
                   <TableHead className="text-right">
                     {t('media.detail.copies.columns.episodes')}
                   </TableHead>
                 )}
-                <TableHead className="text-right">
-                  {t('media.detail.copies.columns.size')}
-                </TableHead>
+                <TableHead className="text-right">{t('common:labels.size')}</TableHead>
                 <TableHead className="text-right">
                   {t('media.detail.copies.columns.added')}
                 </TableHead>

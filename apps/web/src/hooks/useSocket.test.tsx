@@ -246,18 +246,19 @@ describe('SocketProvider', () => {
     }
   });
 
-  it('renders a rule toast from the notification payload', () => {
+  it('renders an automation toast from the notification payload', () => {
     setup();
     fire(WS_EVENTS.NOTIFICATION_TOAST, {
       title: 'Rule tripped',
       message: 'alice is streaming from two places',
-      ruleId: 'r1',
-      ruleName: 'Concurrent streams',
+      automationId: 'a1',
+      automationName: 'Concurrent streams',
       severity: 'high',
     });
 
     expect(toast.error).toHaveBeenCalledWith('Rule tripped', {
       description: 'alice is streaming from two places',
+      descriptionClassName: 'whitespace-pre-line',
       duration: 10000,
     });
   });

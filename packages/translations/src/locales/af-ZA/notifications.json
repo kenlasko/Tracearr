@@ -10,14 +10,9 @@
         "message": ""
       },
       "serverSynced": {
-        "title": "",
-        "message": ""
+        "title": ""
       },
       "settingsUpdated": {
-        "title": "",
-        "message": ""
-      },
-      "tokenCopied": {
         "title": "",
         "message": ""
       },
@@ -38,19 +33,11 @@
         "message": ""
       },
       "sessionsRevoked": {
-        "title": "",
-        "message": ""
+        "title": ""
       },
       "loggedIn": {
         "title": "",
         "message": ""
-      },
-      "webhookTest": {
-        "title": "",
-        "message": ""
-      },
-      "copiedToClipboard": {
-        "title": ""
       },
       "plexAccountLinked": {
         "title": "",
@@ -62,27 +49,14 @@
       },
       "plexAccountReauthorized": {
         "title": "",
-        "message_one": "",
-        "message_other": "",
         "messageNoServers": "",
         "partial": "",
-        "unmatched": ""
-      },
-      "agentAdded": {
-        "title": "",
-        "message": ""
-      },
-      "agentUpdated": {
-        "title": "",
-        "message": ""
-      },
-      "agentRemoved": {
-        "title": "",
-        "message": ""
+        "unmatched": "",
+        "message_one": "",
+        "message_other": ""
       },
       "jobCompleted": {
-        "title": "",
-        "message": ""
+        "title": ""
       },
       "automationCreated": {
         "title": "",
@@ -175,10 +149,11 @@
       "newsletterDuplicated": "",
       "newsletterTestQueued": "",
       "newsletterSendQueued": "",
-      "newsletterRetryQueued": "",
       "brandingSaved": "",
       "suppressionAdded": "",
-      "suppressionRemoved": ""
+      "suppressionRemoved": "",
+      "newsletterRetryQueued_one": "",
+      "newsletterRetryQueued_other": ""
     },
     "error": {
       "serverAddFailed": "",
@@ -189,7 +164,6 @@
       "acknowledgeFailed": "",
       "dismissFailed": "",
       "authFailed": "",
-      "webhookTestFailed": "",
       "automationCreateFailed": "",
       "automationUpdateFailed": "",
       "automationDeleteFailed": "",
@@ -208,14 +182,8 @@
       "sessionsRevokeFailed": "",
       "identityUpdateFailed": "",
       "trustScoresResetFailed": "",
-      "routingUpdateFailed": "",
-      "clipboardFailed": "",
       "plexUnlinkFailed": "",
       "plexReauthorizeFailed": "",
-      "agentAddFailed": "",
-      "agentUpdateFailed": "",
-      "agentRemoveFailed": "",
-      "agentTestFailed": "",
       "jobAlreadyRunning": "",
       "jobStartFailed": "",
       "jobLoadFailed": "",
@@ -248,8 +216,7 @@
     },
     "warning": {
       "jobFailed": {
-        "title": "",
-        "message": ""
+        "title": ""
       }
     },
     "info": {
@@ -263,43 +230,23 @@
       }
     }
   },
-  "push": {
-    "violationDetected": "",
-    "streamStarted": "",
-    "streamEnded": "",
-    "serverDown": "",
-    "serverUp": "",
-    "newDevice": "",
-    "trustScoreChanged": ""
-  },
   "settings": {
-    "title": "",
     "allSeverity": "",
     "warningAndHigh": "",
     "highOnly": "",
-    "allTypes": "",
     "rateLimit": "",
     "perMinute": "",
     "perHour": "",
     "enablePushNotifications": "",
     "notificationEvents": "",
     "violationDetected": "",
-    "violationDetectedDesc": "",
     "streamStarted": "",
-    "streamStartedDesc": "",
     "streamStopped": "",
-    "streamStoppedDesc": "",
     "concurrentStreams": "",
-    "concurrentStreamsDesc": "",
     "newDevice": "",
-    "newDeviceDesc": "",
     "trustScoreChanged": "",
-    "trustScoreChangedDesc": "",
     "serverDown": "",
-    "serverDownDesc": "",
     "serverUp": "",
-    "serverUpDesc": "",
-    "violationFilters": "",
     "minimumSeverity": "",
     "quietHours": "",
     "enableQuietHours": "",

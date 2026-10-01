@@ -1,7 +1,6 @@
 {
   "pair": {
     "welcome": "欢迎使用 Tracearr",
-    "addServer": "添加服务器",
     "connectToServer": "连接到服务器",
     "enterServerDetails": "输入您的 Tracearr 服务器 URL 和移动访问令牌",
     "serverUrl": "服务器 URL",
@@ -16,10 +15,7 @@
     "pleaseEnterToken": "请输入您的访问令牌"
   },
   "errors": {
-    "missingFields": "缺失必填字段",
-    "pleaseEnterBothFields": "请同时输入服务器 URL 和令牌",
     "invalidUrl": "地址无效",
-    "serverUrlMustStartWith": "服务器 URL 必须以 http:// 或 https:// 开头",
     "pleaseEnterValidUrl": "请输入一个有效的服务器 URL",
     "pairingFailed": "配对失败",
     "unableToPair": "无法与服务器配对",
@@ -28,12 +24,7 @@
     "invalidQrCodeFormat": "无效的二维码格式。请生成一个新的代码。",
     "invalidQrCodeMissingUrl": "无效的二维码：缺少服务器 URL",
     "invalidQrCodeMissingToken": "无效的二维码：缺少配对令牌",
-    "invalidServerUrlInQr": "QR码中无效的服务器 URL",
-    "tooManyPairingAttempts": "尝试配对太多。请等待几分钟。",
-    "invalidOrExpiredToken": "配对令牌无效或过期。",
-    "invalidPairingRequest": "无效配对请求。请检查您的令牌。",
     "errorDetails": "错误详情：",
-    "componentStack": "组件堆栈：",
     "connectionLost": "连接丢失",
     "failedToLoadSession": "加载会话失败"
   },
@@ -63,10 +54,8 @@
     "build": "构建{{build}}"
   },
   "navigation": {
-    "home": "主页",
     "selectServer": "选择服务器",
-    "server": "服务器",
-    "navigation": "导航栏"
+    "server": "服务器"
   },
   "resources": {
     "cpu": "处理器",
@@ -86,7 +75,6 @@
     "ruleViolationTriggered": "触发了规则的违规行为",
     "newPlaybackBegan": "开始新的播放",
     "playbackEnded": "播放结束",
-    "exceededStreamLimit": "用户超过流限制",
     "newDeviceDetected": "检测到用户的新设备",
     "trustScoreDegraded": "用户信任得分已降级",
     "serverUnreachable": "无法访问媒体服务器",
@@ -125,14 +113,14 @@
     "userMayBeRemoved": "该用户可能已被删除。",
     "noLocationsRecorded": "没有记录的位置",
     "noDevicesRecorded": "没有任何设备记录",
-    "moreLocations": "+{{count}} 个更多连接",
-    "moreDevices": "{{count}}",
     "noViolations": "没有违反行为",
     "noTerminations": "没有流终止",
     "lastSeen": "",
     "terminatedBy": "",
     "trustScoreConfirm": "",
-    "trustScoreRange": ""
+    "trustScoreRange": "",
+    "moreLocations_other": "+{{count}} 个更多连接",
+    "moreDevices_other": "{{count}}"
   },
   "violation": {
     "violationNotFoundDesc": "更多设备。",
@@ -143,14 +131,13 @@
     "acknowledgeAll": "",
     "acknowledgeAllBody": "",
     "acknowledgeAllBodySeverity": "",
-    "acknowledgeAllTitle_one": "",
-    "acknowledgeAllTitle_other": "",
     "all": "",
     "allClear": "",
     "allServers": "",
     "noAlertsRecorded": "",
     "noMatches": "",
-    "pendingCount": ""
+    "acknowledgeAllTitle_other": "",
+    "pendingCount_other": ""
   },
   "history": {
     "adjustFilters": "尝试调整筛选条件",
@@ -163,7 +150,7 @@
       "noCountries": "",
       "noPlatforms": "",
       "noUsers": "",
-      "sectionSelected": ""
+      "sectionSelected_other": ""
     }
   },
   "users": {
@@ -193,28 +180,23 @@
     "allServers": "所有服务器"
   },
   "reconnected": "已经重新连接",
-  "serverScope": {
-    "single": "仅显示{{name}}"
-  },
   "a11y": {
     "selectServer": "选择服务器",
     "alerts": "警告",
-    "alertsCount": "提醒，{{count}} 条未读",
     "settings": "设置",
     "trustScore": "信任分数{{score}}",
     "decreaseTrustScore": "",
-    "filtersActive": "",
     "increaseTrustScore": "",
     "sortAscending": "",
-    "sortDescending": ""
+    "sortDescending": "",
+    "alertsCount_other": "提醒，{{count}} 条未读",
+    "filtersActive_other": ""
   },
   "map": {
     "noData": "无可用位置数据",
     "unavailable": "地图不可用"
   },
   "automations": {
-    "conditions_one": "",
-    "conditions_other": "",
     "editOnWeb": "",
     "emptyDescription": "",
     "kind": {
@@ -227,7 +209,8 @@
     "turnOnFailed": "",
     "unsupportedDescription": "",
     "unsupportedTitle": "",
-    "versionCheckFailed": ""
+    "versionCheckFailed": "",
+    "conditions_other": ""
   },
   "charts": {
     "weekOf": ""
@@ -261,10 +244,8 @@
   },
   "widget": {
     "asOf": "",
-    "serversDown_one": "",
-    "serversDown_other": "",
     "signedOut": "",
-    "transcodes_one": "",
+    "serversDown_other": "",
     "transcodes_other": ""
   }
 }

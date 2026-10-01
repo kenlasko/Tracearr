@@ -1,7 +1,6 @@
 {
   "pair": {
     "welcome": "Witaj w Tracearr",
-    "addServer": "Dodaj serwer",
     "connectToServer": "Połącz z serwerem",
     "enterServerDetails": "Wprowadź swój adres URL serwera Tracearr i token dostępu mobilnego",
     "serverUrl": "Adres URL serwera",
@@ -16,10 +15,7 @@
     "pleaseEnterToken": "Wprowadź swój token dostępu"
   },
   "errors": {
-    "missingFields": "Brakujące pola",
-    "pleaseEnterBothFields": "Wprowadź adres URL serwera i token",
     "invalidUrl": "Nieprawidłowy adres URL",
-    "serverUrlMustStartWith": "Adres URL serwera musi zaczynać się od http:// lub https://",
     "pleaseEnterValidUrl": "Wprowadź prawidłowy adres URL serwera",
     "pairingFailed": "Parowanie nieudane",
     "unableToPair": "Nie można sparować z serwerem",
@@ -28,12 +24,7 @@
     "invalidQrCodeFormat": "Nieprawidłowy format kodu QR. Wygeneruj nowy kod.",
     "invalidQrCodeMissingUrl": "Nieprawidłowy kod QR: brakujący adres URL serwera",
     "invalidQrCodeMissingToken": "Nieprawidłowy kod QR brakujący token parowania",
-    "invalidServerUrlInQr": "Nieprawidłowy adres URL serwera w kodzie QR",
-    "tooManyPairingAttempts": "Zbyt wiele prób parowania. Poczekaj kilka minut.",
-    "invalidOrExpiredToken": "Token parowania jest nieprawidłowy lub wygasł.",
-    "invalidPairingRequest": "Niepoprawna prośba o parowanie. Sprawdź token.",
     "errorDetails": "Szczegóły błędu:",
-    "componentStack": "Stos komponentów:",
     "connectionLost": "Utracono połączenie",
     "failedToLoadSession": "Nie udało się załadować sesji"
   },
@@ -63,10 +54,8 @@
     "build": "Kompilacja {{build}}"
   },
   "navigation": {
-    "home": "Strona główna",
     "selectServer": "Wybierz serwer",
-    "server": "Serwer",
-    "navigation": "Nawigacja"
+    "server": "Serwer"
   },
   "resources": {
     "cpu": "Procesor",
@@ -86,7 +75,6 @@
     "ruleViolationTriggered": "Wykryto naruszenie reguły",
     "newPlaybackBegan": "Rozpoczęto nowe odtwarzanie",
     "playbackEnded": "Odtwarzanie zakończone",
-    "exceededStreamLimit": "Użytkownik przekroczył limit strumieni",
     "newDeviceDetected": "Wykryto nowe urządzenie użytkownika",
     "trustScoreDegraded": "Poziom zaufania użytkownika uległ pogorszeniu",
     "serverUnreachable": "Serwer mediów nieosiągalny",
@@ -125,14 +113,20 @@
     "userMayBeRemoved": "Ten użytkownik mógł zostać usunięty.",
     "noLocationsRecorded": "Brak zarejestrowanych lokalizacji",
     "noDevicesRecorded": "Brak zarejestrowanych urządzeń",
-    "moreLocations": "+{{count}} więcej lokalizacji",
-    "moreDevices": "+{{count}} więcej urządzeń",
     "noViolations": "Brak naruszeń",
     "noTerminations": "Brak przerwanych strumieni",
     "lastSeen": "Ostatnio widziany {{relative}}",
     "terminatedBy": "Przez @{{username}}",
     "trustScoreConfirm": "Ustawić poziom zaufania dla @{{username}} na {{score}}?",
-    "trustScoreRange": "Poziom zaufania dla @{{username}}, od 0 do 100."
+    "trustScoreRange": "Poziom zaufania dla @{{username}}, od 0 do 100.",
+    "moreLocations_one": "",
+    "moreLocations_few": "",
+    "moreLocations_many": "",
+    "moreLocations_other": "+{{count}} więcej lokalizacji",
+    "moreDevices_one": "",
+    "moreDevices_few": "",
+    "moreDevices_many": "",
+    "moreDevices_other": "+{{count}} więcej urządzeń"
   },
   "violation": {
     "violationNotFoundDesc": "To naruszenie mogło zostać odrzucone lub nie jest już dostępne.",
@@ -143,14 +137,19 @@
     "acknowledgeAll": "Potwierdź wszystkie",
     "acknowledgeAllBody": "Każde oczekujące powiadomienie na {{servers}} zostanie oznaczone jako potwierdzone. Tej operacji nie można cofnąć.",
     "acknowledgeAllBodySeverity": "Każde oczekujące powiadomienie o poziomie {{severity}} na {{servers}} zostanie oznaczone jako potwierdzone. Tej operacji nie można cofnąć.",
-    "acknowledgeAllTitle_one": "Potwierdzić {{count}} powiadomienie?",
-    "acknowledgeAllTitle_other": "Potwierdzić {{count}} powiadomień?",
     "all": "Wszystkie",
     "allClear": "Wszystko wyczyszczone",
     "allServers": "wszystkie serwery",
     "noAlertsRecorded": "Nie zarejestrowano jeszcze żadnych powiadomień.",
     "noMatches": "Brak pasujących powiadomień",
-    "pendingCount": "{{count}} oczekujących"
+    "acknowledgeAllTitle_one": "Potwierdzić {{count}} powiadomienie?",
+    "acknowledgeAllTitle_few": "",
+    "acknowledgeAllTitle_many": "",
+    "acknowledgeAllTitle_other": "Potwierdzić {{count}} powiadomień?",
+    "pendingCount_one": "",
+    "pendingCount_few": "",
+    "pendingCount_many": "",
+    "pendingCount_other": "{{count}} oczekujących"
   },
   "history": {
     "adjustFilters": "Spróbuj dostosować swoje filtry",
@@ -163,7 +162,10 @@
       "noCountries": "Brak dostępnych krajów",
       "noPlatforms": "Brak dostępnych platform",
       "noUsers": "Brak dostępnych użytkowników",
-      "sectionSelected": "{{section}}, {{count}} wybranych"
+      "sectionSelected_one": "",
+      "sectionSelected_few": "",
+      "sectionSelected_many": "",
+      "sectionSelected_other": "{{section}}, {{count}} wybranych"
     }
   },
   "users": {
@@ -193,28 +195,29 @@
     "allServers": "Wszystkie serwery"
   },
   "reconnected": "Połączono ponownie",
-  "serverScope": {
-    "single": "Wyświetlanie tylko {{name}}"
-  },
   "a11y": {
     "selectServer": "Wybierz serwer",
     "alerts": "Powiadomienia",
-    "alertsCount": "Powiadomienia, {{count}} nieprzeczytane",
     "settings": "Ustawienia",
     "trustScore": "Poziom zaufania {{score}}",
     "decreaseTrustScore": "Zmniejsz poziom zaufania",
-    "filtersActive": "Filtry, {{count}} aktywne",
     "increaseTrustScore": "Zwiększ poziom zaufania",
     "sortAscending": "Posortowano rosnąco, stuknij, aby odwrócić",
-    "sortDescending": "Posortowano malejąco, stuknij, aby odwrócić"
+    "sortDescending": "Posortowano malejąco, stuknij, aby odwrócić",
+    "alertsCount_one": "",
+    "alertsCount_few": "",
+    "alertsCount_many": "",
+    "alertsCount_other": "Powiadomienia, {{count}} nieprzeczytane",
+    "filtersActive_one": "",
+    "filtersActive_few": "",
+    "filtersActive_many": "",
+    "filtersActive_other": "Filtry, {{count}} aktywne"
   },
   "map": {
     "noData": "Brak danych o lokalizacji",
     "unavailable": "Mapa jest niedostępna"
   },
   "automations": {
-    "conditions_one": "{{count}} warunek",
-    "conditions_other": "{{count}} warunki",
     "editOnWeb": "Automatyzacje mogą być tworzone i edytowane w aplikacji Web Tracearr.",
     "emptyDescription": "Utwórz automatyzacje w aplikacji internetowej Tracearr, a pojawią się tutaj.",
     "kind": {
@@ -227,7 +230,11 @@
     "turnOnFailed": "Nie udało się włączyć. Nadal jest wyłączona.",
     "unsupportedDescription": "Ten serwer zgłasza wersję {{version}}. Zaktualizuj Tracearr, aby zobaczyć automatyzacje i ich wykonania.",
     "unsupportedTitle": "Automatyzacje wymagają serwera 2.2 lub nowszego",
-    "versionCheckFailed": "Nie udało się sprawdzić wersji serwera"
+    "versionCheckFailed": "Nie udało się sprawdzić wersji serwera",
+    "conditions_one": "{{count}} warunek",
+    "conditions_few": "",
+    "conditions_many": "",
+    "conditions_other": "{{count}} warunki"
   },
   "charts": {
     "weekOf": "Tydzień {{date}}"
@@ -261,10 +268,14 @@
   },
   "widget": {
     "asOf": "zaktualizowano {{time}}",
-    "serversDown_one": "{{count}} serwer nieaktywny",
-    "serversDown_other": "{{count}} serwery nieaktywne",
     "signedOut": "Otwórz Tracearr, aby sparować serwer.",
+    "serversDown_one": "{{count}} serwer nieaktywny",
+    "serversDown_few": "",
+    "serversDown_many": "",
+    "serversDown_other": "{{count}} serwery nieaktywne",
     "transcodes_one": "{{count}} transkodowanie",
+    "transcodes_few": "",
+    "transcodes_many": "",
     "transcodes_other": "{{count}} transkodowań"
   }
 }

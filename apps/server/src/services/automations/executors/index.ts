@@ -405,6 +405,7 @@ function violationEventFor(context: EvaluationContext): NotificationEvent | null
               sourceVideoCodec: session.sourceVideoCodec,
               seasonNumber: session.seasonNumber,
               episodeNumber: session.episodeNumber,
+              grandparentTitle: session.grandparentTitle,
             }
           : {}),
         ...triggerNumbers(context),
@@ -448,13 +449,15 @@ const executeSend: ActionExecutor = async (
   const event = native ?? violationEventFor(context);
   if (!event) return { skipReason: 'No account to notify about' };
 
-  const body = typedAction.body ?? defaultBodyFor(context);
+  const defaultBody = defaultBodyFor(context);
   const source: NotificationSource = {
     kind: 'automation',
     automationId: rule.id,
     automationName: rule.name,
     ...(typedAction.title !== undefined && { title: typedAction.title }),
-    ...(body !== undefined && { body }),
+    ...(typedAction.body !== undefined && { body: typedAction.body }),
+    ...(defaultBody !== undefined && { defaultBody }),
+    ...(typedAction.priority !== undefined && { priority: typedAction.priority }),
   };
 
   const enqueued = await currentDeps.enqueueAutomationNotification({ to, event, source });

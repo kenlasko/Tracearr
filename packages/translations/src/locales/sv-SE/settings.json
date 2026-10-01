@@ -49,14 +49,9 @@
     }
   },
   "general": {
-    "title": "Allmänna inställningar",
     "unitSystem": "Enhetssystem",
     "metric": "Metrisk (km, km/h)",
     "imperial": "",
-    "timezone": "",
-    "primaryAuth": "Primär autentiseringsmetod",
-    "localAccount": "Lokalt konto",
-    "plexAccount": "Plex konto",
     "language": "Språk",
     "languageDescription": "Välj önskat visningsspråk.",
     "helpTranslate": "Hjälp till att översätta Tracearr",
@@ -127,7 +122,6 @@
       "size": "",
       "files": "",
       "need": "",
-      "needHint": "",
       "free": "",
       "freeOf": "",
       "floor": "",
@@ -138,18 +132,16 @@
       "never": "",
       "diskLimited": "",
       "loadError": "",
-      "notPersisting": ""
+      "notPersisting": "",
+      "needHint_one": "",
+      "needHint_other": ""
     }
   },
   "servers": {
-    "title": "Anslutna servrar",
     "addServer": "Lägg till server",
     "serverName": "Serverns namn",
     "serverUrl": "",
-    "syncInterval": "Synkronisera intervall",
     "testConnection": "Testa anslutning",
-    "connectionSuccess": "Anslutningen lyckades",
-    "connectionFailed": "Anslutningen misslyckades",
     "noServersConnected": "Inga servrar anslutna",
     "noServersConnectedHint": "Klicka på \"Lägg till server\" för att ansluta en Jellyfin eller Emby server",
     "serverType": "Typ av server",
@@ -162,11 +154,8 @@
     "allServersConnected": "Alla servrar anslutna",
     "allServersConnectedDesc": "Alla servrar från detta konto är redan anslutna.",
     "serverUrlPlaceholder": "",
-    "serverUrlHelp": "Direkt URL till din Jellyfin eller Emby server. Använd IP:port för bästa tillförlitlighet.",
     "serverNamePlaceholder": "Min mediaserver",
     "apiKeyPlaceholder": "Ange din API-nyckel",
-    "apiKeyHelp": "Hittades i din mediaservers instrumentpanel under API-nycklar eller Avancerade inställningar.",
-    "connecting": "Ansluter...",
     "connectServer": "Anslut server",
     "removeServer": "Ta bort server",
     "removeServerConfirm": "Är du säker på att du vill ta bort denna server? Alla tillhörande sessionsdata kommer att behållas, men du kommer inte att kunna övervaka nya sessioner från denna server.",
@@ -178,7 +167,6 @@
     "allFieldsRequired": "Alla fält är obligatoriska",
     "addServerDialogDescPlex": "Välj en Plex-server från ditt länkade konto.",
     "addServerDialogDescOther": "Anslut en Jellyfin eller Emby server.",
-    "description": "",
     "discoveringServers": "Upptäcker tillgängliga Plex-servrar...",
     "discoveringConnections": "Upptäcker anslutningar...",
     "plexAccount": "Plex konto",
@@ -208,7 +196,6 @@
       "addMove": "",
       "fromBeginning": "",
       "movedOn": "",
-      "remove": "",
       "latitude": "",
       "longitude": "",
       "country": "",
@@ -232,14 +219,11 @@
       "copyUrl": "",
       "jellyfinRepoUrl": "",
       "autoDetectNote": "",
-      "close": "",
       "issueBlocked": "",
       "issueRestartRequired": "",
       "issueMalfunctioned": ""
     },
     "posterSource": {
-      "title": "",
-      "titleDesc": "",
       "label": "",
       "description": "",
       "automatic": "",
@@ -271,7 +255,6 @@
     "enableMobileAccess": "Aktivera mobil åtkomst",
     "enabling": "Aktiverar...",
     "devicesConnected": "{{current}} av {{max}} anslutna enheter",
-    "pendingTokens": "{{count}} väntande par-tokens",
     "addDevice": "Lägg till enhet",
     "disableMobileAccess": "Inaktivera mobil åtkomst",
     "revokeAllSessions": "Återkalla alla",
@@ -294,7 +277,9 @@
     "removeDeviceConfirm": "Är du säker på att du vill ta bort {{deviceName}}? Den här enheten måste koppla ihop igen för att återansluta.",
     "externalUrlBanner": "Använda en omvänd proxy eller fjärråtkomst? Ställ in din",
     "externalUrlBannerLink": "Extern URL",
-    "externalUrlBannerSuffix": "så att mobilappen kan ansluta till din server."
+    "externalUrlBannerSuffix": "så att mobilappen kan ansluta till din server.",
+    "pendingTokens_one": "",
+    "pendingTokens_other": "{{count}} väntande par-tokens"
   },
   "tailscale": {
     "title": "Skräddarsydd VPN",
@@ -316,8 +301,6 @@
     "showLogs": "Visa loggar",
     "hideLogs": "Dölj loggar",
     "noLogs": "Ingen loggutgång tillgänglig.",
-    "exitNodeNone": "Ingen",
-    "exitNodeOffline": "",
     "unknownError": "Ett okänt fel uppstod.",
     "disableConfirmTitle": "Inaktivera Svansskala?",
     "disableConfirmDescription": "Detta kommer att koppla bort Tracearr från din tailnet. Du kan återaktivera utan att auktorisera.",
@@ -361,33 +344,12 @@
     "automatic": "",
     "startJob": "Starta jobb"
   },
-  "advanced": {
-    "title": "Avancerade inställningar",
-    "externalUrl": "Extern URL",
-    "trustProxy": "Lita på proxyhuvuden",
-    "reverseProxy": "Omvänd proxy",
-    "connectionScenarios": "Anslutning scenarier"
-  },
   "accessControl": {
-    "title": "Åtkomstkontroll",
-    "description": "",
     "allowGuestAccess": "Tillåt gäståtkomst",
     "allowGuestAccessDesc": "När den är inaktiverad, kan endast serverägaren logga in på Tracearr",
     "singleOwnerNote": "Obs: När gäståtkomst är inaktiverad kan endast serverägaren logga in. Alla andra användare kommer att se ett meddelande \"Åtkomst nekad\"."
   },
   "import": {
-    "title": "Importera data",
-    "jellystat": "Importera från Jellystat",
-    "tautulli": "Importera från Tautulli",
-    "importProgress": "Importera framsteg",
-    "importComplete": "Importen slutförd",
-    "importFailed": "Importen misslyckades",
-    "processed": "Bearbetad",
-    "page": "Sida",
-    "imported": "Importerad",
-    "skipped": "Överhoppad",
-    "enriched": "Berikad",
-    "errors": "Fel",
     "noServers": "Inga servrar anslutna",
     "noServersHint": "Du behöver minst en ansluten server för att importera data.",
     "tautulliUrl": "",
@@ -424,8 +386,6 @@
     "uploadingBackup": "Laddar upp säkerhetskopians fil...",
     "plex": "",
     "jellyfinEmby": "",
-    "step1": "",
-    "step2": "",
     "apiKeyPlaceholder": "Din Tautulli API-nyckel",
     "skipUserNotFoundPlex": "Användaren hittades inte — Plex-användaren finns inte i Tracearr. Synkronisera servern först för att lägga till alla användare.",
     "skipDuplicate": "Duplicera session — Sessionen importerades redan tidigare.",
@@ -446,10 +406,12 @@
     "serverTimezoneHelp": "",
     "importFullRange": "",
     "importFullRangeHelp": "",
-    "overlapSkipped": "",
-    "duplicates": "",
     "skipOverlap": "",
-    "skipDuplicatePlugin": ""
+    "skipDuplicatePlugin": "",
+    "overlapSkipped_one": "",
+    "overlapSkipped_other": "",
+    "duplicates_one": "",
+    "duplicates_other": ""
   },
   "plex": {
     "signInWithPlex": "Logga in med Plex",
@@ -461,10 +423,7 @@
     "createAccount": "Skapa konto",
     "email": "E-post",
     "password": "Lösenord",
-    "displayName": "Visningsnamn",
-    "createYourAccount": "Skapa ditt konto för att komma igång",
-    "signInToAccount": "Logga in på ditt konto",
-    "useLocalAccount": "Använd lokalt konto istället"
+    "displayName": "Visningsnamn"
   },
   "update": {
     "title": "Uppdatering tillgänglig",
@@ -489,8 +448,6 @@
     "earlier": "",
     "installedBadge": "",
     "latestBadge": "",
-    "changeCount_one": "",
-    "changeCount_other": "",
     "series": "",
     "docs": "",
     "source": "",
@@ -501,11 +458,14 @@
       "fix": "",
       "security": "",
       "note": ""
-    }
+    },
+    "changeCount_one": "",
+    "changeCount_other": ""
   },
   "serverHealth": {
     "unreachable": "{{serverName}} kan inte nås",
-    "multipleUnreachable": "{{count}} servrar onåbara: {{serverNames}}"
+    "multipleUnreachable_one": "",
+    "multipleUnreachable_other": "{{count}} servrar onåbara: {{serverNames}}"
   },
   "ipWarning": {
     "message": "Alla användare verkar använda samma IP-adress eller lokala nätverksIP-adresser. Detta kan påverka regelbaserad logik för plats eller IP-adresser.",
@@ -524,9 +484,6 @@
     "lowDiskSpace": "Låg diskutrymme — säkerhetskopior och återställningar kräver minst två gånger databasens storlek i ledigt utrymme.",
     "backupHistory": "Säkerhetskopians historik",
     "noBackups": "Inga säkerhetskopior än. Skapa din första säkerhetskopia ovan.",
-    "size": "Storlek",
-    "date": "Datum",
-    "type": "Typ",
     "version": "",
     "actions": "Åtgärder",
     "rowActions": "",
@@ -599,7 +556,6 @@
     "noDestinationDescription": "",
     "noDestinationHint": "",
     "addEmailDestination": "",
-    "enabled": "",
     "rowActions": "",
     "duplicate": "",
     "sendNow": "",
@@ -641,7 +597,6 @@
       "link": "",
       "bulletList": "",
       "linkHref": "",
-      "linkApply": "",
       "counter": ""
     },
     "editor": {
@@ -689,10 +644,12 @@
       },
       "windowSentence": {
         "fallback": "",
-        "fallbackLabel": "",
         "fixed": "",
         "fixedAfter": "",
-        "fixedLabel": ""
+        "fallbackLabel_one": "",
+        "fallbackLabel_other": "",
+        "fixedLabel_one": "",
+        "fixedLabel_other": ""
       },
       "windowMax": "",
       "days": "",
@@ -700,14 +657,12 @@
       "allServers": "",
       "searchServers": "",
       "noServers": "",
-      "serversSelected": "",
       "variantsNote": "",
       "serversHelp": "",
       "libraries": "",
       "allLibraries": "",
       "searchLibraries": "",
       "noLibraries": "",
-      "librariesSelected": "",
       "librariesHelp": "",
       "clear": "",
       "unknownLibrary": "",
@@ -729,11 +684,16 @@
           "mostPlayed": ""
         },
         "labels": {
-          "movies": "",
-          "shows": "",
-          "seasons": "",
-          "music": "",
-          "mostWatched": ""
+          "movies_one": "",
+          "movies_other": "",
+          "shows_one": "",
+          "shows_other": "",
+          "seasons_one": "",
+          "seasons_other": "",
+          "music_one": "",
+          "music_other": "",
+          "mostWatched_one": "",
+          "mostWatched_other": ""
         },
         "musicHelp": "",
         "mostWatchedHelp": ""
@@ -741,9 +701,6 @@
       "message": "",
       "senderName": "",
       "senderNameHelp": "",
-      "senderNameRequiredMulti": "",
-      "previewVariant_one": "",
-      "previewVariant_other": "",
       "variantHeading": "",
       "subject": "",
       "subjectHelp": "",
@@ -778,10 +735,8 @@
         "loadFailed": "",
         "willReceive": "",
         "excludedCount": "",
-        "notIncludable": "",
         "noAddress": "",
         "suppressedCount": "",
-        "joinedSinceLastSend": "",
         "newSinceLastSend": "",
         "manage": "",
         "manageHelp": "",
@@ -796,7 +751,6 @@
         },
         "selectAll": "",
         "selectPerson": "",
-        "selectedCount": "",
         "excludeSelected": "",
         "includeSelected": "",
         "noMatches": "",
@@ -816,7 +770,6 @@
         "include": "",
         "includeAction": "",
         "excludedHelp": "",
-        "notIncludableHelp": "",
         "excludedAfterSave": "",
         "includedAfterSave": "",
         "reasons": {
@@ -826,7 +779,15 @@
           "noServer": ""
         },
         "emptyTitle": "",
-        "emptyDescription": ""
+        "emptyDescription": "",
+        "notIncludable_one": "",
+        "notIncludable_other": "",
+        "joinedSinceLastSend_one": "",
+        "joinedSinceLastSend_other": "",
+        "selectedCount_one": "",
+        "selectedCount_other": "",
+        "notIncludableHelp_one": "",
+        "notIncludableHelp_other": ""
       },
       "delivery": {
         "title": "",
@@ -875,13 +836,13 @@
         "fromDomain": "",
         "fromDomainFail": "",
         "fromDomainUnknown": "",
-        "recipients_one": "",
-        "recipients_other": "",
         "recipientsFail": "",
         "recipientsChecking": "",
         "recipientsLoadFailed": "",
         "dns": "",
-        "dnsLink": ""
+        "dnsLink": "",
+        "recipients_one": "",
+        "recipients_other": ""
       },
       "actions": {
         "preview": "",
@@ -926,13 +887,22 @@
       "send": {
         "title": "",
         "previewing": "",
-        "summary": "",
         "nobody": "",
-        "trimmed_one": "",
-        "trimmed_other": "",
         "confirm": "",
-        "sending": ""
-      }
+        "sending": "",
+        "summary_one": "",
+        "summary_other": "",
+        "trimmed_one": "",
+        "trimmed_other": ""
+      },
+      "serversSelected_one": "",
+      "serversSelected_other": "",
+      "librariesSelected_one": "",
+      "librariesSelected_other": "",
+      "senderNameRequiredMulti_one": "",
+      "senderNameRequiredMulti_other": "",
+      "previewVariant_one": "",
+      "previewVariant_other": ""
     },
     "history": {
       "empty": "",
@@ -944,7 +914,6 @@
         "test": ""
       },
       "window": "",
-      "recipients": "",
       "recipientsEmpty": "",
       "finished": "",
       "open": "",
@@ -957,7 +926,6 @@
         "suppressed": "",
         "unknown": ""
       },
-      "attempts": "",
       "unknownHelp": "",
       "openSnapshot": "",
       "variant": "",
@@ -965,7 +933,11 @@
       "openVariantSnapshot": "",
       "snapshotTitle": "",
       "pruned": "",
-      "retryFailed": ""
+      "retryFailed": "",
+      "recipients_one": "",
+      "recipients_other": "",
+      "attempts_one": "",
+      "attempts_other": ""
     }
   },
   "email": {
@@ -1055,7 +1027,6 @@
       "hideKey": "",
       "test": "",
       "testing": "",
-      "save": "",
       "saveHint": "",
       "match": "",
       "mismatch": "",

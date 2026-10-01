@@ -2,6 +2,7 @@ import type {
   ActiveSession,
   NewsletterSendTrigger,
   NotificationEventType,
+  NotificationPriority,
   ViolationWithDetails,
 } from '@tracearr/shared';
 import type { MediaQuality } from '../automations/types.js';
@@ -161,17 +162,18 @@ export function eventTypeOf(event: NotificationEvent): NotificationEventType {
 }
 
 /**
- * An automation's send names itself and may override the text with `{{variable}}` templates;
- * system events are formatted per type from the payload. `rule` is the pre-automation shape,
- * kept one release so jobs already queued at upgrade still render.
+ * An automation's send names itself and may override the text with templates; system
+ * events are formatted per type from the payload. `defaultBody` is text Tracearr wrote,
+ * used when the send has no body, and is never parsed as a template.
  */
 export type NotificationSource =
   | { kind: 'system' }
-  | { kind: 'rule'; title: string; message: string }
   | {
       kind: 'automation';
       automationId: string;
       automationName: string;
       title?: string;
       body?: string;
+      defaultBody?: string;
+      priority?: NotificationPriority;
     };

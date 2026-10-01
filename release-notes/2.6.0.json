@@ -1,0 +1,37 @@
+{
+  "version": "2.6.0",
+  "date": "2026-09-30",
+  "headline": "Your own notification text, and priority for Pushover, Gotify and ntfy",
+  "highlights": [
+    {
+      "title": "Write your own notifications",
+      "body": "A send action can set its own title and body, using the trigger's variables, a fallback for empty values, and lines that only show when a value is there. The builder previews the message for each destination you picked, cut to that destination's limits. Sends to Pushover, Gotify and ntfy can also pick a priority, from silent to urgent.",
+      "docs": "https://docs.tracearr.com/configuration/automations"
+    }
+  ],
+  "changes": [
+    {
+      "type": "new",
+      "text": "a send action can set its own title and body with variables, defaults and if blocks, with a preview per destination"
+    },
+    {
+      "type": "new",
+      "text": "a send action can set a priority for Pushover, Gotify and ntfy, replacing each one's built-in level"
+    },
+    {
+      "type": "fix",
+      "text": "Server Resources on the dashboard no longer fails to load for Plex servers with a long bandwidth history",
+      "refs": ["#1255"]
+    },
+    {
+      "type": "fix",
+      "text": "avatars and images from phone photos no longer show sideways or upside down",
+      "refs": ["#1258"]
+    },
+    {
+      "type": "fix",
+      "text": "merging users keeps the name of the one you kept, and only accounts a merge brought in offer Split",
+      "refs": ["#1263"]
+    }
+  ]
+}

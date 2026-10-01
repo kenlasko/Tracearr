@@ -203,7 +203,7 @@ describe('CatalogToolbar', () => {
     expect(screen.getByText('4K')).toBeInTheDocument();
     await user.click(
       screen.getByRole('button', {
-        name: 'media.grid.toolbar.removeFilter:{"label":"4K"}',
+        name: 'common:filters.remove:{"label":"4K"}',
       })
     );
     expect(onFiltersChange).toHaveBeenCalledWith(
@@ -224,7 +224,7 @@ describe('CatalogToolbar', () => {
     expect(screen.getByText('media.grid.toolbar.hdrChip')).toBeInTheDocument();
     await user.click(
       screen.getByRole('button', {
-        name: 'media.grid.toolbar.removeFilter:{"label":"media.grid.toolbar.hdrChip"}',
+        name: 'common:filters.remove:{"label":"media.grid.toolbar.hdrChip"}',
       })
     );
     expect(onFiltersChange).toHaveBeenCalledWith(expect.objectContaining({ hdr: undefined }));
@@ -252,7 +252,7 @@ describe('CatalogToolbar', () => {
     expect(screen.getByText('Plex - Movies')).toBeInTheDocument();
     await user.click(
       screen.getByRole('button', {
-        name: 'media.grid.toolbar.removeFilter:{"label":"Plex - Movies"}',
+        name: 'common:filters.remove:{"label":"Plex - Movies"}',
       })
     );
     expect(onFiltersChange).toHaveBeenCalledWith(
@@ -286,7 +286,7 @@ describe('CatalogToolbar', () => {
     expect(screen.getByText(label)).toBeInTheDocument();
     await user.click(
       screen.getByRole('button', {
-        name: `media.grid.toolbar.removeFilter:${JSON.stringify({ label })}`,
+        name: `common:filters.remove:${JSON.stringify({ label })}`,
       })
     );
     expect(onFiltersChange).toHaveBeenCalledWith(

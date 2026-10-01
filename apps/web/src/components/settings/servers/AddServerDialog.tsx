@@ -309,7 +309,7 @@ export function AddServerDialog({
               {isConnecting ? (
                 <>
                   <Loader2 className="animate-spin" />
-                  {t('servers.connecting')}
+                  {t('common:states.connecting')}
                 </>
               ) : (
                 t('servers.connectServer')

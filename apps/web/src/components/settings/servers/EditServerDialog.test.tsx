@@ -608,7 +608,7 @@ describe('EditServerDialog', () => {
       />
     );
 
-    await user.click(screen.getByRole('button', { name: /servers.location.remove/ }));
+    await user.click(screen.getByRole('button', { name: /common:actions\.remove/ }));
     await user.click(screen.getByRole('button', { name: 'common:actions.update' }));
 
     expect(mutateAsync).toHaveBeenCalledWith({ id: 'server-1', entries: [] });

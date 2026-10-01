@@ -295,7 +295,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
           : data.severity === 'warning'
             ? toast.warning
             : toast.info;
-      toastFn(data.title, { description: data.message, duration: 10000 });
+      toastFn(data.title, {
+        description: data.message,
+        descriptionClassName: 'whitespace-pre-line',
+        duration: 10000,
+      });
     });
 
     // Any instance's destination write lands here, including the toast preferences read above.

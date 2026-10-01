@@ -49,14 +49,9 @@
     }
   },
   "general": {
-    "title": "Allgemeine Einstellungen",
     "unitSystem": "Einheitensystem",
     "metric": "Metrisch (km, km/h)",
     "imperial": "",
-    "timezone": "Zeitzone",
-    "primaryAuth": "Primäre Authentifizierungsmethode",
-    "localAccount": "Lokales Konto",
-    "plexAccount": "Plex-Konto",
     "language": "Sprache",
     "languageDescription": "Wählen Sie Ihre bevorzugte Anzeigesprache.",
     "helpTranslate": "Hilf bei der Übersetzung von Tracearr",
@@ -127,7 +122,6 @@
       "size": "",
       "files": "",
       "need": "",
-      "needHint": "",
       "free": "",
       "freeOf": "",
       "floor": "",
@@ -138,18 +132,16 @@
       "never": "",
       "diskLimited": "",
       "loadError": "",
-      "notPersisting": ""
+      "notPersisting": "",
+      "needHint_one": "",
+      "needHint_other": ""
     }
   },
   "servers": {
-    "title": "Verbundene Server",
     "addServer": "Server hinzufügen",
     "serverName": "Servername",
     "serverUrl": "Server-URL",
-    "syncInterval": "Synchronisierungsintervall",
     "testConnection": "Verbindung testen",
-    "connectionSuccess": "Verbindung erfolgreich",
-    "connectionFailed": "Verbindung fehlgeschlagen",
     "noServersConnected": "Keine Server verbunden",
     "noServersConnectedHint": "Klicken Sie auf \"Server hinzufügen\", um einen Jellyfin oder Emby Server zu verbinden",
     "serverType": "Servertyp",
@@ -162,11 +154,8 @@
     "allServersConnected": "Alle Server verbunden",
     "allServersConnectedDesc": "Alle Server dieses Kontos sind bereits verbunden.",
     "serverUrlPlaceholder": "",
-    "serverUrlHelp": "Direkte URL zu Ihrem Jellyfin oder Emby Server. Verwenden Sie IP:port für beste Zuverlässigkeit.",
     "serverNamePlaceholder": "Mein Medienserver",
     "apiKeyPlaceholder": "API-Schlüssel eingeben",
-    "apiKeyHelp": "Gefunden im Dashboard Ihres Medienservers unter API-Keys oder Erweiterten Einstellungen.",
-    "connecting": "Verbinden...",
     "connectServer": "Server verbinden",
     "removeServer": "Server entfernen",
     "removeServerConfirm": "Sind Sie sicher, dass Sie diesen Server entfernen möchten? Alle zugehörigen Sitzungsdaten werden gespeichert, aber Sie können keine neuen Sitzungen von diesem Server aus überwachen.",
@@ -178,7 +167,6 @@
     "allFieldsRequired": "Alle Felder sind erforderlich",
     "addServerDialogDescPlex": "Wählen Sie einen Plex Server aus Ihrem verknüpften Konto.",
     "addServerDialogDescOther": "Verbinden Sie einen Jellyfin oder Emby Server.",
-    "description": "",
     "discoveringServers": "Entdecke verfügbare Plex Servern...",
     "discoveringConnections": "Verbindungen entdecken...",
     "plexAccount": "Plex-Konto",
@@ -208,7 +196,6 @@
       "addMove": "",
       "fromBeginning": "",
       "movedOn": "",
-      "remove": "",
       "latitude": "",
       "longitude": "",
       "country": "",
@@ -232,14 +219,11 @@
       "copyUrl": "",
       "jellyfinRepoUrl": "",
       "autoDetectNote": "",
-      "close": "",
       "issueBlocked": "",
       "issueRestartRequired": "",
       "issueMalfunctioned": ""
     },
     "posterSource": {
-      "title": "",
-      "titleDesc": "",
       "label": "",
       "description": "",
       "automatic": "",
@@ -271,7 +255,6 @@
     "enableMobileAccess": "Mobiler Zugriff aktivieren",
     "enabling": "Aktivieren...",
     "devicesConnected": "{{current}} von {{max}} Geräten verbunden",
-    "pendingTokens": "{{count}} ausstehende Paar Token",
     "addDevice": "Gerät hinzufügen",
     "disableMobileAccess": "Mobilzugriff deaktivieren",
     "revokeAllSessions": "Alle widerrufen",
@@ -294,7 +277,9 @@
     "removeDeviceConfirm": "Sind Sie sicher, dass Sie {{deviceName}}entfernen möchten? Dieses Gerät muss erneut paaren, um sich neu zu verbinden.",
     "externalUrlBanner": "Reverse-Proxy oder Fernzugriff verwenden? Setze deinen",
     "externalUrlBannerLink": "Externe URL",
-    "externalUrlBannerSuffix": "damit sich die mobile App mit Ihrem Server verbinden kann."
+    "externalUrlBannerSuffix": "damit sich die mobile App mit Ihrem Server verbinden kann.",
+    "pendingTokens_one": "",
+    "pendingTokens_other": "{{count}} ausstehende Paar Token"
   },
   "tailscale": {
     "title": "",
@@ -316,8 +301,6 @@
     "showLogs": "Protokolle anzeigen",
     "hideLogs": "Protokolle ausblenden",
     "noLogs": "Keine Protokollausgabe verfügbar.",
-    "exitNodeNone": "Keine Auswahl",
-    "exitNodeOffline": "",
     "unknownError": "Ein unbekannter Fehler ist aufgetreten.",
     "disableConfirmTitle": "Tailscale deaktivieren?",
     "disableConfirmDescription": "Dadurch wird Tracearr von Ihrem tailnet getrennt. Sie können ohne erneutes Autorisieren wieder aktivieren.",
@@ -361,33 +344,12 @@
     "automatic": "",
     "startJob": "Job starten"
   },
-  "advanced": {
-    "title": "Erweiterte Einstellungen",
-    "externalUrl": "Externe URL",
-    "trustProxy": "Proxy-Header vertrauen",
-    "reverseProxy": "",
-    "connectionScenarios": "Verbindungsszenarien"
-  },
   "accessControl": {
-    "title": "Zugangskontrolle",
-    "description": "",
     "allowGuestAccess": "Gastzugang erlauben",
     "allowGuestAccessDesc": "Wenn deaktiviert, kann sich nur der Serverbesitzer bei Tracearr anmelden",
     "singleOwnerNote": "Hinweis: Wenn der Gastzugang deaktiviert ist, kann sich nur der Serverbesitzer anmelden. Alle anderen Benutzer sehen eine \"Access Denied\"-Nachricht."
   },
   "import": {
-    "title": "Daten importieren",
-    "jellystat": "Aus Jellystat importieren",
-    "tautulli": "Aus Tautulli importieren",
-    "importProgress": "Importfortschritt",
-    "importComplete": "Import abgeschlossen",
-    "importFailed": "Import fehlgeschlagen",
-    "processed": "Verarbeitet",
-    "page": "Seite",
-    "imported": "Importiert",
-    "skipped": "Übersprungen",
-    "enriched": "Angereichert",
-    "errors": "Fehler",
     "noServers": "Keine Server verbunden",
     "noServersHint": "Sie benötigen mindestens einen verbundenen Server, um Daten zu importieren.",
     "tautulliUrl": "",
@@ -424,8 +386,6 @@
     "uploadingBackup": "Backup-Datei wird hochgeladen...",
     "plex": "",
     "jellyfinEmby": "",
-    "step1": "",
-    "step2": "",
     "apiKeyPlaceholder": "Ihr Tautulli API-Schlüssel",
     "skipUserNotFoundPlex": "Benutzer nicht gefunden — Der Plex Benutzer existiert nicht in Tracearr. Synchronisieren Sie Ihren Server zuerst, um alle Benutzer hinzuzufügen.",
     "skipDuplicate": "Sitzung duplizieren — Die Sitzung wurde bereits importiert.",
@@ -446,10 +406,12 @@
     "serverTimezoneHelp": "",
     "importFullRange": "",
     "importFullRangeHelp": "",
-    "overlapSkipped": "",
-    "duplicates": "",
     "skipOverlap": "",
-    "skipDuplicatePlugin": ""
+    "skipDuplicatePlugin": "",
+    "overlapSkipped_one": "",
+    "overlapSkipped_other": "",
+    "duplicates_one": "",
+    "duplicates_other": ""
   },
   "plex": {
     "signInWithPlex": "Mit Plex anmelden",
@@ -461,10 +423,7 @@
     "createAccount": "Konto erstellen",
     "email": "E-Mail",
     "password": "Passwort",
-    "displayName": "Anzeigename",
-    "createYourAccount": "Konto erstellen, um zu beginnen",
-    "signInToAccount": "Bei Konto anmelden",
-    "useLocalAccount": "Stattdessen lokales Konto verwenden"
+    "displayName": "Anzeigename"
   },
   "update": {
     "title": "Update verfügbar",
@@ -489,8 +448,6 @@
     "earlier": "",
     "installedBadge": "",
     "latestBadge": "",
-    "changeCount_one": "",
-    "changeCount_other": "",
     "series": "",
     "docs": "",
     "source": "",
@@ -501,11 +458,14 @@
       "fix": "",
       "security": "",
       "note": ""
-    }
+    },
+    "changeCount_one": "",
+    "changeCount_other": ""
   },
   "serverHealth": {
     "unreachable": "{{serverName}} ist unerreichbar",
-    "multipleUnreachable": "{{count}} Server nicht erreichbar {{serverNames}}"
+    "multipleUnreachable_one": "",
+    "multipleUnreachable_other": "{{count}} Server nicht erreichbar {{serverNames}}"
   },
   "ipWarning": {
     "message": "Alle Benutzer scheinen dieselbe IP-Adresse oder dieselben lokalen Netzwerk-IPs zu verwenden. Dies kann Auswirkungen auf die regelbasierte Logik für Standort oder IP-Adressen haben.",
@@ -524,9 +484,6 @@
     "lowDiskSpace": "Geringer Speicherplatz — Sicherungen und Wiederherstellen erfordern mindestens das Doppelte der Datenbankgröße im freien Speicherplatz.",
     "backupHistory": "Backup-Verlauf",
     "noBackups": "Noch keine Sicherungen. Erstellen Sie Ihre erste Sicherung oben.",
-    "size": "Größe",
-    "date": "Datum",
-    "type": "Typ",
     "version": "",
     "actions": "Aktionen",
     "rowActions": "",
@@ -599,7 +556,6 @@
     "noDestinationDescription": "",
     "noDestinationHint": "",
     "addEmailDestination": "",
-    "enabled": "",
     "rowActions": "",
     "duplicate": "",
     "sendNow": "",
@@ -641,7 +597,6 @@
       "link": "",
       "bulletList": "",
       "linkHref": "",
-      "linkApply": "",
       "counter": ""
     },
     "editor": {
@@ -689,10 +644,12 @@
       },
       "windowSentence": {
         "fallback": "",
-        "fallbackLabel": "",
         "fixed": "",
         "fixedAfter": "",
-        "fixedLabel": ""
+        "fallbackLabel_one": "",
+        "fallbackLabel_other": "",
+        "fixedLabel_one": "",
+        "fixedLabel_other": ""
       },
       "windowMax": "",
       "days": "",
@@ -700,14 +657,12 @@
       "allServers": "",
       "searchServers": "",
       "noServers": "",
-      "serversSelected": "",
       "variantsNote": "",
       "serversHelp": "",
       "libraries": "",
       "allLibraries": "",
       "searchLibraries": "",
       "noLibraries": "",
-      "librariesSelected": "",
       "librariesHelp": "",
       "clear": "",
       "unknownLibrary": "",
@@ -729,11 +684,16 @@
           "mostPlayed": ""
         },
         "labels": {
-          "movies": "",
-          "shows": "",
-          "seasons": "",
-          "music": "",
-          "mostWatched": ""
+          "movies_one": "",
+          "movies_other": "",
+          "shows_one": "",
+          "shows_other": "",
+          "seasons_one": "",
+          "seasons_other": "",
+          "music_one": "",
+          "music_other": "",
+          "mostWatched_one": "",
+          "mostWatched_other": ""
         },
         "musicHelp": "",
         "mostWatchedHelp": ""
@@ -741,9 +701,6 @@
       "message": "",
       "senderName": "",
       "senderNameHelp": "",
-      "senderNameRequiredMulti": "",
-      "previewVariant_one": "",
-      "previewVariant_other": "",
       "variantHeading": "",
       "subject": "",
       "subjectHelp": "",
@@ -778,10 +735,8 @@
         "loadFailed": "",
         "willReceive": "",
         "excludedCount": "",
-        "notIncludable": "",
         "noAddress": "",
         "suppressedCount": "",
-        "joinedSinceLastSend": "",
         "newSinceLastSend": "",
         "manage": "",
         "manageHelp": "",
@@ -796,7 +751,6 @@
         },
         "selectAll": "",
         "selectPerson": "",
-        "selectedCount": "",
         "excludeSelected": "",
         "includeSelected": "",
         "noMatches": "",
@@ -816,7 +770,6 @@
         "include": "",
         "includeAction": "",
         "excludedHelp": "",
-        "notIncludableHelp": "",
         "excludedAfterSave": "",
         "includedAfterSave": "",
         "reasons": {
@@ -826,7 +779,15 @@
           "noServer": ""
         },
         "emptyTitle": "",
-        "emptyDescription": ""
+        "emptyDescription": "",
+        "notIncludable_one": "",
+        "notIncludable_other": "",
+        "joinedSinceLastSend_one": "",
+        "joinedSinceLastSend_other": "",
+        "selectedCount_one": "",
+        "selectedCount_other": "",
+        "notIncludableHelp_one": "",
+        "notIncludableHelp_other": ""
       },
       "delivery": {
         "title": "",
@@ -875,13 +836,13 @@
         "fromDomain": "",
         "fromDomainFail": "",
         "fromDomainUnknown": "",
-        "recipients_one": "",
-        "recipients_other": "",
         "recipientsFail": "",
         "recipientsChecking": "",
         "recipientsLoadFailed": "",
         "dns": "",
-        "dnsLink": ""
+        "dnsLink": "",
+        "recipients_one": "",
+        "recipients_other": ""
       },
       "actions": {
         "preview": "",
@@ -926,13 +887,22 @@
       "send": {
         "title": "",
         "previewing": "",
-        "summary": "",
         "nobody": "",
-        "trimmed_one": "",
-        "trimmed_other": "",
         "confirm": "",
-        "sending": ""
-      }
+        "sending": "",
+        "summary_one": "",
+        "summary_other": "",
+        "trimmed_one": "",
+        "trimmed_other": ""
+      },
+      "serversSelected_one": "",
+      "serversSelected_other": "",
+      "librariesSelected_one": "",
+      "librariesSelected_other": "",
+      "senderNameRequiredMulti_one": "",
+      "senderNameRequiredMulti_other": "",
+      "previewVariant_one": "",
+      "previewVariant_other": ""
     },
     "history": {
       "empty": "",
@@ -944,7 +914,6 @@
         "test": ""
       },
       "window": "",
-      "recipients": "",
       "recipientsEmpty": "",
       "finished": "",
       "open": "",
@@ -957,7 +926,6 @@
         "suppressed": "",
         "unknown": ""
       },
-      "attempts": "",
       "unknownHelp": "",
       "openSnapshot": "",
       "variant": "",
@@ -965,7 +933,11 @@
       "openVariantSnapshot": "",
       "snapshotTitle": "",
       "pruned": "",
-      "retryFailed": ""
+      "retryFailed": "",
+      "recipients_one": "",
+      "recipients_other": "",
+      "attempts_one": "",
+      "attempts_other": ""
     }
   },
   "email": {
@@ -1055,7 +1027,6 @@
       "hideKey": "",
       "test": "",
       "testing": "",
-      "save": "",
       "saveHint": "",
       "match": "",
       "mismatch": "",

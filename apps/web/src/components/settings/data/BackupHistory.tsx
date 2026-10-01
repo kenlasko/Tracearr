@@ -120,9 +120,9 @@ export function BackupHistory({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t('backup.date')}</TableHead>
-              <TableHead>{t('backup.type')}</TableHead>
-              <TableHead>{t('backup.size')}</TableHead>
+              <TableHead>{t('common:labels.date')}</TableHead>
+              <TableHead>{t('common:labels.type')}</TableHead>
+              <TableHead>{t('common:labels.size')}</TableHead>
               <TableHead>{t('backup.version')}</TableHead>
               <TableHead className="text-right">{t('backup.actions')}</TableHead>
             </TableRow>

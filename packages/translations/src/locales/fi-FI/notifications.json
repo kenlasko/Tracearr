@@ -10,16 +10,11 @@
         "message": "Palvelin on poistettu onnistuneesti"
       },
       "serverSynced": {
-        "title": "Palvelin Synkronoitu",
-        "message": "Palvelimen tiedot on synkronoitu"
+        "title": "Palvelin Synkronoitu"
       },
       "settingsUpdated": {
         "title": "Asetukset Päivitetty",
         "message": "Asetuksesi on tallennettu"
-      },
-      "tokenCopied": {
-        "title": "Pääsymerkki Kopioitu",
-        "message": "Pari token kopioitu leikepöydälle"
       },
       "violationAcknowledged": {
         "title": "Rikkominen Tunnettu",
@@ -38,19 +33,11 @@
         "message": "Laitteen nimi on päivitetty"
       },
       "sessionsRevoked": {
-        "title": "Istunnot Peruttu",
-        "message": "Kaikki mobiiliistunnot on peruutettu"
+        "title": "Istunnot Peruttu"
       },
       "loggedIn": {
         "title": "Onnistui",
         "message": "Kirjautunut onnistuneesti"
-      },
-      "webhookTest": {
-        "title": "Testi Onnistui",
-        "message": "Webkoukku toimii oikein"
-      },
-      "copiedToClipboard": {
-        "title": "Kopioitu leikepöydälle"
       },
       "plexAccountLinked": {
         "title": "Plex Tili Yhdistetty",
@@ -62,27 +49,14 @@
       },
       "plexAccountReauthorized": {
         "title": "",
-        "message_one": "",
-        "message_other": "",
         "messageNoServers": "",
         "partial": "",
-        "unmatched": ""
-      },
-      "agentAdded": {
-        "title": "Agentin Lisätty",
-        "message": "Ilmoituksen tekijä on lisätty"
-      },
-      "agentUpdated": {
-        "title": "Agentin Päivitetty",
-        "message": "Ilmoituksen välittäjä on päivitetty"
-      },
-      "agentRemoved": {
-        "title": "Agentin Poistettu",
-        "message": "Ilmoituksen tekijä on poistettu"
+        "unmatched": "",
+        "message_one": "",
+        "message_other": ""
       },
       "jobCompleted": {
-        "title": "Työ Suoritettu",
-        "message": "{{name}} suoritettiin onnistuneesti"
+        "title": "Työ Suoritettu"
       },
       "automationCreated": {
         "title": "",
@@ -175,10 +149,11 @@
       "newsletterDuplicated": "",
       "newsletterTestQueued": "",
       "newsletterSendQueued": "",
-      "newsletterRetryQueued": "",
       "brandingSaved": "",
       "suppressionAdded": "",
-      "suppressionRemoved": ""
+      "suppressionRemoved": "",
+      "newsletterRetryQueued_one": "",
+      "newsletterRetryQueued_other": ""
     },
     "error": {
       "serverAddFailed": "Palvelimen lisääminen epäonnistui",
@@ -189,7 +164,6 @@
       "acknowledgeFailed": "Rikkomuksen hyväksyminen epäonnistui",
       "dismissFailed": "Rikkomuksen hylkääminen epäonnistui",
       "authFailed": "Todennus epäonnistui",
-      "webhookTestFailed": "Webkoukkutesti epäonnistui",
       "automationCreateFailed": "",
       "automationUpdateFailed": "",
       "automationDeleteFailed": "",
@@ -208,14 +182,8 @@
       "sessionsRevokeFailed": "Istuntojen peruuttaminen epäonnistui",
       "identityUpdateFailed": "",
       "trustScoresResetFailed": "Luottamuspisteiden nollaaminen epäonnistui",
-      "routingUpdateFailed": "Reitityksen päivitys epäonnistui",
-      "clipboardFailed": "Kopiointi leikepöydälle epäonnistui",
       "plexUnlinkFailed": "Plex tilin poisto epäonnistui",
       "plexReauthorizeFailed": "",
-      "agentAddFailed": "Edustajan lisääminen epäonnistui",
-      "agentUpdateFailed": "Agenttia ei voitu päivittää",
-      "agentRemoveFailed": "Ei voitu poistaa agenttia",
-      "agentTestFailed": "Testi epäonnistui",
       "jobAlreadyRunning": "Työ on jo käynnissä",
       "jobStartFailed": "Työn aloittaminen epäonnistui",
       "jobLoadFailed": "Huoltotehtävien lataaminen epäonnistui",
@@ -248,8 +216,7 @@
     },
     "warning": {
       "jobFailed": {
-        "title": "Työ Epäonnistui",
-        "message": "{{name}} kohtasi virheen"
+        "title": "Työ Epäonnistui"
       }
     },
     "info": {
@@ -263,43 +230,23 @@
       }
     }
   },
-  "push": {
-    "violationDetected": "Jakaminen Rikkominen Havaittu",
-    "streamStarted": "Virta Aloitettu",
-    "streamEnded": "Virta Päättyi",
-    "serverDown": "Palvelimen Yhteys Hävitty",
-    "serverUp": "Palvelin Takaisin Verkossa",
-    "newDevice": "Uusi Laite",
-    "trustScoreChanged": "Trust Pisteet Muutettu"
-  },
   "settings": {
-    "title": "Ilmoitusten Asetukset",
     "allSeverity": "Kaikki (matala, Varoitus, Korkea)",
     "warningAndHigh": "Vain varoitus ja Korkea",
     "highOnly": "Vain korkea vaikeusaste",
-    "allTypes": "Kaikki Tyypit",
     "rateLimit": "Nykyisen Nopeusrajan Tila",
     "perMinute": "Minuuttia kohti",
     "perHour": "Per Tunti",
     "enablePushNotifications": "Ota Push-Ilmoitukset Käyttöön",
     "notificationEvents": "Ilmoitustapahtumat",
     "violationDetected": "Rikkominen Havaittu",
-    "violationDetectedDesc": "Kun jakamisen rikkominen on käynnistetty",
     "streamStarted": "Virta Aloitettu",
-    "streamStartedDesc": "Kun käyttäjä alkaa katsella",
     "streamStopped": "Virta Pysäytetty",
-    "streamStoppedDesc": "Kun käyttäjä lopettaa katselun",
     "concurrentStreams": "Samanaikaiset Streamit",
-    "concurrentStreamsDesc": "Kun maksimi virtausraja ylittyy",
     "newDevice": "Uusi Laite",
-    "newDeviceDesc": "Kun uusi laite yhdistää",
     "trustScoreChanged": "Trust Pisteet Muutettu",
-    "trustScoreChangedDesc": "Kun käyttäjän luottamuspisteet muuttuvat",
     "serverDown": "Palvelin Alas",
-    "serverDownDesc": "Kun mediapalvelin siirtyy pois päältä",
     "serverUp": "Palvelin Ylös",
-    "serverUpDesc": "Kun mediapalvelin tulee takaisin verkossa",
-    "violationFilters": "Rikkomussuodattimet",
     "minimumSeverity": "Vähimmäisvakavuus",
     "quietHours": "Hiljaiset Tunnit",
     "enableQuietHours": "Ota Hiljaisuusaika Käyttöön",

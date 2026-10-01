@@ -10,16 +10,11 @@
         "message": "Serveren er fjernet vellykket"
       },
       "serverSynced": {
-        "title": "Synkronisert server",
-        "message": "Serverdata har blitt synkronisert"
+        "title": "Synkronisert server"
       },
       "settingsUpdated": {
         "title": "Innstillinger oppdatert",
         "message": "Dine lagret innstillinger har blitt"
-      },
-      "tokenCopied": {
-        "title": "Token kopiert",
-        "message": "Knytt token kopiert til utklippstavlen"
       },
       "violationAcknowledged": {
         "title": "Brudd Anerkjent",
@@ -38,19 +33,11 @@
         "message": "Enhetsnavnet er oppdatert"
       },
       "sessionsRevoked": {
-        "title": "Opphevede økter",
-        "message": "Alle mobiløkter har blitt trukket tilbake"
+        "title": "Opphevede økter"
       },
       "loggedIn": {
         "title": "Vellykket",
         "message": "Innlogging vellykket"
-      },
-      "webhookTest": {
-        "title": "Test vellykket",
-        "message": "Nettkrok fungerer riktig"
-      },
-      "copiedToClipboard": {
-        "title": "Kopiert til utklippstavle"
       },
       "plexAccountLinked": {
         "title": "Plex konto lenket",
@@ -62,27 +49,14 @@
       },
       "plexAccountReauthorized": {
         "title": "",
-        "message_one": "",
-        "message_other": "",
         "messageNoServers": "",
         "partial": "",
-        "unmatched": ""
-      },
-      "agentAdded": {
-        "title": "Agent lagt til",
-        "message": "Meldingsagenten er lagt til"
-      },
-      "agentUpdated": {
-        "title": "Agent oppdatert",
-        "message": "Meldingsagenten har blitt oppdatert"
-      },
-      "agentRemoved": {
-        "title": "Agent fjernet",
-        "message": "Meldingsagenten har blitt fjernet"
+        "unmatched": "",
+        "message_one": "",
+        "message_other": ""
       },
       "jobCompleted": {
-        "title": "Jobb fullført",
-        "message": "{{name}} fullført"
+        "title": "Jobb fullført"
       },
       "automationCreated": {
         "title": "",
@@ -175,10 +149,11 @@
       "newsletterDuplicated": "",
       "newsletterTestQueued": "",
       "newsletterSendQueued": "",
-      "newsletterRetryQueued": "",
       "brandingSaved": "",
       "suppressionAdded": "",
-      "suppressionRemoved": ""
+      "suppressionRemoved": "",
+      "newsletterRetryQueued_one": "",
+      "newsletterRetryQueued_other": ""
     },
     "error": {
       "serverAddFailed": "Klarte ikke å legge til server",
@@ -189,7 +164,6 @@
       "acknowledgeFailed": "Mislyktes i å anerkjenne brudd",
       "dismissFailed": "Kunne ikke avvise brudd",
       "authFailed": "Godkjenning mislyktes",
-      "webhookTestFailed": "Webhook-test mislyktes",
       "automationCreateFailed": "",
       "automationUpdateFailed": "",
       "automationDeleteFailed": "",
@@ -208,14 +182,8 @@
       "sessionsRevokeFailed": "Kan ikke tilbakekalle økter",
       "identityUpdateFailed": "",
       "trustScoresResetFailed": "Kan ikke tilbakestille tillit poengsum",
-      "routingUpdateFailed": "Kunne ikke oppdatere ruting",
-      "clipboardFailed": "Kan ikke kopiere til utklippstavlen",
       "plexUnlinkFailed": "Klarte ikke koble fra Plex konto",
       "plexReauthorizeFailed": "",
-      "agentAddFailed": "Kan ikke legge til agent",
-      "agentUpdateFailed": "Kunne ikke oppdatere agent",
-      "agentRemoveFailed": "Kunne ikke fjerne agent",
-      "agentTestFailed": "Testen mislyktes",
       "jobAlreadyRunning": "Jobb kjører allerede",
       "jobStartFailed": "Kan ikke starte jobb",
       "jobLoadFailed": "Kunne ikke laste vedlikeholdsjobber",
@@ -248,8 +216,7 @@
     },
     "warning": {
       "jobFailed": {
-        "title": "Jobb mislyktes",
-        "message": "{{name}} støtte på en feil"
+        "title": "Jobb mislyktes"
       }
     },
     "info": {
@@ -263,43 +230,23 @@
       }
     }
   },
-  "push": {
-    "violationDetected": "Deling oppdaget",
-    "streamStarted": "Strøm startet",
-    "streamEnded": "Strøm avsluttet",
-    "serverDown": "Servertilkobling mistet",
-    "serverUp": "Tjeneren tilbake på nettet",
-    "newDevice": "Ny enhet",
-    "trustScoreChanged": "Tillit score endret"
-  },
   "settings": {
-    "title": "Innstillinger for varsling",
     "allSeverity": "Alt (Low, Advarsel, Høy)",
     "warningAndHigh": "Advarsel og høy",
     "highOnly": "Bare høy alvorlighetsgrad",
-    "allTypes": "Alle typer",
     "rateLimit": "Gjeldende sats grense status",
     "perMinute": "Per minutt",
     "perHour": "Per time",
     "enablePushNotifications": "Aktiver push-varsler",
     "notificationEvents": "Varsel Hendelser",
     "violationDetected": "Brudd oppdaget",
-    "violationDetectedDesc": "Når brudd på deling utløses",
     "streamStarted": "Strøm startet",
-    "streamStartedDesc": "Når en bruker begynner å se",
     "streamStopped": "Strøm stoppet",
-    "streamStoppedDesc": "Når en bruker slutter å se på",
     "concurrentStreams": "Samtidige strømmer",
-    "concurrentStreamsDesc": "Når maks strømgrense er overskredet",
     "newDevice": "Ny enhet",
-    "newDeviceDesc": "Når en ny enhet kobles til",
     "trustScoreChanged": "Tillit score endret",
-    "trustScoreChangedDesc": "Når en brukers tillit endres",
     "serverDown": "Server ned",
-    "serverDownDesc": "Når en medieserver går offline",
     "serverUp": "Server opp",
-    "serverUpDesc": "Når en medieserver kommer tilbake online",
-    "violationFilters": "Brudd filtre",
     "minimumSeverity": "Minimum Alvorlighetsgrad",
     "quietHours": "Stille Timer",
     "enableQuietHours": "Aktiver stilletid",

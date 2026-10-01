@@ -129,7 +129,7 @@ export function Users() {
         kind: 'search',
         key: 'search',
         label: t('common:actions.search'),
-        placeholder: t('pages:users.searchPlaceholder'),
+        placeholder: t('common:search.searchUsers'),
         clearLabel: t('common:filters.clearSearch'),
         inline: true,
         className: 'w-full sm:w-64',
