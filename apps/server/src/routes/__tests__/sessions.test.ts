@@ -738,6 +738,26 @@ describe('Session Routes', () => {
       expect(query).toContain('s.started_at = gs.started_at');
     });
 
+    it('leaves trailers out when no media type is picked', async () => {
+      app = await buildTestApp(createOwnerUser());
+      mockDb.execute.mockResolvedValueOnce({ rows: [] });
+
+      await app.inject({ method: 'GET', url: '/sessions/history' });
+
+      const { sql: query } = renderSql(mockDb.execute.mock.calls[0][0] as SQL);
+      expect(query).toContain("media_type <> 'trailer'");
+    });
+
+    it('returns trailers when the trailer type is picked', async () => {
+      app = await buildTestApp(createOwnerUser());
+      mockDb.execute.mockResolvedValueOnce({ rows: [] });
+
+      await app.inject({ method: 'GET', url: '/sessions/history?mediaTypes=trailer' });
+
+      const { sql: query } = renderSql(mockDb.execute.mock.calls[0][0] as SQL);
+      expect(query).not.toContain("media_type <> 'trailer'");
+    });
+
     it('returns an empty result in a single query when no plays match', async () => {
       const ownerUser = createOwnerUser();
       app = await buildTestApp(ownerUser);

@@ -29,6 +29,34 @@
       "docs": "https://docs.tracearr.com/configuration/servers"
     },
     {
+      "type": "new",
+      "text": "the now playing bar shows how far ahead the transcoder is and says Buffering when a Plex client stalls"
+    },
+    {
+      "type": "new",
+      "text": "history hides trailers unless you pick the Trailers type"
+    },
+    {
+      "type": "new",
+      "text": "stream details and library copies show Dolby Atmos, with a library filter"
+    },
+    {
+      "type": "new",
+      "text": "library copies show the Plex edition, like Extended Cut or Theatrical Cut"
+    },
+    {
+      "type": "note",
+      "text": "the first library sync after updating is a full scan on every server"
+    },
+    {
+      "type": "fix",
+      "text": "Plex DTS and DTS-HD MA group with other servers' DTS in the codec breakdown instead of showing as DCA"
+    },
+    {
+      "type": "fix",
+      "text": "the server banner says when a server rejected Tracearr's token instead of calling it unreachable"
+    },
+    {
       "type": "fix",
       "text": "Server Resources on the dashboard no longer fails to load for Plex servers with a long bandwidth history",
       "refs": ["#1255"]
@@ -50,6 +78,42 @@
     {
       "type": "fix",
       "text": "a newly added server gets its 12-hourly library sync right away instead of after the next restart"
+    },
+    {
+      "type": "fix",
+      "text": "the Tautulli import includes plays from archived users and libraries"
+    },
+    {
+      "type": "fix",
+      "text": "imported-history linking no longer stalls on Tautulli 2.18.0 to 2.18.2 when history rows lack metadata"
+    },
+    {
+      "type": "fix",
+      "text": "the Tautulli import reports ungrouped plays and rows without metadata as skipped, not as active sessions or errors"
+    },
+    {
+      "type": "fix",
+      "text": "a Tautulli re-import after Regroup history removes the merged plays instead of counting their watch time twice"
+    },
+    {
+      "type": "fix",
+      "text": "a Plex client buffering while paused no longer fires resume automations or cuts pause rules short"
+    },
+    {
+      "type": "fix",
+      "text": "Plex theme music and extras other than trailers are no longer recorded as plays"
+    },
+    {
+      "type": "fix",
+      "text": "trailers and prerolls no longer count toward concurrent-stream rules"
+    },
+    {
+      "type": "fix",
+      "text": "trailers and prerolls no longer set off stream automations, so a preroll sends no stream started notification of its own"
+    },
+    {
+      "type": "fix",
+      "text": "a slow plex.tv or media server no longer stalls library syncs, adding a server or Plex sign-in for minutes"
     }
   ]
 }

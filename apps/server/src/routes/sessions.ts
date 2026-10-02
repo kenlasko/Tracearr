@@ -130,6 +130,8 @@ function buildHistoryFilterConditions(
       const mediaTypeList = types.map((t) => sql`${t}`);
       conditions.push(sql`s.media_type IN (${sql.join(mediaTypeList, sql`, `)})`);
     }
+  } else {
+    conditions.push(sql`s.media_type <> 'trailer'`);
   }
   if (startDate) conditions.push(sql`s.started_at >= ${startDate}`);
   if (endDate) {
@@ -287,6 +289,8 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
 
     if (mediaType) {
       conditions.push(sql`s.media_type = ${mediaType}`);
+    } else {
+      conditions.push(sql`s.media_type <> 'trailer'`);
     }
 
     if (startDate) {

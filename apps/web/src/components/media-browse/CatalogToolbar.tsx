@@ -47,6 +47,7 @@ export interface PersistedGridFilters {
   /** `${serverId}:${libraryId}` - a library id is only unique within its server. */
   libraryKey?: string;
   hdr?: boolean;
+  atmos?: boolean;
   sizeGbMin?: number;
   sizeGbMax?: number;
   sort: CatalogSort;
@@ -323,6 +324,7 @@ export function CatalogToolbar({
     filters.serverId,
     filters.libraryKey,
     filters.hdr,
+    filters.atmos,
     filters.sizeGbMin,
     filters.sizeGbMax,
   ].filter((v) => v !== undefined).length;
@@ -384,6 +386,13 @@ export function CatalogToolbar({
         key: 'hdr',
         label: t('media.grid.toolbar.hdrChip'),
         onRemove: () => onFiltersChange({ ...filters, hdr: undefined }),
+      });
+    }
+    if (filters.atmos) {
+      list.push({
+        key: 'atmos',
+        label: t('media.grid.toolbar.atmosChip'),
+        onRemove: () => onFiltersChange({ ...filters, atmos: undefined }),
       });
     }
     if (filters.sizeGbMin !== undefined || filters.sizeGbMax !== undefined) {
@@ -485,6 +494,26 @@ export function CatalogToolbar({
           <SelectContent>
             <SelectItem value={ALL_SENTINEL}>{t('media.grid.toolbar.hdrAll')}</SelectItem>
             <SelectItem value="hdr">{t('media.grid.toolbar.hdrOnly')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <span className="text-muted-foreground block text-xs">
+          {t('media.grid.toolbar.atmosLabel')}
+        </span>
+        <Select
+          value={filters.atmos ? 'atmos' : ALL_SENTINEL}
+          onValueChange={(value) =>
+            onFiltersChange({ ...filters, atmos: value === 'atmos' ? true : undefined })
+          }
+        >
+          <SelectTrigger aria-label={t('media.grid.toolbar.atmosLabel')}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_SENTINEL}>{t('media.grid.toolbar.atmosAll')}</SelectItem>
+            <SelectItem value="atmos">{t('media.grid.toolbar.atmosOnly')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

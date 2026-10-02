@@ -386,6 +386,39 @@ describe('GET /api/v1/public/health', () => {
   });
 });
 
+describe('GET /api/v1/public/history', () => {
+  let app: FastifyInstance;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(db.execute).mockResolvedValue({ rows: [] } as never);
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  async function countQueryWhere(query: string) {
+    app = await buildTestApp();
+    const response = await app.inject({ method: 'GET', url: `/api/v1/public/history${query}` });
+    expect(response.statusCode).toBe(200);
+    const rendered = renderSql(vi.mocked(db.execute).mock.calls[0]![0] as SQL);
+    return { text: rendered.sql.replace(/\s+/g, ' '), params: rendered.params };
+  }
+
+  it('leaves trailers out when no media type is given', async () => {
+    const where = await countQueryWhere('');
+    expect(where.text).toContain("s.media_type <> 'trailer'");
+  });
+
+  it('returns trailer rows when mediaType is trailer', async () => {
+    const where = await countQueryWhere('?mediaType=trailer');
+    expect(where.text).not.toContain("<> 'trailer'");
+    expect(where.text).toContain('s.media_type =');
+    expect(where.params).toContain('trailer');
+  });
+});
+
 describe('POST /api/v1/public/streams/:id/terminate', () => {
   let app: FastifyInstance;
 

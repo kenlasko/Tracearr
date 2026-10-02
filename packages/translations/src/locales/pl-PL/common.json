@@ -60,6 +60,7 @@
   "playback": {
     "playing": "Odtwarzanie",
     "paused": "Wstrzymano",
+    "buffering": "",
     "stopped": "Zatrzymano",
     "directPlay": "Bezpośrednie odtwarzanie",
     "directStream": "Bezpośredni strumień",
@@ -303,6 +304,6 @@
     "some": "{{count}} z {{total}} serwerów",
     "search": "Szukaj serwerów...",
     "noMatches": "Nie znaleziono serwerów",
-    "historical": ""
+    "historical": "Historyczne"
   }
 }

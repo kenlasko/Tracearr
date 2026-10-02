@@ -136,6 +136,7 @@ async function fetchPlexUsers(token: string, serverUrl: string): Promise<MediaUs
       'X-Plex-Token': token,
       Accept: 'application/json',
     },
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!response.ok) {

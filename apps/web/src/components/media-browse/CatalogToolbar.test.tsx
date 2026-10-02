@@ -230,6 +230,25 @@ describe('CatalogToolbar', () => {
     expect(onFiltersChange).toHaveBeenCalledWith(expect.objectContaining({ hdr: undefined }));
   });
 
+  it('renders an Atmos chip and removes it', async () => {
+    const onFiltersChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <CatalogToolbar
+        {...baseProps}
+        filters={{ ...DEFAULT_GRID_FILTERS, atmos: true }}
+        onFiltersChange={onFiltersChange}
+      />
+    );
+    expect(screen.getByText('media.grid.toolbar.atmosChip')).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', {
+        name: 'common:filters.remove:{"label":"media.grid.toolbar.atmosChip"}',
+      })
+    );
+    expect(onFiltersChange).toHaveBeenCalledWith(expect.objectContaining({ atmos: undefined }));
+  });
+
   it('renders a library chip using the server and library name, and removes it', async () => {
     const onFiltersChange = vi.fn();
     const user = userEvent.setup();

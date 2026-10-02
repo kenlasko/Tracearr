@@ -5,7 +5,19 @@
  * Includes batch loading for performance optimization and rule fetching.
  */
 
-import { eq, and, or, desc, gte, inArray, isNull, isNotNull, notInArray, sql } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  or,
+  desc,
+  gte,
+  inArray,
+  ne,
+  isNull,
+  isNotNull,
+  notInArray,
+  sql,
+} from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import {
   TIME_MS,
@@ -252,7 +264,13 @@ export async function batchGetRecentUserSessions(
   const recentSessions = await db
     .select()
     .from(sessions)
-    .where(and(inArray(sessions.serverUserId, serverUserIds), gte(sessions.startedAt, since)))
+    .where(
+      and(
+        inArray(sessions.serverUserId, serverUserIds),
+        gte(sessions.startedAt, since),
+        ne(sessions.mediaType, 'trailer')
+      )
+    )
     .orderBy(desc(sessions.startedAt))
     .limit(serverUserIds.length * perUserCap);
 

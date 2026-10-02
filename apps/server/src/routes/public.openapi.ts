@@ -31,7 +31,7 @@ registry.registerComponent('securitySchemes', 'bearerAuth', {
 // ============================================================================
 
 const ServerTypeEnum = z.enum(['plex', 'jellyfin', 'emby']);
-const MediaTypeEnum = z.enum(['movie', 'episode', 'track', 'live', 'photo', 'unknown']);
+const MediaTypeEnum = z.enum(['movie', 'episode', 'track', 'live', 'photo', 'trailer', 'unknown']);
 const PlaybackStateEnum = z.enum(['playing', 'paused', 'stopped']);
 const SeverityEnum = z.enum(['low', 'warning', 'high']);
 const UserRoleEnum = z.enum(['owner', 'admin', 'viewer', 'member', 'disabled', 'pending']);
@@ -722,7 +722,9 @@ registry.registerPath({
 const HistoryQuery = PaginationQuery.extend({
   serverId: ServerIdParam.optional().openapi({ description: 'Filter by server' }),
   state: PlaybackStateEnum.optional(),
-  mediaType: MediaTypeEnum.optional(),
+  mediaType: MediaTypeEnum.optional().openapi({
+    description: 'Filter by media type. Trailers are left out unless you ask for trailer',
+  }),
   startDate: z.coerce.date().optional().openapi({
     description: 'Sessions on or after this date (start of day in timezone)',
   }),

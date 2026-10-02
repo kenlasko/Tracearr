@@ -1,6 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { formatMediaTech, type MediaAvailabilityEntry } from '@tracearr/shared';
+import {
+  formatMediaTech,
+  type MediaAvailabilityEntry,
+  type MediaVersionEntry,
+} from '@tracearr/shared';
 import type { HeroServerLookupEntry } from './DetailHero';
 import {
   Table,
@@ -31,6 +35,12 @@ function formatResolutionSet(resolutions: string[]): string {
   const shown = resolutions.slice(0, MAX_RESOLUTIONS_SHOWN).map(formatMediaTech).join(' · ');
   const extra = resolutions.length - MAX_RESOLUTIONS_SHOWN;
   return extra > 0 ? `${shown} +${extra}` : shown;
+}
+
+function versionAudioLabel(version: MediaVersionEntry): string | null {
+  return version.audioCodec
+    ? formatMediaTech(version.audioCodec) + (version.audioAtmos ? ' Atmos' : '')
+    : null;
 }
 
 function CopiesPanelSkeleton() {
@@ -99,12 +109,21 @@ export function CopiesPanel({
             <TableBody>
               {activeCopies.flatMap((entry) => {
                 const server = serverById.get(entry.serverId);
-                const quality =
+                const resolutionLabel =
                   entry.episodeResolutions && entry.episodeResolutions.length > 0
                     ? formatResolutionSet(entry.episodeResolutions)
                     : entry.videoResolution
                       ? formatMediaTech(entry.videoResolution)
                       : null;
+                const [onlyVersion] = entry.versions.length === 1 ? entry.versions : [];
+                const quality =
+                  [
+                    resolutionLabel,
+                    onlyVersion && versionAudioLabel(onlyVersion),
+                    onlyVersion?.editionTitle,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ') || null;
                 const sizeBytes = entry.fileSize ?? entry.episodeFileSize;
                 const mainRow = (
                   <TableRow key={`${entry.serverId}-${entry.libraryId}-${entry.ratingKey}`}>
@@ -155,6 +174,8 @@ export function CopiesPanel({
                               version.dynamicRange && version.dynamicRange !== 'sdr'
                                 ? formatMediaTech(version.dynamicRange)
                                 : null,
+                              versionAudioLabel(version),
+                              version.editionTitle,
                             ]
                               .filter(Boolean)
                               .join(' · ') || '—'}

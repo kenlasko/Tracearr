@@ -256,6 +256,8 @@ export interface MediaItemVersion {
   videoDynamicRange?: string;
   audioCodec?: string;
   audioChannels?: number;
+  audioAtmos?: boolean;
+  editionTitle?: string;
   container?: string;
   /** kbps */
   bitrate?: number;
@@ -440,9 +442,10 @@ export interface IMediaServerClient {
   readonly serverType: ServerType;
 
   /**
-   * Get all active playback sessions
+   * Get all active playback sessions. sessionKey narrows the result to one
+   * session; Plex filters before its per-transcode metadata fetches.
    */
-  getSessions(): Promise<MediaSession[]>;
+  getSessions(sessionKey?: string): Promise<MediaSession[]>;
 
   /**
    * Get all users with access to this server

@@ -474,7 +474,7 @@ export const sessions = pgTable(
     // ============ Detailed JSONB Fields ============
     // Source video: bitrate, framerate, dynamicRange, aspectRatio, profile, level, colorSpace, colorDepth
     sourceVideoDetails: jsonb('source_video_details').$type<SourceVideoDetails>(),
-    // Source audio: bitrate, channelLayout, language, sampleRate
+    // Source audio: bitrate, channelLayout, language, sampleRate, profile, atmos
     sourceAudioDetails: jsonb('source_audio_details').$type<SourceAudioDetails>(),
     // Stream video: bitrate, width, height, framerate, dynamicRange
     streamVideoDetails: jsonb('stream_video_details').$type<StreamVideoDetails>(),
@@ -1595,6 +1595,8 @@ export const libraryItemVersions = pgTable(
     videoDynamicRange: varchar('video_dynamic_range', { length: 20 }),
     audioCodec: varchar('audio_codec', { length: 50 }),
     audioChannels: integer('audio_channels'),
+    audioAtmos: boolean('audio_atmos').notNull().default(false),
+    editionTitle: varchar('edition_title', { length: 100 }),
     container: varchar('container', { length: 50 }),
     bitrate: integer('bitrate'), // kbps
 

@@ -342,6 +342,12 @@ function assertSameOrigin(baseUrl: string, imagePath: string): void {
   }
 }
 
+const IMAGE_PATH_ALLOWLIST: Record<(typeof servers.$inferSelect)['type'], RegExp> = {
+  plex: /^\/library\/metadata\/[^/?#]+\/thumb\/[^/?#]+$/,
+  jellyfin: /^\/(Items|Users)\/[^/?#]+\/Images\/Primary(\?tag=[^&#]+)?$/,
+  emby: /^\/(Items|Users)\/[^/?#]+\/Images\/Primary(\?tag=[^&#]+)?$/,
+};
+
 export function buildUpstreamRequest(
   server: typeof servers.$inferSelect,
   imagePath: string,
@@ -354,6 +360,9 @@ export function buildUpstreamRequest(
   // check on the base URL covers every request shape built below.
   assertSameOrigin(baseUrl, imagePath);
   assertSafeProbeUrl(baseUrl);
+  if (!IMAGE_PATH_ALLOWLIST[server.type].test(imagePath)) {
+    throw new SsrfBlockedError(`Not a media server image path: ${imagePath}`);
+  }
 
   if (server.type === 'plex') {
     // Plex image URLs are relative paths like /library/metadata/123/thumb/456

@@ -199,6 +199,7 @@ function createMockProcessedSession(overrides: Partial<ProcessedSession> = {}): 
     audioDecision: 'directplay',
     bitrate: 20000,
     state: 'playing',
+    buffering: false,
     totalDurationMs: 7200000,
     progressMs: 600000,
     sourceVideoCodec: 'hevc',

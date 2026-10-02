@@ -26,6 +26,7 @@ import type {
   MaintenanceJobProgress,
   RunningTask,
   ServerConnectionStatus,
+  ServerDownReason,
 } from '@tracearr/shared';
 import { WS_EVENTS } from '@tracearr/shared';
 import { useAuth } from './useAuth';
@@ -43,6 +44,7 @@ interface UnhealthyServer {
   serverId: string;
   serverName: string;
   since: Date;
+  reason?: ServerDownReason;
 }
 
 interface SocketContextValue {
@@ -277,14 +279,17 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    newSocket.on(WS_EVENTS.SERVER_DOWN, (data: { serverId: string; serverName: string }) => {
-      // Track unhealthy server for persistent banner
-      setUnhealthyServers((prev) => {
-        // Avoid duplicates
-        if (prev.some((s) => s.serverId === data.serverId)) return prev;
-        return [...prev, { ...data, since: new Date() }];
-      });
-    });
+    newSocket.on(
+      WS_EVENTS.SERVER_DOWN,
+      (data: { serverId: string; serverName: string; reason?: ServerDownReason }) => {
+        // Upsert: the SSE fallback can publish a plain server:down before the poller adds a reason
+        setUnhealthyServers((prev) => {
+          const existing = prev.find((s) => s.serverId === data.serverId);
+          const others = prev.filter((s) => s.serverId !== data.serverId);
+          return [...others, { ...data, since: existing?.since ?? new Date() }];
+        });
+      }
+    );
 
     newSocket.on(WS_EVENTS.SERVER_UP, (data: { serverId: string; serverName: string }) => {
       // Remove from unhealthy servers

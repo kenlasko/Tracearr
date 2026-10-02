@@ -138,6 +138,7 @@ function activeFilterCount(filters: PersistedGridFilters): number {
     filters.serverId,
     filters.libraryKey,
     filters.hdr,
+    filters.atmos,
     filters.sizeGbMin,
     filters.sizeGbMax,
   ].filter((value) => value !== undefined).length;
@@ -310,6 +311,7 @@ export function MediaGrid() {
       search: search || undefined,
       libraryKey: filters.libraryKey,
       hdr: filters.hdr,
+      atmos: filters.atmos,
       sizeGbMin: filters.sizeGbMin,
       sizeGbMax: filters.sizeGbMax,
     },

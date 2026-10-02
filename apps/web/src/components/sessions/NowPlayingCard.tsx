@@ -18,7 +18,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { cn, formatLocationCompact, getDeviceDisplayName, getMediaDisplay } from '@/lib/utils';
+import {
+  cn,
+  formatLocationCompact,
+  getBufferedPercent,
+  getDeviceDisplayName,
+  getMediaDisplay,
+} from '@/lib/utils';
 import { imageProxyUrl } from '@/lib/api';
 import { formatDuration } from '@/lib/formatters';
 import { useEstimatedProgress } from '@/hooks/useEstimatedProgress';
@@ -241,12 +247,18 @@ export function NowPlayingCard({ session, onClick }: NowPlayingCardProps) {
 
             {/* Bottom: Progress */}
             <div className="mt-3 space-y-1">
-              <Progress value={progressPercent} className="h-1.5" />
+              <Progress
+                value={progressPercent}
+                buffered={getBufferedPercent(session)}
+                className="h-1.5"
+              />
               <div className="text-muted-foreground flex justify-between text-[10px]">
                 <span>{formatDuration(estimatedProgressMs)}</span>
                 <span>
-                  {isPaused ? (
-                    <span className="font-medium text-yellow-500">Paused</span>
+                  {isPaused || session.buffering ? (
+                    <span className="font-medium text-yellow-500">
+                      {session.buffering ? t('playback.buffering') : t('playback.paused')}
+                    </span>
                   ) : remaining ? (
                     `-${formatDuration(remaining)}`
                   ) : (

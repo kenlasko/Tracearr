@@ -38,6 +38,7 @@ vi.mock('../imageCacheGuard.js', () => ({
 }));
 
 import { readFile, writeFile, rename, stat, unlink, mkdir } from 'node:fs/promises';
+import { SsrfBlockedError } from '../../utils/ssrf.js';
 import sharp from 'sharp';
 import { db } from '../../db/client.js';
 import { cacheWriteAllowed } from '../imageCacheGuard.js';
@@ -379,6 +380,23 @@ describe('proxyImage cache-miss pipeline', () => {
     expect(cancel).toHaveBeenCalledTimes(2);
   });
 
+  it('returns the degraded placeholder for a path outside the image routes without fetching', async () => {
+    mockSelectChain([
+      { id: 'server-9', type: 'plex', url: 'http://localhost:32400', token: 'token' },
+    ]);
+
+    const result = await proxyImage({
+      serverId: randomUUID(),
+      imagePath: '/library/sections',
+      width: 240,
+      height: 360,
+    });
+
+    expect(result.contentType).toBe('image/svg+xml');
+    expect(result.cacheControl).toBe('public, max-age=15');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('with lqip, races the miss against the LQIP placeholder once the semaphore wait timeout elapses', async () => {
     vi.useFakeTimers();
     try {
@@ -603,11 +621,11 @@ describe('buildUpstreamRequest', () => {
 
   it('emby landscape resize constrains the long axis via maxWidth', () => {
     const server = { ...baseServer, type: 'emby' } as never;
-    const { imageUrl, headers } = buildUpstreamRequest(server, '/emby/Items/9/Images/Backdrop', {
+    const { imageUrl, headers } = buildUpstreamRequest(server, '/Items/9/Images/Primary', {
       width: 500,
       height: 280,
     });
-    expect(imageUrl).toBe('http://media:1234/emby/Items/9/Images/Backdrop?maxWidth=500&quality=90');
+    expect(imageUrl).toBe('http://media:1234/Items/9/Images/Primary?maxWidth=500&quality=90');
     expect(headers['X-Emby-Token']).toBe('tok123');
   });
 
@@ -620,6 +638,43 @@ describe('buildUpstreamRequest', () => {
     expect(imageUrl).toBe(
       'http://media:1234/Items/abc/Images/Primary?tag=5&maxHeight=360&quality=90'
     );
+  });
+
+  describe('path allowlist', () => {
+    it('rejects a plex path outside library image routes', () => {
+      const server = { ...baseServer, type: 'plex' } as never;
+      expect(() => buildUpstreamRequest(server, '/library/sections')).toThrow(SsrfBlockedError);
+      expect(() => buildUpstreamRequest(server, '/:/scrobble?key=1')).toThrow(SsrfBlockedError);
+      expect(() => buildUpstreamRequest(server, '/library/metadata/1/thumb/2?download=1')).toThrow(
+        SsrfBlockedError
+      );
+    });
+
+    it('rejects a jellyfin or emby path outside the Items and Users image routes', () => {
+      const jf = { ...baseServer, type: 'jellyfin' } as never;
+      const emby = { ...baseServer, type: 'emby' } as never;
+      expect(() => buildUpstreamRequest(jf, '/System/Info')).toThrow(SsrfBlockedError);
+      expect(() => buildUpstreamRequest(emby, '/Items/9/Download')).toThrow(SsrfBlockedError);
+    });
+
+    it('accepts every image shape Tracearr stores', () => {
+      const plex = { ...baseServer, type: 'plex' } as never;
+      const jf = { ...baseServer, type: 'jellyfin' } as never;
+      const emby = { ...baseServer, type: 'emby' } as never;
+      const hex = '0123456789abcdef0123456789abcdef';
+      expect(() => buildUpstreamRequest(plex, '/library/metadata/12/thumb/34')).not.toThrow();
+      expect(() =>
+        buildUpstreamRequest(plex, '/library/metadata/12/thumb/34', { width: 240, height: 360 })
+      ).not.toThrow();
+      expect(() =>
+        buildUpstreamRequest(jf, `/Items/${hex}/Images/Primary?tag=${hex}`)
+      ).not.toThrow();
+      expect(() => buildUpstreamRequest(jf, `/Users/${hex}/Images/Primary`)).not.toThrow();
+      expect(() =>
+        buildUpstreamRequest(emby, `/Items/9/Images/Primary?tag=${hex}_1`)
+      ).not.toThrow();
+      expect(() => buildUpstreamRequest(emby, '/Items/9/Images/Primary')).not.toThrow();
+    });
   });
 
   describe('origin pinning', () => {
@@ -656,10 +711,9 @@ describe('buildUpstreamRequest', () => {
       expect(imageUrl).toBe('https://jf.example.com/Items/abc/Images/Primary');
     });
 
-    it('treats a protocol-relative path as a path on the configured host', () => {
+    it('rejects a protocol-relative path', () => {
       const server = { ...portless, type: 'jellyfin' } as never;
-      const { imageUrl } = buildUpstreamRequest(server, '//evil.test/x');
-      expect(new URL(imageUrl).host).toBe('jf.example.com');
+      expect(() => buildUpstreamRequest(server, '//evil.test/x')).toThrow(SsrfBlockedError);
     });
   });
 });

@@ -340,6 +340,8 @@ export interface SourceAudioDetails {
   channelLayout?: string;
   language?: string;
   sampleRate?: number;
+  profile?: string;
+  atmos?: boolean;
 }
 
 /** Stream video details after transcode */
@@ -368,9 +370,12 @@ export interface TranscodeInfo {
   hwEncoding?: string;
   speed?: number;
   throttled?: boolean;
-  /** Percent of the file transcoded so far (0-100) */
+  /**
+   * Plex: share of the runtime this transcode job has produced since it started (0-100), not a
+   * position. Jellyfin: the server's CompletionPercentage, whose meaning is unverified.
+   */
   progress?: number;
-  /** Seconds of media the transcoder has ready past the start */
+  /** Seconds from the file start that the transcoder has ready (Plex only; Jellyfin sends none) */
   maxOffsetAvailable?: number;
   reasons?: string[];
 }
@@ -510,6 +515,8 @@ export interface ActiveSession extends Session {
   canTerminate: boolean;
   /** True while the session is an unconfirmed pending entry; absent once confirmed. */
   pending?: boolean;
+  /** Plex only: the client is buffering; state keeps the last playing or paused value. */
+  buffering?: boolean;
 }
 
 export interface SessionSegment {
@@ -1041,8 +1048,8 @@ export interface TautulliImportResult {
   success: boolean;
   imported: number;
   updated: number;
-  /** Number of sessions linked via referenceId (resume chain detection) */
-  linked: number;
+  /** No longer set; kept for clients built against older versions */
+  linked?: number;
   skipped: number;
   errors: number;
   message: string;
@@ -1168,6 +1175,9 @@ export interface LibrarySyncProgress {
   error?: string;
 }
 
+/** Why the poller marked a server down, when it knows; absent for unreachable. */
+export type ServerDownReason = 'unauthorized';
+
 // WebSocket event types
 export interface ServerToClientEvents {
   'session:started': (session: ActiveSession) => void;
@@ -1183,7 +1193,11 @@ export interface ServerToClientEvents {
   'library:sync:progress': (progress: LibrarySyncProgress) => void;
   'tasks:updated': (tasks: RunningTask[]) => void;
   'version:update': (data: { current: string; latest: string; releaseUrl: string }) => void;
-  'server:down': (data: { serverId: string; serverName: string }) => void;
+  'server:down': (data: {
+    serverId: string;
+    serverName: string;
+    reason?: ServerDownReason;
+  }) => void;
   'server:up': (data: { serverId: string; serverName: string }) => void;
   'server:connection': (status: ServerConnectionStatus) => void;
   'notification:toast': (data: NotificationToast) => void;
@@ -2727,6 +2741,8 @@ export interface MediaVersionEntry {
   videoCodec: string | null;
   audioCodec: string | null;
   dynamicRange: string | null;
+  audioAtmos?: boolean;
+  editionTitle?: string | null;
   container: string | null;
   fileSize: number | null;
 }

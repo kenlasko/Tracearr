@@ -4,7 +4,7 @@
  * Provides a consistent interface for making HTTP requests with:
  * - Automatic error handling and typed errors
  * - Service-specific error codes integration
- * - Support for JSON, text, and raw response handling
+ * - Support for JSON and text response handling
  * - Request timeout support
  */
 
@@ -65,7 +65,7 @@ export class HttpClientError extends Error {
 export interface HttpRequestOptions extends Omit<RequestInit, 'signal'> {
   /** Service name for error messages */
   service?: string;
-  /** Request timeout in milliseconds */
+  /** Request timeout in milliseconds. Defaults to 30 s; 0 disables it. */
   timeout?: number;
   /** Whether to include response body in errors */
   includeBodyInError?: boolean;
@@ -116,7 +116,7 @@ function createTimeoutSignal(timeoutMs: number): AbortSignal {
  * });
  */
 export async function fetchJson<T>(url: string, options: HttpRequestOptions = {}): Promise<T> {
-  const { timeout, ...fetchOptions } = options;
+  const { timeout = 30_000, ...fetchOptions } = options;
 
   const response = await fetch(url, {
     ...fetchOptions,
@@ -137,7 +137,7 @@ export async function fetchJson<T>(url: string, options: HttpRequestOptions = {}
  * });
  */
 export async function fetchText(url: string, options: HttpRequestOptions = {}): Promise<string> {
-  const { timeout, ...fetchOptions } = options;
+  const { timeout = 30_000, ...fetchOptions } = options;
 
   const response = await fetch(url, {
     ...fetchOptions,
@@ -147,74 +147,6 @@ export async function fetchText(url: string, options: HttpRequestOptions = {}): 
   await assertResponseOk(response, url, options);
 
   return response.text();
-}
-
-/**
- * Fetch raw Response object (for streaming, binary data, etc.)
- * Still validates response.ok
- *
- * @example
- * const response = await fetchRaw('https://api.example.com/image.png', {
- *   service: 'example'
- * });
- * const buffer = await response.arrayBuffer();
- */
-export async function fetchRaw(url: string, options: HttpRequestOptions = {}): Promise<Response> {
-  const { timeout, ...fetchOptions } = options;
-
-  const response = await fetch(url, {
-    ...fetchOptions,
-    signal: timeout ? createTimeoutSignal(timeout) : undefined,
-  });
-
-  await assertResponseOk(response, url, options);
-
-  return response;
-}
-
-/**
- * Fetch with full response info (status, headers, body)
- * Does NOT throw on non-2xx responses
- *
- * @example
- * const { ok, status, data } = await fetchWithStatus<User>('https://api.example.com/user');
- * if (!ok) {
- *   console.log('Request failed with status', status);
- * }
- */
-export async function fetchWithStatus<T>(
-  url: string,
-  options: HttpRequestOptions = {}
-): Promise<{
-  ok: boolean;
-  status: number;
-  statusText: string;
-  headers: Headers;
-  data: T | null;
-}> {
-  const { timeout, ...fetchOptions } = options;
-
-  const response = await fetch(url, {
-    ...fetchOptions,
-    signal: timeout ? createTimeoutSignal(timeout) : undefined,
-  });
-
-  let data: T | null = null;
-  if (response.ok) {
-    try {
-      data = (await response.json()) as T;
-    } catch {
-      // Response might not be JSON
-    }
-  }
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-    data,
-  };
 }
 
 /**

@@ -91,6 +91,7 @@ function parseFiltersFromUrl(searchParams: URLSearchParams): HistoryFilters {
     'episode',
     'track',
     'live',
+    'trailer',
   ] as const);
   if (mediaTypes) filters.mediaTypes = mediaTypes;
 

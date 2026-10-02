@@ -13,6 +13,7 @@ import {
   setServerHistoricalSchema,
   PUBLIC_URL_PLEX_MESSAGE,
   type ServerConnectionStatus,
+  type ServerDownReason,
 } from '@tracearr/shared';
 import { db } from '../db/client.js';
 import { servers, plexAccounts } from '../db/schema.js';
@@ -795,7 +796,8 @@ export const serverRoutes: FastifyPluginAsync = async (app) => {
       .orderBy(...serverOrderBy());
 
     const cacheService = getCacheService();
-    const unhealthyServers: { serverId: string; serverName: string }[] = [];
+    const unhealthyServers: { serverId: string; serverName: string; reason?: ServerDownReason }[] =
+      [];
 
     if (cacheService) {
       for (const server of serverList) {
@@ -803,7 +805,12 @@ export const serverRoutes: FastifyPluginAsync = async (app) => {
         // null means unknown (not yet checked), true means healthy
         // Only include servers explicitly marked as unhealthy (false)
         if (isHealthy === false) {
-          unhealthyServers.push({ serverId: server.id, serverName: server.name });
+          const reason = await cacheService.getServerDownReason(server.id);
+          unhealthyServers.push({
+            serverId: server.id,
+            serverName: server.name,
+            ...(reason && { reason }),
+          });
         }
       }
     }

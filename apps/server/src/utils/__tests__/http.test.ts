@@ -5,8 +5,6 @@
  * - HttpClientError: Error class with service context
  * - fetchJson: Fetch and parse JSON response
  * - fetchText: Fetch and return text response
- * - fetchRaw: Fetch and return raw Response
- * - fetchWithStatus: Fetch without throwing on non-2xx
  * - Helper functions: jsonHeaders, plexHeaders, jellyfinEmbyHeaders
  *
  * These tests validate:
@@ -24,8 +22,6 @@ import {
   HttpClientError,
   fetchJson,
   fetchText,
-  fetchRaw,
-  fetchWithStatus,
   jsonHeaders,
   plexHeaders,
   jellyfinEmbyHeaders,
@@ -166,7 +162,9 @@ describe('fetchJson', () => {
     const result = await fetchJson<typeof responseData>('https://api.example.com/data');
 
     expect(result).toEqual(responseData);
-    expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/data', {});
+    expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/data', {
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it('should pass headers to fetch', async () => {
@@ -221,6 +219,22 @@ describe('fetchJson', () => {
       expect((error as HttpClientError).service).toBe('API');
     }
   });
+
+  it('passes an abort signal when no timeout is given', async () => {
+    mockFetch.mockResolvedValue(createMockResponse({ body: {} }));
+
+    await fetchJson('https://api.example.com/data');
+
+    expect(mockFetch.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('passes no signal when timeout is 0', async () => {
+    mockFetch.mockResolvedValue(createMockResponse({ body: {} }));
+
+    await fetchJson('https://api.example.com/data', { timeout: 0 });
+
+    expect(mockFetch.mock.calls[0]?.[1]?.signal).toBeUndefined();
+  });
 });
 
 describe('fetchText', () => {
@@ -250,103 +264,21 @@ describe('fetchText', () => {
       fetchText('https://api.example.com/forbidden', { service: 'plex' })
     ).rejects.toThrow(HttpClientError);
   });
-});
 
-describe('fetchRaw', () => {
-  beforeEach(() => {
-    mockFetch.mockReset();
+  it('passes an abort signal when no timeout is given', async () => {
+    mockFetch.mockResolvedValue(createMockResponse({ body: '' }));
+
+    await fetchText('https://api.example.com/xml');
+
+    expect(mockFetch.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it('should return raw Response object', async () => {
-    const mockResponse = createMockResponse({ body: 'binary data' });
-    mockFetch.mockResolvedValue(mockResponse);
+  it('passes no signal when timeout is 0', async () => {
+    mockFetch.mockResolvedValue(createMockResponse({ body: '' }));
 
-    const result = await fetchRaw('https://api.example.com/image');
+    await fetchText('https://api.example.com/xml', { timeout: 0 });
 
-    expect(result).toBe(mockResponse);
-  });
-
-  it('should throw HttpClientError on non-2xx response', async () => {
-    mockFetch.mockResolvedValue(
-      createMockResponse({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      })
-    );
-
-    await expect(fetchRaw('https://api.example.com/missing')).rejects.toThrow(HttpClientError);
-  });
-});
-
-describe('fetchWithStatus', () => {
-  beforeEach(() => {
-    mockFetch.mockReset();
-  });
-
-  it('should return status info for successful request', async () => {
-    const responseData = { id: 1 };
-    mockFetch.mockResolvedValue(
-      createMockResponse({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        body: responseData,
-      })
-    );
-
-    const result = await fetchWithStatus<typeof responseData>('https://api.example.com/data');
-
-    expect(result.ok).toBe(true);
-    expect(result.status).toBe(200);
-    expect(result.statusText).toBe('OK');
-    expect(result.data).toEqual(responseData);
-  });
-
-  it('should NOT throw on non-2xx response', async () => {
-    mockFetch.mockResolvedValue(
-      createMockResponse({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      })
-    );
-
-    const result = await fetchWithStatus('https://api.example.com/missing');
-
-    expect(result.ok).toBe(false);
-    expect(result.status).toBe(404);
-    expect(result.data).toBeNull();
-  });
-
-  it('should return null data when response is not JSON', async () => {
-    const mockResponse = createMockResponse({
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-    });
-    (mockResponse.json as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Not JSON'));
-    mockFetch.mockResolvedValue(mockResponse);
-
-    const result = await fetchWithStatus('https://api.example.com/text');
-
-    expect(result.ok).toBe(true);
-    expect(result.data).toBeNull();
-  });
-
-  it('should include headers in response', async () => {
-    mockFetch.mockResolvedValue(
-      createMockResponse({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: { 'X-Custom-Header': 'value' },
-      })
-    );
-
-    const result = await fetchWithStatus('https://api.example.com/data');
-
-    expect(result.headers).toBeInstanceOf(Headers);
+    expect(mockFetch.mock.calls[0]?.[1]?.signal).toBeUndefined();
   });
 });
 

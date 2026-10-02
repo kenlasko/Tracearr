@@ -103,6 +103,7 @@ vi.mock('../../services/settings.js', () => ({
 import type { SQL } from 'drizzle-orm';
 import { db } from '../../db/client.js';
 import { rebuildAutoSyncSchedules, scheduleAutoSync } from '../../jobs/librarySyncQueue.js';
+import { getCacheService } from '../../services/cache.js';
 import { markServerHistorical, resumeServer } from '../../services/historicalServers.js';
 import { renderSql } from '../../test/helpers.js';
 import { rearmImportedHistoryLink } from '../../services/settings.js';
@@ -1657,6 +1658,24 @@ describe('Server Routes', () => {
       });
       expect(response.statusCode).toBe(404);
       expect(markServerHistorical).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('GET /servers/health', () => {
+    it('returns the down reason for a server the cache marks unauthorized', async () => {
+      app = await buildTestApp(ownerUser);
+      mockDbSelectWhere([{ id: 'srv-1', name: 'Living Room Plex' }]);
+      vi.mocked(getCacheService).mockReturnValueOnce({
+        getServerHealth: vi.fn().mockResolvedValue(false),
+        getServerDownReason: vi.fn().mockResolvedValue('unauthorized'),
+      } as never);
+
+      const response = await app.inject({ method: 'GET', url: '/servers/health' });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({
+        data: [{ serverId: 'srv-1', serverName: 'Living Room Plex', reason: 'unauthorized' }],
+      });
     });
   });
 

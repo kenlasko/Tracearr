@@ -7,7 +7,7 @@ export interface HistoryFilters {
   serverUserIds?: string[];
   serverIds?: string[];
   state?: 'playing' | 'paused' | 'stopped';
-  mediaTypes?: ('movie' | 'episode' | 'track' | 'live')[];
+  mediaTypes?: ('movie' | 'episode' | 'track' | 'live' | 'trailer')[];
   startDate?: Date;
   endDate?: Date;
   search?: string;

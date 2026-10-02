@@ -44,6 +44,7 @@ import type {
   MaintenanceJobProgress,
   LibrarySyncProgress,
   NotificationToast,
+  ServerToClientEvents,
 } from '@tracearr/shared';
 
 import authPlugin, { loadJwtRevokeSettings } from './plugins/auth.js';
@@ -1282,7 +1283,10 @@ async function initializePostListen(app: FastifyInstance) {
           broadcastToSessions('notification:toast', data as NotificationToast);
           break;
         case WS_EVENTS.SERVER_DOWN:
-          broadcastToSessions('server:down', data as { serverId: string; serverName: string });
+          broadcastToSessions(
+            'server:down',
+            data as Parameters<ServerToClientEvents['server:down']>[0]
+          );
           break;
         case WS_EVENTS.SERVER_UP:
           broadcastToSessions('server:up', data as { serverId: string; serverName: string });

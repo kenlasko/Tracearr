@@ -177,6 +177,8 @@ export interface ProcessedSession extends StreamDetailFields {
   // Playback state
   /** Current playback state */
   state: 'playing' | 'paused';
+  /** Plex reports buffering; state above maps it to 'playing' */
+  buffering: boolean;
   /** Total media duration in milliseconds */
   totalDurationMs: number;
   /** Current playback position in milliseconds */
@@ -324,6 +326,8 @@ export interface PendingSessionData {
 export interface ServerProcessingResult {
   /** Whether the server was successfully polled (false = connection error) */
   success: boolean;
+  /** The failed poll was a 401: the server rejected Tracearr's token */
+  unauthorized?: boolean;
   /** Newly created sessions */
   newSessions: ActiveSession[];
   /** Session keys that stopped playing */

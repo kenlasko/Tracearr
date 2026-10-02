@@ -361,21 +361,8 @@ async function handlePlaying(event: {
     // the full path re-checks the server user. Everything else (new play,
     // resume, media change, live TV) falls through to the full path, and the
     // 30s reconciliation poll covers mid-stream transcode flips.
-    if (
-      existingRow?.state === 'playing' &&
-      existingRow.mediaType !== 'live' &&
-      existingRow.ratingKey === notification.ratingKey &&
-      existingRow.deviceId === notification.clientIdentifier
-    ) {
-      const windowStart = fastPathWindowStart.get(existingRow.id);
-      if (windowStart === undefined || Date.now() - windowStart < FAST_PATH_REVALIDATE_MS) {
-        if (windowStart === undefined) {
-          fastPathWindowStart.set(existingRow.id, Date.now());
-        }
-        await applySessionProgress(existingRow, notification.viewOffset);
-        return;
-      }
-      fastPathWindowStart.delete(existingRow.id);
+    if (existingRow && (await tryFastPath(existingRow, notification, 'playing'))) {
+      return;
     }
 
     const result = await fetchFullSession(serverId, notification.sessionKey);
@@ -466,6 +453,10 @@ async function handlePaused(event: {
     });
 
     if (!existingSession) {
+      return;
+    }
+
+    if (await tryFastPath(existingSession, notification, 'paused')) {
       return;
     }
 
@@ -600,16 +591,42 @@ async function handleStopped(event: {
   }
 }
 
+/** True when the progress path handled the tick; false sends the caller down the full path. */
+async function tryFastPath(
+  row: typeof sessions.$inferSelect,
+  notification: PlexPlaySessionNotification,
+  state: 'playing' | 'paused'
+): Promise<boolean> {
+  if (
+    row.state !== state ||
+    row.mediaType === 'live' ||
+    row.ratingKey !== notification.ratingKey ||
+    row.deviceId !== notification.clientIdentifier
+  ) {
+    return false;
+  }
+  const windowStart = fastPathWindowStart.get(row.id);
+  if (windowStart !== undefined && Date.now() - windowStart >= FAST_PATH_REVALIDATE_MS) {
+    fastPathWindowStart.delete(row.id);
+    return false;
+  }
+  if (windowStart === undefined) fastPathWindowStart.set(row.id, Date.now());
+  await applySessionProgress(row, notification.viewOffset);
+  return true;
+}
+
 /**
  * Apply a position update to a confirmed session at throttled DB cost: the
  * Redis cache updates on every call so dashboards stay live, while the DB
  * write coalesces through shouldFlushDbWrite. Watched transitions flush
- * immediately. Production reaches this from handlePlaying's repeat-tick fast
- * path; Plex SSE has no distinct progress state.
+ * immediately. Reached from the repeat-tick fast path and from Plex buffering
+ * notifications, which arrive as progress and never change state or pause
+ * accounting.
  */
 async function applySessionProgress(
   existingSession: typeof sessions.$inferSelect,
-  viewOffset: number
+  viewOffset: number,
+  buffering = false
 ): Promise<void> {
   const now = new Date();
   let watched = existingSession.watched;
@@ -661,12 +678,14 @@ async function applySessionProgress(
   if (cacheService) {
     const cached = await cacheService.getSessionById(existingSession.id);
     if (cached) {
+      const bufferingChanged = (cached.buffering ?? false) !== buffering;
       cached.progressMs = viewOffset;
       cached.watched = watched;
+      cached.buffering = buffering;
       await cacheService.updateActiveSession(cached);
 
-      // Only broadcast on watched status change (progress events are frequent)
-      if (watchedTransition && pubSubService) {
+      // Progress ticks are frequent; broadcast only watched and buffering flips
+      if ((watchedTransition || bufferingChanged) && pubSubService) {
         await pubSubService.publish('session:updated', cached);
       }
     }
@@ -677,9 +696,8 @@ async function applySessionProgress(
  * Handle progress event (periodic position updates)
  * Also handles pending session confirmation - if viewOffset exceeds 30s threshold,
  * the session is persisted to DB and rules are evaluated.
- * Plex SSE never emits a distinct progress state, so in production this logic
- * runs via handlePlaying's fast path; the subscription stays for the relay
- * interface and any event source that does emit it.
+ * Plex buffering notifications arrive here; plain progress ticks come in as
+ * repeated 'playing' or 'paused' notifications and take the fast path instead.
  */
 async function handleProgress(event: {
   serverId: string;
@@ -709,11 +727,21 @@ async function handleProgress(event: {
       sessionKey: notification.sessionKey,
     });
 
-    if (!existingSession) {
+    // An autoplayed next item reuses the sessionKey; its position must not land
+    // on the old row. The next playing tick takes the full path and handles it.
+    if (
+      !existingSession ||
+      existingSession.mediaType === 'live' ||
+      existingSession.ratingKey !== notification.ratingKey
+    ) {
       return;
     }
 
-    await applySessionProgress(existingSession, notification.viewOffset);
+    await applySessionProgress(
+      existingSession,
+      notification.viewOffset,
+      notification.state === 'buffering'
+    );
   } catch (error) {
     console.error('[SSEProcessor] Error handling progress event:', error);
   }
@@ -985,7 +1013,7 @@ async function fetchFullSession(
       token: server.token,
     });
 
-    const allSessions = await client.getSessions();
+    const allSessions = await client.getSessions(sessionKey);
     const targetSession = allSessions.find((s) => s.sessionKey === sessionKey);
 
     if (!targetSession) {
@@ -1493,6 +1521,7 @@ async function updateExistingSession(
 
     if (cached) {
       cached.state = newState;
+      cached.buffering = false;
       cached.quality = processed.quality;
       cached.bitrate = processed.bitrate;
       cached.progressMs = processed.progressMs || null;

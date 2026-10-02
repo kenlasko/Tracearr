@@ -52,6 +52,7 @@ import {
 import { registerService, unregisterService } from '../../services/serviceTracker.js';
 import { getWatchedThreshold } from '../../services/settings.js';
 import { sseManager } from '../../services/sseManager.js';
+import { HttpClientError } from '../../utils/http.js';
 import { createLogger } from '../../utils/logger.js';
 
 import {
@@ -98,6 +99,7 @@ import type {
   PendingSessionData,
   PendingSessionOutcome,
   PollerConfig,
+  ProcessedSession,
   ResolvePendingSessionInput,
   ServerProcessingResult,
   ServerWithToken,
@@ -550,6 +552,14 @@ async function pruneMissedPollTracking(
 // Server Session Processing
 // ============================================================================
 
+/** Plex buffering maps to 'playing'; the session keeps its last playing or paused state. */
+function stateThroughBuffering(
+  current: 'playing' | 'paused' | 'stopped',
+  processed: ProcessedSession
+): 'playing' | 'paused' {
+  return processed.buffering && current !== 'stopped' ? current : processed.state;
+}
+
 /**
  * Confirm or update a Redis-only pending session. Pending sessions are
  * invisible to cachedSessionKeys, so both poll branches must call this
@@ -578,10 +588,11 @@ async function resolvePendingSession(
 
   const { updatedData, isConfirmed } = updatePendingSession(
     pendingSession,
-    processed.state,
+    stateThroughBuffering(pendingSession.currentState, processed),
     processed.progressMs,
     Date.now()
   );
+  updatedData.processed = { ...updatedData.processed, buffering: processed.buffering };
 
   if (!isConfirmed) {
     await cacheService.setPendingSession(server.id, pendingKey, updatedData);
@@ -1257,7 +1268,7 @@ async function processServerSessions(
                   geo,
                   server,
                   overrides: {
-                    state: processed.state,
+                    state: stateThroughBuffering(existing.state, processed),
                     lastPausedAt: existing.lastPausedAt,
                     pausedDurationMs: existing.pausedDurationMs ?? 0,
                     watched: existing.watched ?? false,
@@ -1600,7 +1611,7 @@ async function processServerSessions(
           }
 
           const previousState = existingSession.state;
-          const newState = processed.state;
+          const newState = stateThroughBuffering(existingSession.state, processed);
           const now = new Date();
 
           // Check if transcode state changed (e.g., user changed quality mid-stream)
@@ -1680,7 +1691,11 @@ async function processServerSessions(
           // Write to DB only on state changes or on the periodic jittered flush
           const watchedThresholdReached = updatePayload.watched === true;
           if (watchedThresholdReached) watchedTransitionOccurred = true;
-          const hasChanges = shouldWriteToDb(existingSession, processed, watchedThresholdReached);
+          const hasChanges = shouldWriteToDb(
+            existingSession,
+            { ...processed, state: newState },
+            watchedThresholdReached
+          );
           const flushElapsed = shouldFlushDbWrite(existingSession.id, now.getTime());
 
           // Guarded by isNull(stoppedAt): a stop racing this write must not
@@ -1846,9 +1861,15 @@ async function processServerSessions(
       confirmedFromPendingIds,
     };
   } catch (error) {
-    console.error(`Error polling server ${server.name}:`, error);
+    const unauthorized = error instanceof HttpClientError && error.statusCode === 401;
+    if (unauthorized) {
+      console.error(`[Poller] ${server.name} rejected Tracearr's token (401)`);
+    } else {
+      console.error(`Error polling server ${server.name}:`, error);
+    }
     return {
       success: false,
+      unauthorized,
       newSessions: [],
       stoppedSessionKeys: [],
       updatedSessions: [],
@@ -1968,6 +1989,7 @@ async function pollServers(): Promise<void> {
 
         const {
           success,
+          unauthorized,
           newSessions,
           stoppedSessionKeys,
           updatedSessions,
@@ -1996,13 +2018,14 @@ async function pollServers(): Promise<void> {
             const failCount = await cacheService.incrServerFailCount(server.id);
 
             if (failCount >= POLLER_CONFIG.DOWN_THRESHOLD) {
-              await cacheService.setServerHealth(server.id, false);
+              const reason = unauthorized ? 'unauthorized' : undefined;
+              await cacheService.setServerHealth(server.id, false, reason);
 
               if (wasHealthy !== false) {
                 console.log(
                   `[Poller] Server ${server.name} is DOWN (${failCount} consecutive failures)`
                 );
-                await dispatchServerHealth('server.down', healthServer, new Date());
+                await dispatchServerHealth('server.down', healthServer, new Date(), reason);
               }
             }
           }

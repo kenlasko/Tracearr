@@ -10,6 +10,7 @@ import {
   Tv,
   Music,
   Radio,
+  Clapperboard,
   MonitorPlay,
   Zap,
   X,
@@ -243,6 +244,7 @@ export function HistoryFiltersBar({
         episode: 'TV Shows',
         track: 'Music',
         live: 'Live TV',
+        trailer: 'Trailers',
       };
       const typeLabels = filters.mediaTypes.map((t) => labels[t] || t);
       active.push({
@@ -556,6 +558,7 @@ export function HistoryFiltersBar({
               { value: 'episode' as const, label: 'TV Shows', icon: Tv },
               { value: 'track' as const, label: 'Music', icon: Music },
               { value: 'live' as const, label: 'Live TV', icon: Radio },
+              { value: 'trailer' as const, label: 'Trailers', icon: Clapperboard },
             ].map(({ value, label, icon: Icon }) => {
               const isSelected = filters.mediaTypes?.includes(value) ?? false;
               return (
