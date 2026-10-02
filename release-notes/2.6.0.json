@@ -1,6 +1,6 @@
 {
   "version": "2.6.0",
-  "date": "2026-10-01",
+  "date": "2026-10-02",
   "headline": "Your own notification text and priority, plus historical servers",
   "highlights": [
     {
@@ -45,6 +45,22 @@
       "text": "library copies show the Plex edition, like Extended Cut or Theatrical Cut"
     },
     {
+      "type": "new",
+      "text": "sessions that transcode only the audio show as Audio Transcode in badges, charts and filters, apart from Transcode"
+    },
+    {
+      "type": "new",
+      "text": "subtitle burn-in shows on stream badges, filters history and works as an automation condition"
+    },
+    {
+      "type": "improved",
+      "text": "Docker images are about 690 MB smaller, and updates download only the layers that changed, not the whole image"
+    },
+    {
+      "type": "improved",
+      "text": "the Emby realtime setup dialog installs Tracearr SSE from Emby's plugin catalog instead of a release zip"
+    },
+    {
       "type": "note",
       "text": "the first library sync after updating is a full scan on every server"
     },
@@ -81,6 +97,14 @@
     },
     {
       "type": "fix",
+      "text": "the history Quality filter matches the badges; it used to check only the video stream"
+    },
+    {
+      "type": "fix",
+      "text": "the Tautulli import's stream details keep audio-only transcodes apart instead of counting them as video transcodes"
+    },
+    {
+      "type": "fix",
       "text": "the Tautulli import includes plays from archived users and libraries"
     },
     {
@@ -114,6 +138,14 @@
     {
       "type": "fix",
       "text": "a slow plex.tv or media server no longer stalls library syncs, adding a server or Plex sign-in for minutes"
+    },
+    {
+      "type": "fix",
+      "text": "count text in languages like Polish, Russian and Arabic no longer switches to English for some numbers"
+    },
+    {
+      "type": "security",
+      "text": "the image proxy only fetches poster and avatar paths, not any request on the media server with its token"
     }
   ]
 }

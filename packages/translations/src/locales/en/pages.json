@@ -914,6 +914,7 @@
         "source_video_codec": "the source video codec",
         "is_transcoding": "the transcoding",
         "is_transcode_downgrade": "the downgrade",
+        "is_subtitle_burn_in": "the subtitle burn-in",
         "source_bitrate_mbps": "the source bitrate",
         "user_id": "the user",
         "trust_score": "the trust score",
@@ -944,6 +945,10 @@
         "is_transcode_downgrade": {
           "yes": "the stream is downgraded",
           "no": "the stream is not downgraded"
+        },
+        "is_subtitle_burn_in": {
+          "yes": "subtitles are burned into the video",
+          "no": "subtitles are not burned into the video"
         },
         "is_transcoding": {
           "video": {
@@ -1114,6 +1119,10 @@
       "is_transcode_downgrade": {
         "label": "Transcode Downgrade",
         "description": "Output resolution is lower than source"
+      },
+      "is_subtitle_burn_in": {
+        "label": "Subtitle Burn-in",
+        "description": "Subtitles are burned into the video, forcing a video transcode"
       },
       "source_bitrate_mbps": {
         "label": "Source Bitrate",

@@ -1,11 +1,6 @@
+# syntax=docker/dockerfile:1
 # Build stage
 FROM node:24-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2 AS builder
-
-# Build arguments for version info
-ARG APP_VERSION=0.0.0
-ARG APP_TAG=
-ARG APP_COMMIT=
-ARG APP_BUILD_DATE=
 
 # pnpm's install script is what puts its native binary in place. corepack never runs it,
 # and npm 12 blocks it unless allowed, so both leave pnpm's shebang-less fallback shim instead.
@@ -25,8 +20,8 @@ COPY packages/test-utils/package.json ./packages/test-utils/
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY . .
+# Copy source code. data/ only goes into the runner, so it stays out of this layer and its cache.
+COPY --exclude=data . .
 
 # Build only production packages (excludes test-utils)
 RUN pnpm turbo run build --filter=@tracearr/shared --filter=@tracearr/server --filter=@tracearr/web
@@ -34,16 +29,14 @@ RUN pnpm turbo run build --filter=@tracearr/shared --filter=@tracearr/server --f
 # Production stage
 FROM node:24-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2 AS runner
 
-# Build arguments for version info (must redeclare in each stage)
-ARG APP_VERSION=0.0.0
-ARG APP_TAG=
-ARG APP_COMMIT=
-ARG APP_BUILD_DATE=
-
 RUN npm install -g --allow-scripts=pnpm pnpm@12.3.4
 
 # Tailscale VPN binary (userspace networking, no root required)
 RUN apk add --no-cache tailscale postgresql-client
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 tracearr
 
 WORKDIR /app
 
@@ -51,69 +44,67 @@ WORKDIR /app
 # volume here. Must stay a path the image creates and chowns, since the server
 # mkdirs it at startup and cannot recover from EACCES.
 ENV IMAGE_CACHE_DIR=/data/tracearr/image-cache
-
-ARG CACHE_BUST
-# Write build info to JSON file - can't be overridden by compose ENV vars
-
-RUN echo "Build: ${APP_VERSION} (${APP_COMMIT}) - ${CACHE_BUST:-nocache}" && \
-    printf '{"version":"%s","tag":"%s","commit":"%s","buildDate":"%s"}\n' \
-      "${APP_VERSION}" "${APP_TAG}" "${APP_COMMIT}" "${APP_BUILD_DATE}" > /app/.build-info.json
-
-# Set runtime environment variables
 ENV NODE_ENV=production
-ENV APP_VERSION=${APP_VERSION}
-ENV APP_TAG=${APP_TAG}
-ENV APP_COMMIT=${APP_COMMIT}
-ENV APP_BUILD_DATE=${APP_BUILD_DATE}
 
-# Copy package files for production install
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/pnpm-lock.yaml ./
+# Basemap tiles change far less often than anything below, so they come first and stay cached
+COPY --chown=tracearr:nodejs data/basemap.pmtiles ./data/basemap.pmtiles
+COPY --chown=tracearr:nodejs data/BASEMAP_NOTICE.txt ./data/BASEMAP_NOTICE.txt
+
+# Server runtime deps only: the web app ships as static files, so its packages never load here (ignore-scripts keeps prepare/husky out).
+# Installed before any build output is copied so a code-only change reuses this layer.
+COPY --chown=tracearr:nodejs package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY --chown=tracearr:nodejs apps/server/package.json ./apps/server/
+COPY --chown=tracearr:nodejs packages/shared/package.json ./packages/shared/
+COPY --chown=tracearr:nodejs packages/emails/package.json ./packages/emails/
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts --filter @tracearr/server... && \
+    chown -R tracearr:nodejs /app
+
+# GeoIP databases, refreshed from MaxMind on every build
+COPY --chown=tracearr:nodejs data/GeoLite2-City.mmdb ./data/GeoLite2-City.mmdb
+COPY --chown=tracearr:nodejs data/GeoLite2-ASN.mmdb ./data/GeoLite2-ASN.mmdb
 
 # Server package
-COPY --from=builder /app/apps/server/package.json ./apps/server/
-COPY --from=builder /app/apps/server/dist ./apps/server/dist
-COPY --from=builder /app/apps/server/scripts ./apps/server/scripts
+COPY --from=builder --chown=tracearr:nodejs /app/apps/server/dist ./apps/server/dist
+COPY --from=builder --chown=tracearr:nodejs /app/apps/server/scripts ./apps/server/scripts
 
 # Web static files (served by server or reverse proxy)
-COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder --chown=tracearr:nodejs /app/apps/web/dist ./apps/web/dist
 
 # Shared package
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder --chown=tracearr:nodejs /app/packages/shared/dist ./packages/shared/dist
 
 # Emails package
-COPY --from=builder /app/packages/emails/package.json ./packages/emails/
-COPY --from=builder /app/packages/emails/dist ./packages/emails/dist
+COPY --from=builder --chown=tracearr:nodejs /app/packages/emails/dist ./packages/emails/dist
 
 # Database migrations
-COPY --from=builder /app/apps/server/src/db/migrations ./apps/server/src/db/migrations
-COPY --from=builder /app/assets/logo.png ./assets/logo.png
-
-# GeoIP database (if exists in build context)
-COPY data/GeoLite2-City.mmdb ./data/GeoLite2-City.mmdb
-COPY data/GeoLite2-ASN.mmdb ./data/GeoLite2-ASN.mmdb
-COPY data/basemap.pmtiles ./data/basemap.pmtiles
-COPY data/BASEMAP_NOTICE.txt ./data/BASEMAP_NOTICE.txt
+COPY --from=builder --chown=tracearr:nodejs /app/apps/server/src/db/migrations ./apps/server/src/db/migrations
+COPY --from=builder --chown=tracearr:nodejs /app/assets/logo.png ./assets/logo.png
 
 # Create image cache and backup directories
-RUN mkdir -p /app/data/image-cache /data/tracearr/image-cache /data/backup
-
-# Server runtime deps only: the web app ships as static files, so its packages never load here (ignore-scripts keeps prepare/husky out)
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts --filter @tracearr/server...
+RUN mkdir -p /app/data/image-cache /data/tracearr/image-cache /data/backup && \
+    chown tracearr:nodejs /app/data/image-cache /data/tracearr /data/tracearr/image-cache /data/backup
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 tracearr
-
-# Set ownership
-RUN chown -R tracearr:nodejs /app /data/tracearr /data/backup
-
 USER tracearr
+
+# Version info comes last: APP_COMMIT changes every build, and every instruction after it misses the cache
+ARG APP_VERSION=0.0.0
+ARG APP_TAG=
+ARG APP_COMMIT=
+ARG APP_BUILD_DATE=
+ARG CACHE_BUST
+
+# Write build info to JSON file - can't be overridden by compose ENV vars
+RUN echo "Build: ${APP_VERSION} (${APP_COMMIT}) - ${CACHE_BUST:-nocache}" && \
+    printf '{"version":"%s","tag":"%s","commit":"%s","buildDate":"%s"}\n' \
+      "${APP_VERSION}" "${APP_TAG}" "${APP_COMMIT}" "${APP_BUILD_DATE}" > /app/.build-info.json
+
+ENV APP_VERSION=${APP_VERSION}
+ENV APP_TAG=${APP_TAG}
+ENV APP_COMMIT=${APP_COMMIT}
+ENV APP_BUILD_DATE=${APP_BUILD_DATE}
 
 EXPOSE 3000
 

@@ -219,6 +219,7 @@ describe('public API v2 skeleton', () => {
         summary: {
           total: 0,
           transcodes: 0,
+          audio_transcodes: 0,
           direct_streams: 0,
           direct_plays: 0,
           total_bitrate: expect.any(String),

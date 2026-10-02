@@ -1970,6 +1970,9 @@ export function mapStreamDataToSession(
     streamAudioCodec: sanitizeCodec(streamData.stream_audio_codec),
     bitrate: streamData.bandwidth ?? streamData.stream_bitrate ?? streamData.bitrate ?? null,
     quality: streamData.quality_profile ?? null,
+    // get_history only has the combined transcode_decision; these split it per stream
+    ...((streamData.video_decision || streamData.audio_decision) &&
+      normalizeStreamDecisions(streamData.video_decision, streamData.audio_decision)),
 
     // JSONB fields (only set if they have content)
     ...(Object.keys(sourceVideoDetails).length > 0 && { sourceVideoDetails }),

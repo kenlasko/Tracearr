@@ -53,6 +53,7 @@ import { buildAvatarUrl, buildPosterUrl } from '../services/imageProxy.js';
 import { terminateSession } from '../services/termination.js';
 import { getCurrentVersion } from '../utils/buildInfo.js';
 import { serverOrderBy } from '../utils/serverOrder.js';
+import { countStreams } from '../utils/streamCounts.js';
 import { generateOpenAPIDocument } from './public.openapi.js';
 import {
   queryConcurrentStreams,
@@ -395,75 +396,21 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           platform: session.platform,
         }));
 
-    const categorizeStream = (session: (typeof activeSessions)[0]) => {
-      // Transcode if either video or audio is being transcoded
-      if (session.isTranscode) return 'transcode';
-      // Direct stream if either video or audio is 'copy' (container remux)
-      if (session.videoDecision === 'copy' || session.audioDecision === 'copy')
-        return 'directStream';
-      // Otherwise it's direct play
-      return 'directPlay';
-    };
-
-    let transcodeCount = 0;
-    let directStreamCount = 0;
-    let directPlayCount = 0;
-    let totalBitrate = 0;
-
-    for (const session of activeSessions) {
-      const category = categorizeStream(session);
-      if (category === 'transcode') transcodeCount++;
-      else if (category === 'directStream') directStreamCount++;
-      else directPlayCount++;
-      if (session.bitrate) totalBitrate += session.bitrate;
-    }
-
-    const serverBreakdown: Record<
-      string,
-      {
-        serverId: string;
-        serverName: string;
-        total: number;
-        transcodes: number;
-        directStreams: number;
-        directPlays: number;
-        bitrateKbps: number;
-      }
-    > = {};
-
-    for (const session of activeSessions) {
-      let serverStats = serverBreakdown[session.serverId];
-      if (!serverStats) {
-        serverStats = {
-          serverId: session.serverId,
-          serverName: session.server.name,
-          total: 0,
-          transcodes: 0,
-          directStreams: 0,
-          directPlays: 0,
-          bitrateKbps: 0,
-        };
-        serverBreakdown[session.serverId] = serverStats;
-      }
-      const category = categorizeStream(session);
-      serverStats.total++;
-      if (category === 'transcode') serverStats.transcodes++;
-      else if (category === 'directStream') serverStats.directStreams++;
-      else serverStats.directPlays++;
-      if (session.bitrate) serverStats.bitrateKbps += session.bitrate;
-    }
+    const { overall, byServer } = countStreams(activeSessions);
 
     const summary = {
-      total: activeSessions.length,
-      transcodes: transcodeCount,
-      directStreams: directStreamCount,
-      directPlays: directPlayCount,
-      totalBitrate: formatBitrate(totalBitrate),
-      byServer: Object.values(serverBreakdown).map((s) => ({
+      total: overall.total,
+      transcodes: overall.transcodes,
+      audioTranscodes: overall.audioTranscodes,
+      directStreams: overall.directStreams,
+      directPlays: overall.directPlays,
+      totalBitrate: formatBitrate(overall.bitrateKbps),
+      byServer: byServer.map((s) => ({
         serverId: s.serverId,
         serverName: s.serverName,
         total: s.total,
         transcodes: s.transcodes,
+        audioTranscodes: s.audioTranscodes,
         directStreams: s.directStreams,
         directPlays: s.directPlays,
         totalBitrate: formatBitrate(s.bitrateKbps),
@@ -1001,6 +948,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         direct: r.direct,
         directStream: r.directStream,
         transcode: r.transcode,
+        audioTranscode: r.audioTranscode,
       })),
       byDayOfWeek,
       byHourOfDay,

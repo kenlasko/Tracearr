@@ -409,6 +409,10 @@ const StreamsServerSummary = z
     server_name: z.string(),
     total: z.number().int(),
     transcodes: z.number().int(),
+    audio_transcodes: z
+      .number()
+      .int()
+      .openapi({ description: 'Of the transcodes, those where only the audio is transcoded' }),
     direct_streams: z.number().int(),
     direct_plays: z.number().int(),
     total_bitrate: z.string().openapi({
@@ -422,6 +426,10 @@ const StreamsSummary = z
   .object({
     total: z.number().int(),
     transcodes: z.number().int(),
+    audio_transcodes: z
+      .number()
+      .int()
+      .openapi({ description: 'Of the transcodes, those where only the audio is transcoded' }),
     direct_streams: z.number().int(),
     direct_plays: z.number().int(),
     total_bitrate: z.string().openapi({

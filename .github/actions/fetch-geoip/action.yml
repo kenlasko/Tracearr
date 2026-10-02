@@ -1,0 +1,25 @@
+name: Fetch GeoIP databases
+description: Downloads the current GeoLite2 City and ASN databases into data/
+
+inputs:
+  license-key:
+    description: MaxMind license key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download GeoLite2 databases
+      shell: bash
+      env:
+        LICENSE_KEY: ${{ inputs.license-key }}
+      run: |
+        set -euo pipefail
+        for edition in GeoLite2-City GeoLite2-ASN; do
+          dir="$RUNNER_TEMP/$edition"
+          mkdir -p "$dir"
+          curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=${edition}&license_key=${LICENSE_KEY}&suffix=tar.gz" \
+            | tar -xz -C "$dir"
+          mv "$dir"/"${edition}"_*/"${edition}.mmdb" "data/${edition}.mmdb"
+        done
+        ls -la data/GeoLite2-City.mmdb data/GeoLite2-ASN.mmdb

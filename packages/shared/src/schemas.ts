@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { isValidTimezone } from './constants.js';
 import { listDateBoundSchema, listSortSchema } from './listQuery.js';
+import { PLAYBACK_DECISIONS } from './playbackDecision.js';
 
 // ============================================================================
 // Shared Enum Constants
@@ -409,7 +410,8 @@ export const historyQuerySchema = z.object({
   geoRegion: z.string().max(255).optional(), // State/province
   network: z.enum(['local', 'remote']).optional(),
 
-  transcodeDecisions: commaSeparatedArray(z.enum(['directplay', 'copy', 'transcode'])),
+  transcodeDecisions: commaSeparatedArray(z.enum(PLAYBACK_DECISIONS)),
+  subtitleBurnIn: booleanStringSchema.optional(),
 
   // Status filters
   watched: booleanStringSchema.optional(), // 85%+ completion

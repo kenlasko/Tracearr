@@ -24,6 +24,7 @@ import {
   TautulliUserRecordSchema,
   TautulliUsersResponseSchema,
   isFatalImportError,
+  mapStreamDataToSession,
   parseHistoryGuid,
   type TautulliHistoryRecord,
   type TautulliUserRecord,
@@ -755,6 +756,18 @@ describe('isFatalImportError', () => {
     expect(isFatalImportError(new TautulliApiError(500, 'Internal Server Error', 'x'))).toBe(false);
     expect(isFatalImportError(new Error('Tautulli API timeout after 30000ms'))).toBe(false);
     expect(isFatalImportError('nope')).toBe(false);
+  });
+});
+
+describe('mapStreamDataToSession', () => {
+  it('splits the per-stream decisions so an audio-only transcode stays one', () => {
+    expect(
+      mapStreamDataToSession({ video_decision: 'copy', audio_decision: 'transcode' })
+    ).toMatchObject({ videoDecision: 'copy', audioDecision: 'transcode', isTranscode: true });
+  });
+
+  it('leaves the decisions alone when the stream data has none', () => {
+    expect(mapStreamDataToSession({})).not.toHaveProperty('videoDecision');
   });
 });
 

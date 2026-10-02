@@ -56,22 +56,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Update GeoIP database
-        run: |
-          echo "Downloading latest GeoLite2-City database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-city.tar.gz && \
-          tar -xzf /tmp/geolite2-city.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-City_*/GeoLite2-City.mmdb data/GeoLite2-City.mmdb && \
-          echo "Successfully updated GeoLite2-City.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          echo "Downloading latest GeoLite2-ASN database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-asn.tar.gz && \
-          tar -xzf /tmp/geolite2-asn.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-ASN_*/GeoLite2-ASN.mmdb data/GeoLite2-ASN.mmdb && \
-          echo "Successfully updated GeoLite2-ASN.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          ls -la data/GeoLite2-City.mmdb data/GeoLite2-ASN.mmdb
+        uses: ./.github/actions/fetch-geoip
+        # The committed databases stay in place when MaxMind is unreachable
+        continue-on-error: true
+        with:
+          license-key: ${{ secrets.MAXMIND_LICENSE_KEY }}
 
       - name: Fetch basemap
         uses: ./.github/actions/fetch-basemap
@@ -112,8 +101,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-docker-nightly
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-docker-nightly,mode=min,ignore-error=true
           build-args: |
             APP_VERSION=nightly
             APP_TAG=nightly
@@ -135,22 +124,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Update GeoIP database
-        run: |
-          echo "Downloading latest GeoLite2-City database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-city.tar.gz && \
-          tar -xzf /tmp/geolite2-city.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-City_*/GeoLite2-City.mmdb data/GeoLite2-City.mmdb && \
-          echo "Successfully updated GeoLite2-City.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          echo "Downloading latest GeoLite2-ASN database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-asn.tar.gz && \
-          tar -xzf /tmp/geolite2-asn.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-ASN_*/GeoLite2-ASN.mmdb data/GeoLite2-ASN.mmdb && \
-          echo "Successfully updated GeoLite2-ASN.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          ls -la data/GeoLite2-City.mmdb data/GeoLite2-ASN.mmdb
+        uses: ./.github/actions/fetch-geoip
+        # The committed databases stay in place when MaxMind is unreachable
+        continue-on-error: true
+        with:
+          license-key: ${{ secrets.MAXMIND_LICENSE_KEY }}
 
       - name: Fetch basemap
         uses: ./.github/actions/fetch-basemap
@@ -190,8 +168,8 @@ jobs:
           push: true
           tags: ${{ steps.meta-supervised.outputs.tags }}
           labels: ${{ steps.meta-supervised.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-supervised-nightly
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-supervised-nightly,mode=min,ignore-error=true
           build-args: |
             APP_VERSION=nightly
             APP_TAG=supervised-nightly

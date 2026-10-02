@@ -19,6 +19,7 @@ import {
   sessionIdParamSchema,
   serverIdFilterSchema,
   terminateSessionBodySchema,
+  PLAYBACK_DECISIONS,
   REDIS_KEYS,
   type AuthUser,
   type ActiveSession,
@@ -40,6 +41,7 @@ import { representativeAccountOrderSql } from '../utils/representativeAccount.js
 import { compareNames } from '../utils/collation.js';
 import { serverOrderBy } from '../utils/serverOrder.js';
 import { isLocalSession, localSessionSql } from '../utils/localSession.js';
+import { playbackDecisionSql, subtitleBurnInSql } from '../utils/playbackDecisionSql.js';
 import { terminateSession } from '../services/termination.js';
 import { getCacheService } from '../services/cache.js';
 
@@ -92,6 +94,7 @@ function buildHistoryFilterConditions(
     geoRegion,
     network,
     transcodeDecisions,
+    subtitleBurnIn,
     watched,
     excludeShortSessions,
   } = params;
@@ -191,18 +194,19 @@ function buildHistoryFilterConditions(
   if (network === 'local') conditions.push(localSessionSql('s'));
   if (network === 'remote') conditions.push(sql`NOT ${localSessionSql('s')}`);
 
-  if (transcodeDecisions && transcodeDecisions.length > 0 && transcodeDecisions.length < 3) {
-    const decisions = transcodeDecisions as string[];
-    if (decisions.length === 1) {
-      conditions.push(sql`s.video_decision = ${decisions[0]}`);
-    } else {
-      const decisionList = decisions.map((d) => sql`${d}`);
-      conditions.push(sql`s.video_decision IN (${sql.join(decisionList, sql`, `)})`);
-    }
+  if (
+    transcodeDecisions &&
+    transcodeDecisions.length > 0 &&
+    transcodeDecisions.length < PLAYBACK_DECISIONS.length
+  ) {
+    const decisionList = transcodeDecisions.map((d) => sql`${d}`);
+    conditions.push(sql`${playbackDecisionSql('s')} IN (${sql.join(decisionList, sql`, `)})`);
   }
 
   // Status filters
   if (watched !== undefined) conditions.push(sql`s.watched = ${watched}`);
+  if (subtitleBurnIn !== undefined)
+    conditions.push(subtitleBurnIn ? subtitleBurnInSql('s') : sql`NOT ${subtitleBurnInSql('s')}`);
   if (excludeShortSessions) conditions.push(sql`s.short_session = false`);
 
   return { conditions, whereClause: buildWhereClause(conditions) };

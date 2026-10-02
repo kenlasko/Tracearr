@@ -55,8 +55,8 @@ describe('catalog', () => {
     expect(TRIGGERS['newsletter.failed'].context).toBe('install');
     expect(TRIGGERS['newsletter.failed'].group).toBe('notifications');
   });
-  it('has 35 condition fields each with requires and operators', () => {
-    expect(Object.keys(CONDITION_FIELDS)).toHaveLength(35);
+  it('has 36 condition fields each with requires and operators', () => {
+    expect(Object.keys(CONDITION_FIELDS)).toHaveLength(36);
     expect(CONDITION_FIELDS.server_id.requires).toBe('server');
     expect(CONDITION_FIELDS.inactive_days.requires).toBe('account');
     expect(CONDITION_FIELDS.is_transcoding.requires).toBe('session');

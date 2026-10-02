@@ -773,11 +773,15 @@ export interface HourOfDayStats {
 export interface QualityStats {
   directPlay: number;
   directStream: number;
+  /** Every transcode, audio-only ones included. */
   transcode: number;
+  /** The audio-only part of `transcode`. */
+  audioTranscode: number;
   total: number;
   directPlayPercent: number;
   directStreamPercent: number;
   transcodePercent: number;
+  audioTranscodePercent: number;
 }
 
 export interface TopUserStats {

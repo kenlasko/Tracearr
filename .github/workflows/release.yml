@@ -102,9 +102,20 @@ jobs:
 
   # Integration tests require real database - run separately from unit tests
   test-integration:
-    name: Test (integration)
+    name: Test (integration, ${{ matrix.part.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Same split as ci.yml: the catalog EXPLAIN gate on its own, the rest in two halves
+    strategy:
+      fail-fast: false
+      matrix:
+        part:
+          - name: suite 1/2
+            args: --exclude '**/catalogExplain.integration.test.ts' --shard=1/2
+          - name: suite 2/2
+            args: --exclude '**/catalogExplain.integration.test.ts' --shard=2/2
+          - name: explain gate
+            args: catalogExplain
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
@@ -166,7 +177,7 @@ jobs:
         run: pnpm turbo run build --filter=@tracearr/shared --filter=@tracearr/emails --filter=@tracearr/test-utils
 
       - name: Run integration tests
-        run: pnpm --filter @tracearr/server test:integration
+        run: pnpm --filter @tracearr/server test:integration ${{ matrix.part.args }}
 
   release-notes:
     name: Release Notes
@@ -270,22 +281,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Update GeoIP database
-        run: |
-          echo "Downloading latest GeoLite2-City database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-city.tar.gz && \
-          tar -xzf /tmp/geolite2-city.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-City_*/GeoLite2-City.mmdb data/GeoLite2-City.mmdb && \
-          echo "Successfully updated GeoLite2-City.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          echo "Downloading latest GeoLite2-ASN database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-asn.tar.gz && \
-          tar -xzf /tmp/geolite2-asn.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-ASN_*/GeoLite2-ASN.mmdb data/GeoLite2-ASN.mmdb && \
-          echo "Successfully updated GeoLite2-ASN.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          ls -la data/GeoLite2-City.mmdb data/GeoLite2-ASN.mmdb
+        uses: ./.github/actions/fetch-geoip
+        # The committed databases stay in place when MaxMind is unreachable
+        continue-on-error: true
+        with:
+          license-key: ${{ secrets.MAXMIND_LICENSE_KEY }}
 
       - name: Fetch basemap
         uses: ./.github/actions/fetch-basemap
@@ -315,8 +315,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
-          cache-from: type=gha,scope=docker-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=docker-${{ matrix.arch }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-docker-${{ matrix.arch }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-docker-${{ matrix.arch }},mode=min,ignore-error=true
           build-args: |
             APP_VERSION=${{ github.ref_name }}
             APP_TAG=${{ github.ref_name }}
@@ -416,22 +416,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Update GeoIP database
-        run: |
-          echo "Downloading latest GeoLite2-City database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-city.tar.gz && \
-          tar -xzf /tmp/geolite2-city.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-City_*/GeoLite2-City.mmdb data/GeoLite2-City.mmdb && \
-          echo "Successfully updated GeoLite2-City.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          echo "Downloading latest GeoLite2-ASN database..."
-          curl -sSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz" \
-            -o /tmp/geolite2-asn.tar.gz && \
-          tar -xzf /tmp/geolite2-asn.tar.gz -C /tmp && \
-          mv /tmp/GeoLite2-ASN_*/GeoLite2-ASN.mmdb data/GeoLite2-ASN.mmdb && \
-          echo "Successfully updated GeoLite2-ASN.mmdb" || \
-          echo "Download failed, using existing database as fallback"
-          ls -la data/GeoLite2-City.mmdb data/GeoLite2-ASN.mmdb
+        uses: ./.github/actions/fetch-geoip
+        # The committed databases stay in place when MaxMind is unreachable
+        continue-on-error: true
+        with:
+          license-key: ${{ secrets.MAXMIND_LICENSE_KEY }}
 
       - name: Fetch basemap
         uses: ./.github/actions/fetch-basemap
@@ -461,8 +450,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
-          cache-from: type=gha,scope=supervised-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=supervised-${{ matrix.arch }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-supervised-${{ matrix.arch }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-supervised-${{ matrix.arch }},mode=min,ignore-error=true
           build-args: |
             APP_VERSION=${{ github.ref_name }}
             APP_TAG=supervised-${{ github.ref_name }}
