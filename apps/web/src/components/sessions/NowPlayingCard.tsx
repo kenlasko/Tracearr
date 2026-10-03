@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Monitor, Smartphone, Tablet, Tv, Play, Pause, Server, Subtitles, X } from 'lucide-react';
 import { getAvatarUrl } from '@/components/users/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -176,28 +175,30 @@ export function NowPlayingCard({ session, onClick }: NowPlayingCardProps) {
                     : t(PLAYBACK_DECISION_LABEL_KEYS[decision]);
 
                   return (
-                    <Badge
-                      variant={variant}
-                      className="relative h-6 w-6 justify-center overflow-visible p-0"
+                    <span
+                      className={cn(
+                        'relative flex h-6 w-6 items-center justify-center',
+                        variant === 'warning' ? 'text-warning' : 'text-success'
+                      )}
                       title={isBurnIn ? `${label} · ${t('playback.burnIn')}` : label}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-4 w-4" />
                       {isBurnIn && (
                         <span className="bg-card absolute -right-1 -bottom-1 flex h-3.5 w-3.5 items-center justify-center rounded-full">
                           <Subtitles className="text-warning h-2.5 w-2.5" />
                         </span>
                       )}
-                    </Badge>
+                    </span>
                   );
                 })()}
 
                 {/* Device icon - names the client on hover, like the quality badge */}
                 <div
-                  className="bg-muted flex h-6 w-6 items-center justify-center rounded-md"
+                  className="flex h-6 w-6 items-center justify-center"
                   title={deviceName ?? undefined}
                   data-testid="device-icon"
                 >
-                  <DeviceIcon session={session} className="text-muted-foreground h-3.5 w-3.5" />
+                  <DeviceIcon session={session} className="text-muted-foreground h-4 w-4" />
                 </div>
 
                 {/* Terminate button - admin/owner only */}
@@ -212,7 +213,7 @@ export function NowPlayingCard({ session, onClick }: NowPlayingCardProps) {
                     }}
                     title="Terminate stream"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-4 w-4" />
                   </Button>
                 )}
               </div>

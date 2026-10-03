@@ -572,8 +572,11 @@ jobs:
             (cd "packages/${pkg}" && npm pkg set version="$VERSION" && npm publish --tag "$TAG")
           done
           if [ "$TAG" = "latest" ] && [ "${{ needs.check-release-type.outputs.moves-next }}" = "true" ]; then
+            # The trusted-publishing login that publishes is refused for dist-tag changes
+            # (401 on v2.6.0), so a stuck next must not fail the job and skip the mobile sync
             for pkg in shared translations; do
-              npm dist-tag add "@tracearr/${pkg}@${VERSION}" next
+              npm dist-tag add "@tracearr/${pkg}@${VERSION}" next \
+                || echo "::warning::next was not moved for @tracearr/${pkg}; run npm dist-tag add @tracearr/${pkg}@${VERSION} next by hand"
             done
           fi
 
