@@ -1,11 +1,10 @@
 #!/usr/bin/env sh
 # Extracts the stream map basemap from the Protomaps daily planet build.
 # Usage: scripts/fetch-basemap.sh [output path]
-# BASEMAP_MAXZOOM overrides the zoom ceiling; CI caches on this file's hash,
-# so bumping BUILD here is what rolls the archive forward.
+# BASEMAP_BUILD (YYYYMMDD) overrides the build and BASEMAP_MAXZOOM the zoom ceiling.
 set -eu
 
-BUILD=20260926
+BUILD=${BASEMAP_BUILD:-}
 MAXZOOM=${BASEMAP_MAXZOOM:-8}
 PMTILES_VERSION=1.31.2
 OUT=${1:-data/basemap.pmtiles}
@@ -35,5 +34,24 @@ else
   PMTILES=$tmp/pmtiles
 fi
 
+if [ -n "$BUILD" ]; then
+  builds=$BUILD
+else
+  builds=$(curl -fsSL https://build-metadata.protomaps.dev/builds.json \
+    | grep -o '"key": *"[0-9]\{8\}\.pmtiles"' | grep -o '[0-9]\{8\}' | sort -r | head -n 3)
+fi
+if [ -z "$builds" ]; then
+  echo "no Protomaps build found in https://build-metadata.protomaps.dev/builds.json" >&2
+  exit 1
+fi
+
 mkdir -p "$(dirname "$OUT")"
-"$PMTILES" extract "https://build.protomaps.com/$BUILD.pmtiles" "$OUT" --maxzoom="$MAXZOOM"
+for build in $builds; do
+  if "$PMTILES" extract "https://build.protomaps.com/$build.pmtiles" "$OUT" --maxzoom="$MAXZOOM"; then
+    echo "basemap: Protomaps build $build, zoom 0-$MAXZOOM"
+    exit 0
+  fi
+  echo "Protomaps build $build failed, trying an older one" >&2
+done
+echo "could not extract a basemap from Protomaps builds: $builds" >&2
+exit 1

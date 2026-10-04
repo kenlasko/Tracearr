@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { AlphabetScrubber, type ScrubberLetter } from '@/components/media-browse/AlphabetScrubber';
 import {
   CatalogToolbar,
+  activeFilterCount,
   loadPersistedFilters,
   persistFilters,
   validatePersistedFilters,
@@ -28,6 +29,7 @@ import {
   useCatalogWindow,
   useCatalogLetters,
   useGenres,
+  useCatalogCodecs,
   useLibraries,
   buildLetterOffsets,
   activeLetterForRow,
@@ -37,6 +39,25 @@ import {
 } from '@/hooks/queries';
 import { useServer } from '@/hooks/useServer';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+/** Filters a link can set on arrival: `?genre=` from the Genres page, and
+ * resolution, codec, channel and server params from the Quality page charts. */
+function linkedFilters(search: string): Partial<PersistedGridFilters> {
+  const params = new URLSearchParams(search);
+  const linked: Partial<PersistedGridFilters> = {};
+  for (const key of [
+    'genre',
+    'resolution',
+    'videoCodec',
+    'audioCodec',
+    'audioChannels',
+    'serverId',
+  ] as const) {
+    const value = params.get(key);
+    if (value) linked[key] = value;
+  }
+  return linked;
+}
 
 function typeFromSearch(search: string): 'movie' | 'show' {
   return new URLSearchParams(search).get('type') === 'shows' ? 'show' : 'movie';
@@ -128,22 +149,6 @@ function StaticSkeletonGrid() {
   );
 }
 
-function activeFilterCount(filters: PersistedGridFilters): number {
-  return [
-    filters.watched,
-    filters.resolution,
-    filters.genre,
-    filters.yearFrom,
-    filters.yearTo,
-    filters.serverId,
-    filters.libraryKey,
-    filters.hdr,
-    filters.atmos,
-    filters.sizeGbMin,
-    filters.sizeGbMax,
-  ].filter((value) => value !== undefined).length;
-}
-
 export function MediaGrid() {
   const { t } = useTranslation('pages');
   const location = useLocation();
@@ -194,13 +199,11 @@ export function MediaGrid() {
       clearHistoryOffset();
       consumeFreshBrowseFlag();
     } else {
-      // A `?genre=` query param (e.g. a link from the Genres page) seeds the
-      // persisted filter for this type on arrival. Read only on this type
-      // transition itself - re-running on every location.search change would
-      // fight the toolbar's own filter state once the viewer edits filters.
-      const urlGenre = new URLSearchParams(location.search).get('genre');
-      const persisted = loadPersistedFilters(type);
-      setFilters(urlGenre ? { ...persisted, genre: urlGenre } : persisted);
+      // Link params (see linkedFilters) seed the persisted filters for this
+      // type on arrival. Read only on this type transition itself - re-running
+      // on every location.search change would fight the toolbar's own filter
+      // state once the viewer edits filters.
+      setFilters({ ...loadPersistedFilters(type), ...linkedFilters(location.search) });
     }
     setSearch('');
     setActiveLetter(null);
@@ -244,6 +247,8 @@ export function MediaGrid() {
     () => (genresData ? genres.map((g) => g.genre) : undefined),
     [genresData, genres]
   );
+
+  const codecsData = useCatalogCodecs(type, selectedServerIds).data;
 
   const librariesQuery = useLibraries(selectedServerIds);
   const librariesData = librariesQuery.data;
@@ -314,6 +319,9 @@ export function MediaGrid() {
       atmos: filters.atmos,
       sizeGbMin: filters.sizeGbMin,
       sizeGbMax: filters.sizeGbMax,
+      videoCodec: filters.videoCodec,
+      audioCodec: filters.audioCodec,
+      audioChannels: filters.audioChannels,
     },
     sort: filters.sort,
   };
@@ -494,6 +502,9 @@ export function MediaGrid() {
         genres={genres}
         servers={servers.map((s) => ({ id: s.id, name: s.name, historicalAt: s.historicalAt }))}
         libraries={gridLibraries}
+        videoCodecs={codecsData?.video ?? []}
+        audioCodecs={codecsData?.audio ?? []}
+        audioChannelOptions={codecsData?.channels ?? []}
         totalItems={totalItems ?? undefined}
         totalFileSize={totalFileSize ?? undefined}
         mobileScrubber={showScrubber ? mobileScrubber : null}

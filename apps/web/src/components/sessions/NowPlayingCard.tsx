@@ -60,9 +60,13 @@ function DeviceIcon({ session, className }: { session: ActiveSession; className?
 }
 
 export function NowPlayingCard({ session, onClick }: NowPlayingCardProps) {
-  const { title, subtitle } = getMediaDisplay(session);
+  const { title, subtitle: mediaSubtitle } = getMediaDisplay(session);
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'pages']);
+  const subtitle =
+    session.mediaType === 'trailer'
+      ? [t('pages:automations.options.trailer'), mediaSubtitle].filter(Boolean).join(' · ')
+      : mediaSubtitle;
   const { isMultiServer } = useServer();
   const [showTerminateDialog, setShowTerminateDialog] = useState(false);
 

@@ -244,6 +244,7 @@ export type {
   CatalogResponse,
   CatalogLetterBucket,
   CatalogLettersResponse,
+  CatalogCodecOptionsResponse,
   ShelfRow,
   RecentlyAddedShelfRow,
   RecentlyUpdatedShelfRow,

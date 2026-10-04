@@ -27,6 +27,7 @@ vi.mock('@/hooks/queries', async () => {
     useCatalogWindow: vi.fn(),
     useCatalogLetters: vi.fn(),
     useGenres: vi.fn(),
+    useCatalogCodecs: vi.fn(() => ({ data: { video: ['HEVC'], audio: [] } })),
     useLibraries: vi.fn(),
     buildLetterOffsets: actual.buildLetterOffsets,
     activeLetterForItem: actual.activeLetterForItem,
@@ -285,6 +286,21 @@ describe('MediaGrid', () => {
     expect(JSON.parse(localStorage.getItem('tracearr_media_filters_movie') ?? '{}')).toMatchObject({
       genre: 'Comedy',
     });
+  });
+
+  it('applies codec query params from a Quality page chart link on arrival', () => {
+    mockUseServer.mockReturnValue(serverReturn());
+    mockUseCatalogWindow.mockReturnValue(windowResult({ totalItems: 5 }));
+
+    renderGrid('/media/browse?type=shows&videoCodec=HEVC');
+
+    expect(mockUseCatalogWindow).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: 'show',
+        filters: expect.objectContaining({ videoCodec: 'HEVC' }),
+      }),
+      expect.anything()
+    );
   });
 
   it('drops a server filter that leaves the global selection instead of widening scope', () => {
