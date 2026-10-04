@@ -31,6 +31,7 @@ import {
   ValidationError,
   AuthenticationError,
   ForbiddenError,
+  MobileAuthError,
   NotFoundError,
   ConflictError,
   RateLimitError,
@@ -252,6 +253,24 @@ describe('ForbiddenError', () => {
     const error = new ForbiddenError('Admin access required');
 
     expect(error.message).toBe('Admin access required');
+  });
+});
+
+describe('MobileAuthError', () => {
+  it.each([
+    [401, 'UnauthorizedError'],
+    [403, 'ForbiddenError'],
+    [426, 'UpgradeRequiredError'],
+    [503, 'ServiceUnavailableError'],
+  ] as const)('sends %i with the sensible error name %s and carries the code', (status, name) => {
+    expect(
+      new MobileAuthError('Session has been revoked', status, ErrorCodes.DEVICE_REVOKED).toJSON()
+    ).toEqual({
+      statusCode: status,
+      error: name,
+      message: 'Session has been revoked',
+      code: 'AUTH_005',
+    });
   });
 });
 
