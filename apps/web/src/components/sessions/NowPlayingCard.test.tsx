@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import type { ActiveSession } from '@tracearr/shared';
 import { NowPlayingCard } from './NowPlayingCard';
 
@@ -14,7 +15,7 @@ vi.mock('@/hooks/useServerColorMap', () => ({ useServerColorMap: () => new Map()
 // The dialog opens a mutation on mount, which would need a query client here
 vi.mock('./TerminateSessionDialog', () => ({ TerminateSessionDialog: () => null }));
 
-function renderCard(overrides: Partial<ActiveSession>) {
+function renderCard(overrides: Partial<ActiveSession>, onClick?: () => void) {
   const session = {
     id: 'session-1',
     serverId: 'server-1',
@@ -36,7 +37,11 @@ function renderCard(overrides: Partial<ActiveSession>) {
     ...overrides,
   } as unknown as ActiveSession;
 
-  render(<NowPlayingCard session={session} />);
+  render(
+    <MemoryRouter>
+      <NowPlayingCard session={session} onClick={onClick} />
+    </MemoryRouter>
+  );
   return screen.getByTestId('device-icon');
 }
 
@@ -84,5 +89,33 @@ describe('NowPlayingCard transcoder bar and buffering', () => {
   it('labels a buffering session', () => {
     renderCard({ state: 'playing', buffering: true });
     expect(screen.getByText('playback.buffering')).toBeInTheDocument();
+  });
+});
+
+describe('NowPlayingCard title links', () => {
+  it('links the show name and the episode line to their media pages', () => {
+    renderCard({
+      mediaType: 'episode',
+      mediaTitle: 'Pilot',
+      grandparentTitle: 'Lost',
+      seasonNumber: 1,
+      episodeNumber: 2,
+      mediaId: 'episode-1',
+      showMediaId: 'show-1',
+    });
+
+    expect(screen.getByRole('link', { name: 'Lost' })).toHaveAttribute('href', '/media/show-1');
+    expect(screen.getByRole('link', { name: /Pilot/ })).toHaveAttribute('href', '/media/episode-1');
+  });
+
+  it('follows the title link without opening the slide-out', () => {
+    const onClick = vi.fn();
+    renderCard({ mediaId: 'movie-1' }, onClick);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Heat' }));
+    expect(onClick).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('alice'));
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

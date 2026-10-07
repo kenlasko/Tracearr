@@ -37,12 +37,19 @@ import {
   Clapperboard,
   Subtitles,
 } from 'lucide-react';
-import { cn, getCountryName, getMediaDisplay, getSessionProgress } from '@/lib/utils';
+import {
+  cn,
+  getCountryName,
+  getMediaDisplay,
+  getMediaLinks,
+  getSessionProgress,
+} from '@/lib/utils';
 import { imageProxyUrl } from '@/lib/api';
 import { formatDuration } from '@/lib/formatters';
 import { playbackBadge } from '@/lib/playbackBadge';
 import { getAvatarUrl } from '@/components/users/utils';
 import { LocalBadge } from '@/components/sessions/LocalBadge';
+import { MediaPageLink } from '@/components/media/MediaPageLink';
 import { StreamDetailsPanel } from './StreamDetailsPanel';
 
 import { PLAYBACK_DECISION_LABEL_KEYS, POSTER_IMAGE_SIZE } from '@tracearr/shared';
@@ -206,7 +213,13 @@ function SegmentTable({
 }
 
 // Inner content component - keeps state hooks and derived values together
-function SessionContent({ session }: { session: SessionWithDetails | ActiveSession }) {
+function SessionContent({
+  session,
+  onNavigate,
+}: {
+  session: SessionWithDetails | ActiveSession;
+  onNavigate: () => void;
+}) {
   const { t } = useTranslation();
   const [locationOpen, setLocationOpen] = useState(false);
   const [segmentsOpen, setSegmentsOpen] = useState(false);
@@ -224,6 +237,7 @@ function SessionContent({ session }: { session: SessionWithDetails | ActiveSessi
   const mediaConfig = MEDIA_CONFIG[session.mediaType];
   const MediaIcon = mediaConfig.icon;
   const { title: primary, subtitle: secondary } = getMediaDisplay(session);
+  const mediaLinks = getMediaLinks(session);
   const progress = getSessionProgress(session);
   const hasLocation = session.geoLat !== null && session.geoLon !== null;
   const geoCountryName = getCountryName(session.geoCountry);
@@ -290,11 +304,19 @@ function SessionContent({ session }: { session: SessionWithDetails | ActiveSessi
               {session.year && <span>· {session.year}</span>}
             </div>
             <div className="flex items-center gap-1.5 leading-tight font-medium">
-              <span className="truncate">{primary}</span>
+              <span className="truncate">
+                <MediaPageLink to={mediaLinks.title} onNavigate={onNavigate}>
+                  {primary}
+                </MediaPageLink>
+              </span>
               {session.watched && <Eye className="h-3.5 w-3.5 flex-shrink-0 text-green-500" />}
             </div>
             {secondary && (
-              <div className="text-muted-foreground mt-0.5 truncate text-sm">{secondary}</div>
+              <div className="text-muted-foreground mt-0.5 truncate text-sm">
+                <MediaPageLink to={mediaLinks.subtitle} onNavigate={onNavigate}>
+                  {secondary}
+                </MediaPageLink>
+              </div>
             )}
             {progress !== null && (
               <div className="mt-2 flex items-center gap-2">
@@ -595,7 +617,7 @@ export function SessionDetailSheet({ session, open, onOpenChange }: Props) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-[500px]">
-        <SessionContent session={session} />
+        <SessionContent session={session} onNavigate={() => onOpenChange(false)} />
       </SheetContent>
     </Sheet>
   );

@@ -640,6 +640,8 @@ export interface ViolationSessionInfo {
   mediaTitle: string;
   mediaType: MediaType;
   grandparentTitle: string | null;
+  mediaId: string | null;
+  showMediaId: string | null;
   seasonNumber: number | null;
   episodeNumber: number | null;
   year: number | null;

@@ -34,8 +34,10 @@ import {
   formatLocationCompact,
   getCountryName,
   getMediaDisplay,
+  getMediaLinks,
   getSessionProgress,
 } from '@/lib/utils';
+import { MediaPageLink } from '@/components/media/MediaPageLink';
 import { formatDuration } from '@/lib/formatters';
 import { playbackBadge } from '@/lib/playbackBadge';
 import { getAvatarUrl } from '@/components/users/utils';
@@ -213,6 +215,7 @@ export const HistoryTableRow = memo(
       ref
     ) => {
       const { title: primary, subtitle: secondary } = getMediaDisplay(session);
+      const mediaLinks = getMediaLinks(session);
       const progress = getSessionProgress(session);
       const colorMap = useServerColorMap();
       const { t } = useTranslation();
@@ -285,11 +288,15 @@ export const HistoryTableRow = memo(
                 <MediaTypeIcon type={session.mediaType} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{primary}</span>
+                    <span className="truncate font-medium">
+                      <MediaPageLink to={mediaLinks.title}>{primary}</MediaPageLink>
+                    </span>
                     <EngagementTierBadge progress={progress} state={session.state} />
                   </div>
                   {secondary && (
-                    <div className="text-muted-foreground truncate text-xs">{secondary}</div>
+                    <div className="text-muted-foreground truncate text-xs">
+                      <MediaPageLink to={mediaLinks.subtitle}>{secondary}</MediaPageLink>
+                    </div>
                   )}
                 </div>
               </div>

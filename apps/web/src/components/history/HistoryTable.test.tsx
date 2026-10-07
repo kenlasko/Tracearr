@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import type { SessionWithDetails } from '@tracearr/shared';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -27,7 +27,10 @@ vi.mock('@tanstack/react-virtual', () => ({
   }),
 }));
 
-function renderTable(overrides: Partial<SessionWithDetails>) {
+function renderTable(
+  overrides: Partial<SessionWithDetails>,
+  onSessionClick?: (session: SessionWithDetails) => void
+) {
   const session = {
     id: 'session-1',
     serverId: 'server-1',
@@ -52,6 +55,7 @@ function renderTable(overrides: Partial<SessionWithDetails>) {
       <TooltipProvider>
         <HistoryTable
           sessions={[session]}
+          onSessionClick={onSessionClick}
           columnVisibility={{ ...DEFAULT_COLUMN_VISIBILITY, progress: true }}
         />
       </TooltipProvider>
@@ -73,5 +77,27 @@ describe('HistoryTable', () => {
 
     expect(screen.getByText('0%')).toBeInTheDocument();
     expect(screen.getByText('Abandoned')).toBeInTheDocument();
+  });
+
+  it('links the show and the episode without opening the row', () => {
+    const onSessionClick = vi.fn();
+    renderTable(
+      {
+        mediaType: 'episode',
+        mediaTitle: 'Pilot',
+        grandparentTitle: 'Lost',
+        seasonNumber: 1,
+        episodeNumber: 2,
+        mediaId: 'episode-1',
+        showMediaId: 'show-1',
+      },
+      onSessionClick
+    );
+
+    expect(screen.getByRole('link', { name: 'Lost' })).toHaveAttribute('href', '/media/show-1');
+    fireEvent.click(screen.getByRole('link', { name: /Pilot/ }));
+
+    expect(screen.getByRole('link', { name: /Pilot/ })).toHaveAttribute('href', '/media/episode-1');
+    expect(onSessionClick).not.toHaveBeenCalled();
   });
 });

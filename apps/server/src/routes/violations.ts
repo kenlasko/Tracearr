@@ -244,6 +244,8 @@ interface ViolationRow {
   mediaTitle: string | null;
   mediaType: string | null;
   grandparentTitle: string | null;
+  mediaId: string | null;
+  showMediaId: string | null;
   seasonNumber: number | null;
   episodeNumber: number | null;
   year: number | null;
@@ -293,6 +295,8 @@ async function enrichViolations(violationData: ViolationRow[]) {
           mediaTitle: sessions.mediaTitle,
           mediaType: sessions.mediaType,
           grandparentTitle: sessions.grandparentTitle,
+          mediaId: sessions.mediaId,
+          showMediaId: sessions.showMediaId,
           seasonNumber: sessions.seasonNumber,
           episodeNumber: sessions.episodeNumber,
           year: sessions.year,
@@ -410,6 +414,8 @@ async function enrichViolations(violationData: ViolationRow[]) {
         mediaTitle: v.mediaTitle,
         mediaType: v.mediaType,
         grandparentTitle: v.grandparentTitle,
+        mediaId: v.mediaId,
+        showMediaId: v.showMediaId,
         seasonNumber: v.seasonNumber,
         episodeNumber: v.episodeNumber,
         year: v.year,
@@ -480,6 +486,8 @@ function buildViolationPageQuery(params: {
       mediaTitle: sessions.mediaTitle,
       mediaType: sessions.mediaType,
       grandparentTitle: sessions.grandparentTitle,
+      mediaId: sessions.mediaId,
+      showMediaId: sessions.showMediaId,
       seasonNumber: sessions.seasonNumber,
       episodeNumber: sessions.episodeNumber,
       year: sessions.year,
@@ -600,6 +608,8 @@ export const violationRoutes: FastifyPluginAsync = async (app) => {
         mediaTitle: sessions.mediaTitle,
         mediaType: sessions.mediaType,
         grandparentTitle: sessions.grandparentTitle,
+        mediaId: sessions.mediaId,
+        showMediaId: sessions.showMediaId,
         seasonNumber: sessions.seasonNumber,
         episodeNumber: sessions.episodeNumber,
         year: sessions.year,
