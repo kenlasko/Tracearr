@@ -16,15 +16,24 @@ import {
   violationsCountSince,
   uniqueUsersSince,
 } from '../db/prepared.js';
-import { buildMultiServerCondition, buildMultiServerFragment } from '../utils/serverFiltering.js';
+import { buildMultiServerCondition } from '../utils/serverFiltering.js';
 import { VIOLATION_ALIAS_SQL } from './automations/aliasFilter.js';
 import { getCacheService } from './cache.js';
 import { getStartOfDayInTimezone, getStartOfNextDayInTimezone } from '../routes/stats/utils.js';
+import {
+  memberCacheSegment,
+  scopeSessions,
+  scopedServerFragment,
+  seesServerActivity,
+  type Scope,
+} from '../lib/scope.js';
 import { PRIMARY_MEDIA_TYPES, MEDIA_TYPE_SQL_FILTER } from '../constants/index.js';
 
 export interface GetDashboardStatsOptions {
   /** Server IDs to filter by. undefined = all servers */
   serverIds?: string[];
+  /** Row scope; a member gets their own counts and othersActive in place of activeUsersToday */
+  scope: Scope;
   /** IANA timezone for "today" calculation */
   timezone: string;
   /** Redis client for caching (optional) */
@@ -40,18 +49,25 @@ const MIN_PLAY_DURATION_MS = 120000;
 export async function getDashboardStats(
   options: GetDashboardStatsOptions
 ): Promise<DashboardStats> {
-  const { serverIds, timezone, redis } = options;
+  const { serverIds, scope, timezone, redis } = options;
+  const showOthers = await seesServerActivity(scope);
+  const withActivity = (stats: DashboardStats): DashboardStats => {
+    if (showOthers) return stats;
+    const hidden = { ...stats };
+    delete hidden.othersActive;
+    return hidden;
+  };
 
   // Build cache key
-  const cacheKeySegment = serverIds === undefined ? 'all' : serverIds.sort().join(',');
-  const cacheKey = `${REDIS_KEYS.DASHBOARD_STATS}:${cacheKeySegment}:${timezone}`;
+  const serverSegment = serverIds === undefined ? 'all' : serverIds.sort().join(',');
+  const cacheKey = `${REDIS_KEYS.DASHBOARD_STATS}:${serverSegment}${memberCacheSegment(scope)}:${timezone}`;
 
   // Try cache first
   if (redis) {
     const cached = await redis.get(cacheKey);
     if (cached) {
       try {
-        return JSON.parse(cached) as DashboardStats;
+        return withActivity(JSON.parse(cached) as DashboardStats);
       } catch {
         // Fall through to compute
       }
@@ -59,22 +75,24 @@ export async function getDashboardStats(
   }
 
   // Compute stats
-  const stats = await computeDashboardStats(serverIds, timezone);
+  const stats = await computeDashboardStats(serverIds, scope, timezone);
 
   // Cache result
   if (redis) {
     await redis.setex(cacheKey, CACHE_TTL_SECONDS, JSON.stringify(stats));
   }
 
-  return stats;
+  return withActivity(stats);
 }
 
 async function computeDashboardStats(
   serverIds: string[] | undefined,
+  scope: Scope,
   timezone: string
 ): Promise<DashboardStats> {
   // Get active streams
   let activeStreams = 0;
+  let othersActive = 0;
   const cacheService = getCacheService();
   if (cacheService) {
     try {
@@ -84,6 +102,11 @@ async function computeDashboardStats(
         activeSessions = activeSessions.filter((s) => idSet.has(s.serverId));
       }
       activeStreams = activeSessions.length;
+      if (scope !== 'all') {
+        const own = new Set(scope.serverUserIds);
+        activeStreams = activeSessions.filter((s) => own.has(s.serverUserId)).length;
+        othersActive = activeSessions.length - activeStreams;
+      }
     } catch {
       // Ignore cache errors
     }
@@ -99,7 +122,7 @@ async function computeDashboardStats(
   let alertsLast24h: number;
   let activeUsersToday: number;
 
-  if (serverIds === undefined) {
+  if (serverIds === undefined && scope === 'all') {
     // No server filter - use prepared statements for performance
     const [
       todayPlaysResult,
@@ -139,12 +162,21 @@ async function computeDashboardStats(
       if (serverCondition) {
         conditions.push(serverCondition);
       }
+      const scopeCondition = scopeSessions(scope);
+      if (scopeCondition) {
+        conditions.push(scopeCondition);
+      }
 
       return conditions;
     };
 
-    const violationServerFilter = buildMultiServerFragment(serverIds, 'su.server_id');
-    const sessionServerFilter = buildMultiServerFragment(serverIds);
+    const violationServerFilter = scopedServerFragment(
+      serverIds,
+      scope,
+      'su.server_id',
+      sql`v.server_user_id`
+    );
+    const sessionServerFilter = scopedServerFragment(serverIds, scope);
 
     const [
       todaySessionsResult,
@@ -209,12 +241,6 @@ async function computeDashboardStats(
     activeUsersToday = activeUsersResult[0]?.count ?? 0;
   }
 
-  return {
-    activeStreams,
-    todayPlays,
-    todaySessions,
-    watchTimeHours,
-    alertsLast24h,
-    activeUsersToday,
-  };
+  const base = { activeStreams, todayPlays, todaySessions, watchTimeHours };
+  return scope === 'all' ? { ...base, alertsLast24h, activeUsersToday } : { ...base, othersActive };
 }

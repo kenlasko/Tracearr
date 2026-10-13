@@ -39,6 +39,8 @@ services:
       - TZ=${TZ:-UTC}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       # - DATABASE_POOL_MAX=50  # Database connection pool size (default: derived from PostgreSQL max_connections, ~20 at the 3g limit)
+      # Behind a reverse proxy: true trusts one hop, 2 for two chained proxies, or proxy IPs/CIDRs
+      # - TRUST_PROXY=true
       # Secrets are auto-generated if not provided
       # Uncomment to override:
       # - JWT_SECRET=${JWT_SECRET}

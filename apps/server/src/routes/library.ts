@@ -35,7 +35,7 @@ export const libraryRoutes: FastifyPluginAsync = async (app) => {
    */
   app.post<{ Params: { serverId: string } }>(
     '/sync/:serverId',
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.requirePermission('servers', 'write')] },
     async (request, reply) => {
       const authUser = request.user;
 
@@ -76,7 +76,7 @@ export const libraryRoutes: FastifyPluginAsync = async (app) => {
    */
   app.get<{ Params: { serverId: string } }>(
     '/sync/:serverId/status',
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.requirePermission('servers', 'read')] },
     async (request, reply) => {
       // Validate serverId is UUID
       const parseResult = serverIdParamSchema.safeParse(request.params);

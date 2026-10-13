@@ -72,17 +72,6 @@ export interface JellyfinEmbyActivityEntry {
 }
 
 /**
- * Authentication result - identical structure for Jellyfin and Emby
- */
-export interface JellyfinEmbyAuthResult {
-  id: string;
-  username: string;
-  token: string;
-  serverId: string;
-  isAdmin: boolean;
-}
-
-/**
  * Item result for media enrichment - identical structure for Jellyfin and Emby
  */
 export interface JellyfinEmbyItemResult {
@@ -385,26 +374,6 @@ export function parseActivityLogResponse(data: unknown): JellyfinEmbyActivityEnt
   const items = (data as { Items?: unknown[] })?.Items;
   if (!Array.isArray(items)) return [];
   return items.map((item) => parseActivityLogItem(item as Record<string, unknown>));
-}
-
-// ============================================================================
-// Authentication Response Parsing
-// ============================================================================
-
-/**
- * Parse authentication response
- */
-export function parseAuthResponse(data: Record<string, unknown>): JellyfinEmbyAuthResult {
-  const user = getNestedObject(data, 'User') ?? {};
-  const policy = getNestedObject(user, 'Policy') ?? {};
-
-  return {
-    id: parseString(user.Id),
-    username: parseString(user.Name),
-    token: parseString(data.AccessToken),
-    serverId: parseString(data.ServerId),
-    isAdmin: parseBoolean(policy.IsAdministrator),
-  };
 }
 
 // ============================================================================
@@ -767,6 +736,21 @@ export function parseLibraryDate(value: unknown): Date | undefined {
 }
 
 /**
+ * The poster the servers' own clients show for an episode or season with no
+ * image of its own. Jellyfin sends ParentPrimaryImage (season, then series);
+ * Emby only sends the series poster tag.
+ */
+function inheritedPosterPath(item: Record<string, unknown>): string | undefined {
+  const parentId = parseOptionalString(item.ParentPrimaryImageItemId);
+  const parentTag = parseOptionalString(item.ParentPrimaryImageTag);
+  if (parentId && parentTag) return `/Items/${parentId}/Images/Primary?tag=${parentTag}`;
+  const seriesId = parseOptionalString(item.SeriesId);
+  const seriesTag = parseOptionalString(item.SeriesPrimaryImageTag);
+  if (seriesId && seriesTag) return `/Items/${seriesId}/Images/Primary?tag=${seriesTag}`;
+  return undefined;
+}
+
+/**
  * Parse a single library item from Jellyfin/Emby API response
  */
 export function parseLibraryItem(item: Record<string, unknown>): MediaLibraryItem {
@@ -802,9 +786,13 @@ export function parseLibraryItem(item: Record<string, unknown>): MediaLibraryIte
   const albumTag =
     mappedType === 'track' ? parseOptionalString(item.AlbumPrimaryImageTag) : undefined;
   const albumId = albumTag ? parseOptionalString(item.AlbumId) : undefined;
+  const inherited =
+    !primaryTag && (mappedType === 'episode' || mappedType === 'season')
+      ? inheritedPosterPath(item)
+      : undefined;
   const thumbPath = albumId
     ? `/Items/${albumId}/Images/Primary?tag=${albumTag!}`
-    : `/Items/${itemId}/Images/Primary${primaryTag ? `?tag=${primaryTag}` : ''}`;
+    : (inherited ?? `/Items/${itemId}/Images/Primary${primaryTag ? `?tag=${primaryTag}` : ''}`);
 
   const result: MediaLibraryItem = {
     ratingKey: itemId,

@@ -883,6 +883,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
     return getDashboardStats({
       serverIds: serverId ? [serverId] : undefined,
+      scope: 'all',
       timezone,
       redis: app.redis,
     });

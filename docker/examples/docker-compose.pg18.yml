@@ -38,7 +38,10 @@ services:
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
       - COOKIE_SECRET=${COOKIE_SECRET}
+      # Other origins that may use a signed-in session; * only allows requests without one
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      # Behind a reverse proxy: true trusts one hop, 2 for two chained proxies, or proxy IPs/CIDRs
+      # - TRUST_PROXY=true
       - LOG_LEVEL=${LOG_LEVEL:-info}
       # - DATABASE_POOL_MAX=50  # Database connection pool size (default: 50)
     depends_on:

@@ -1,6 +1,7 @@
 import type {
   Server,
   ServerDownReason,
+  UpdateUserAccessInput,
   UserRole,
   ServerUserWithIdentity,
   ServerUserDetail,
@@ -26,6 +27,8 @@ import type {
   ViolationRosterFilters,
   ViolationSortField,
   DashboardStats,
+  MyStats,
+  MyTopTitlesResponse,
   PlayStats,
   UserStats,
   TopUserStats,
@@ -33,6 +36,8 @@ import type {
   UserLocation,
   UserDevice,
   Settings,
+  SettingsResponse,
+  LoginMethods,
   PaginatedResponse,
   MobileConfig,
   TerminationLogWithDetails,
@@ -59,6 +64,7 @@ import type {
   RequestServiceProbeResult,
   MediaRequestEntry,
   UserRequestsResponse,
+  MyRequestsQuery,
   TestRequestServiceInput,
   CreateRequestServiceInput,
   UpdateRequestServiceInput,
@@ -170,6 +176,11 @@ import { API_BASE_PATH, getClientTimezone } from '@tracearr/shared';
 import { BASE_PATH } from '@/lib/basePath';
 export { BASE_PATH, BASE_URL, imageProxyUrl } from '@/lib/basePath';
 import { MAINTENANCE_EVENT } from '@/hooks/useMaintenanceMode';
+
+/** A settings write: loginMethods takes any subset of its switches, as the server's schema does. */
+export type SettingsUpdate = Omit<Partial<Settings>, 'loginMethods'> & {
+  loginMethods?: Partial<LoginMethods>;
+};
 
 /** Roster query params: the server's own filter schema plus paging and sort. */
 export type UserListParams = Partial<UserRosterFilters> & {
@@ -373,6 +384,12 @@ export interface LibraryStatusResponse {
   versionsBackfillPending: boolean;
 }
 
+/** Members also get a count of other people's streams, only when the owner shares it. */
+export interface ActiveSessionsResponse {
+  data: ActiveSession[];
+  othersActive?: number;
+}
+
 // Stats time range parameters
 export interface StatsTimeRange {
   period: 'day' | 'week' | 'month' | 'year' | 'all' | 'custom';
@@ -423,6 +440,8 @@ export interface PlexAuthUser {
 export interface PlexCheckPinResponse {
   authorized: boolean;
   message?: string;
+  /** The sign-in was started too long ago or in another browser; start it again. */
+  expired?: boolean;
   // If returning user (or new user with no servers) - session cookie is already set
   user?: PlexAuthUser;
   // If new user (needs server selection)
@@ -561,7 +580,7 @@ class ApiClient {
 
   // Setup - check if Tracearr needs initial configuration
   setup = {
-    status: () => this.request<SetupStatus>('/setup/status'),
+    status: (all = false) => this.request<SetupStatus>(`/setup/status${all ? '?all' : ''}`),
   };
 
   // Auth
@@ -573,8 +592,9 @@ class ApiClient {
         email: string | null;
         thumbnail: string | null;
         role: UserRole;
-        aggregateTrustScore: number;
+        aggregateTrustScore?: number;
         serverIds: string[];
+        impersonatedBy?: string;
         hasPassword?: boolean;
         hasPlexLinked?: boolean;
         // Fallback fields for backwards compatibility
@@ -593,14 +613,14 @@ class ApiClient {
 
     // Plex OAuth - Step 1: Get PIN (Better Auth plugin endpoint - sets no cookie yet)
     initiatePlex: (forwardUrl?: string) =>
-      this.request<{ pinId: string; authUrl: string }>('/auth/plex/initiate', {
+      this.request<{ handle: string; authUrl: string }>('/auth/plex/initiate', {
         method: 'POST',
         body: JSON.stringify({ forwardUrl }),
       }),
 
     // Plex OAuth - Step 2: Check PIN. On success the session cookie is already
     // set server-side; the response just tells the UI what happened.
-    checkPlexPin: (data: { pinId: string; claimCode?: string }) =>
+    checkPlexPin: (data: { handle: string; claimCode?: string }) =>
       this.request<PlexCheckPinResponse>('/auth/plex/check-pin', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -729,6 +749,7 @@ class ApiClient {
         color?: string | null;
         publicUrl?: string | null;
         apiKey?: string;
+        allowMemberLogin?: boolean;
       }
     ) =>
       this.request<Server>(`/servers/${id}`, {
@@ -816,6 +837,11 @@ class ApiClient {
       return this.request<ServerUserFullDetail>(`/users/${id}/full?${query.toString()}`);
     },
     update: (id: string, data: { trustScore?: number }) =>
+      this.request<ServerUserWithIdentity>(`/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+    updateAccess: (id: string, data: UpdateUserAccessInput) =>
       this.request<ServerUserWithIdentity>(`/users/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
@@ -939,10 +965,11 @@ class ApiClient {
      * Called separately from history() so sorting changes don't refetch these stats.
      */
     historyAggregates: (
-      params: Partial<HistoryAggregatesQueryInput> & { serverIds?: string[] }
+      params: Partial<HistoryAggregatesQueryInput> & { serverIds?: string[]; self?: boolean }
     ) => {
       const searchParams = new URLSearchParams();
       appendHistoryFilterParams(searchParams, params);
+      if (params.self) searchParams.set('self', 'true');
       return this.request<HistoryAggregates>(
         `/sessions/history/aggregates?${searchParams.toString()}`
       );
@@ -973,18 +1000,16 @@ class ApiClient {
         '/sessions/filter-options?includeAllCountries=true'
       );
     },
-    getActive: async (serverIds?: string[]) => {
+    getActive: async (serverIds?: string[], self = false) => {
       const params = new URLSearchParams();
       if (serverIds?.length) {
         for (const id of serverIds) {
           params.append('serverIds', id);
         }
       }
+      if (self) params.set('self', 'true');
       const query = params.toString();
-      const response = await this.request<{ data: ActiveSession[] }>(
-        `/sessions/active${query ? `?${query}` : ''}`
-      );
-      return response.data;
+      return this.request<ActiveSessionsResponse>(`/sessions/active${query ? `?${query}` : ''}`);
     },
     get: (id: string) => this.request<SessionWithDetails>(`/sessions/${id}`),
     terminate: (id: string, reason?: string) =>
@@ -1127,8 +1152,13 @@ class ApiClient {
   }
 
   // Variant that serializes repeatable serverIds (precedence over legacy serverId)
-  private buildStatsParamsMulti(timeRange?: StatsTimeRange, serverIds?: string[]): URLSearchParams {
+  private buildStatsParamsMulti(
+    timeRange?: StatsTimeRange,
+    serverIds?: string[],
+    self = false
+  ): URLSearchParams {
     const params = new URLSearchParams();
+    if (self) params.set('self', 'true');
     if (timeRange?.period) params.set('period', timeRange.period);
     if (timeRange?.startDate) params.set('startDate', timeRange.startDate);
     if (timeRange?.endDate) params.set('endDate', timeRange.endDate);
@@ -1152,6 +1182,14 @@ class ApiClient {
       // Include timezone so "today" is calculated in user's local timezone
       params.set('timezone', getBrowserTimezone());
       return this.request<DashboardStats>(`/stats/dashboard?${params.toString()}`);
+    },
+    me: () => {
+      const params = new URLSearchParams({ timezone: getBrowserTimezone() });
+      return this.request<MyStats>(`/stats/me?${params.toString()}`);
+    },
+    myTitles: (serverIds?: string[]) => {
+      const params = this.buildStatsParamsMulti({ period: 'month' }, serverIds);
+      return this.request<MyTopTitlesResponse>(`/stats/me/titles?${params.toString()}`);
     },
     plays: async (timeRange?: StatsTimeRange, serverIds?: string[]) => {
       const params = this.buildStatsParamsMulti(timeRange ?? { period: 'week' }, serverIds);
@@ -1192,15 +1230,15 @@ class ApiClient {
       const query = searchParams.toString();
       return this.request<LocationStatsResponse>(`/stats/locations${query ? `?${query}` : ''}`);
     },
-    playsByDayOfWeek: async (timeRange?: StatsTimeRange, serverIds?: string[]) => {
-      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds);
+    playsByDayOfWeek: async (timeRange?: StatsTimeRange, serverIds?: string[], self = false) => {
+      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds, self);
       const response = await this.request<{ data: { day: number; name: string; count: number }[] }>(
         `/stats/plays-by-dayofweek?${params.toString()}`
       );
       return response.data;
     },
-    playsByHourOfDay: async (timeRange?: StatsTimeRange, serverIds?: string[]) => {
-      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds);
+    playsByHourOfDay: async (timeRange?: StatsTimeRange, serverIds?: string[], self = false) => {
+      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds, self);
       const response = await this.request<{ data: { hour: number; count: number }[] }>(
         `/stats/plays-by-hourofday?${params.toString()}`
       );
@@ -1224,8 +1262,8 @@ class ApiClient {
       );
       return response.data;
     },
-    topContent: async (timeRange?: StatsTimeRange, serverIds?: string[]) => {
-      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds);
+    topContent: async (timeRange?: StatsTimeRange, serverIds?: string[], self = false) => {
+      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds, self);
       const response = await this.request<{
         movies: {
           title: string;
@@ -1268,9 +1306,13 @@ class ApiClient {
     engagement: async (
       timeRange?: StatsTimeRange,
       serverIds?: string[],
-      options?: { mediaType?: MediaType; limit?: number }
+      options?: { mediaType?: MediaType; limit?: number; self?: boolean }
     ) => {
-      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'week' }, serverIds);
+      const params = this.buildStatsParamsMulti(
+        timeRange ?? { period: 'week' },
+        serverIds,
+        options?.self
+      );
       if (options?.mediaType) params.set('mediaType', options.mediaType);
       if (options?.limit) params.set('limit', String(options.limit));
       return this.request<EngagementStats>(`/stats/engagement?${params.toString()}`);
@@ -1281,9 +1323,14 @@ class ApiClient {
       options?: {
         limit?: number;
         orderBy?: 'totalEpisodeViews' | 'totalWatchHours' | 'bingeScore' | 'uniqueViewers';
+        self?: boolean;
       }
     ) => {
-      const params = this.buildStatsParamsMulti(timeRange ?? { period: 'month' }, serverIds);
+      const params = this.buildStatsParamsMulti(
+        timeRange ?? { period: 'month' },
+        serverIds,
+        options?.self
+      );
       if (options?.limit) params.set('limit', String(options.limit));
       if (options?.orderBy) params.set('orderBy', options.orderBy);
       return this.request<ShowStatsResponse>(`/stats/shows?${params.toString()}`);
@@ -1844,9 +1891,9 @@ class ApiClient {
 
   // Settings
   settings = {
-    get: () => this.request<Settings>('/settings'),
-    update: (data: Partial<Settings>) =>
-      this.request<Settings>('/settings', { method: 'PATCH', body: JSON.stringify(data) }),
+    get: () => this.request<SettingsResponse>('/settings'),
+    update: (data: SettingsUpdate) =>
+      this.request<SettingsResponse>('/settings', { method: 'PATCH', body: JSON.stringify(data) }),
     getApiKey: () => this.request<{ token: string | null }>('/settings/api-key'),
     regenerateApiKey: () =>
       this.request<{ token: string }>('/settings/api-key/regenerate', { method: 'POST' }),
@@ -1856,8 +1903,7 @@ class ApiClient {
   };
 
   map = {
-    getBasemapStatus: () =>
-      this.request<{ installed: boolean; path: string }>('/map/basemap/status'),
+    getBasemapStatus: () => this.request<{ installed: boolean }>('/map/basemap/status'),
   };
 
   // Notification destinations
@@ -1904,6 +1950,13 @@ class ApiClient {
 
   requests = {
     status: () => this.request<RequestsStatus>('/requests/status'),
+    mine: (opts: MyRequestsQuery) => {
+      const searchParams = new URLSearchParams({
+        page: String(opts.page),
+        pageSize: String(opts.pageSize),
+      });
+      return this.request<UserRequestsResponse>(`/requests/mine?${searchParams.toString()}`);
+    },
     analytics: (serverIds?: string[]) => {
       const query = listSearchParams({ serverIds });
       return this.request<RequestsAnalyticsResponse>(

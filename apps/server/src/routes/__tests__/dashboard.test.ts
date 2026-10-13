@@ -63,6 +63,7 @@ import {
   uniqueUsersSince,
 } from '../../db/prepared.js';
 import { dashboardRoutes } from '../stats/dashboard.js';
+import { permissionGuard } from '../../lib/scope.js';
 
 /**
  * Build a test Fastify instance with mocked auth and redis
@@ -79,6 +80,7 @@ async function buildTestApp(
   app.decorate('authenticate', async (request: any) => {
     request.user = authUser;
   });
+  app.decorate('requirePermission', permissionGuard(app));
 
   // Mock Redis
   app.decorate(
@@ -342,10 +344,10 @@ describe('Dashboard Stats Routes', () => {
       const serverId1 = randomUUID();
       const serverId2 = randomUUID();
       // Non-owner user only has access to serverId1
-      const viewerUser: AuthUser = {
+      const adminUser: AuthUser = {
         userId: randomUUID(),
-        username: 'viewer',
-        role: 'viewer',
+        username: 'admin',
+        role: 'admin',
         serverIds: [serverId1],
       };
 
@@ -354,7 +356,7 @@ describe('Dashboard Stats Routes', () => {
         setex: vi.fn().mockResolvedValue('OK'),
       };
 
-      app = await buildTestApp(viewerUser, redisMock);
+      app = await buildTestApp(adminUser, redisMock);
 
       // Request stats for serverId2 (not in user's serverIds)
       // resolveServerIds intersects requested IDs with user's access, yielding empty set

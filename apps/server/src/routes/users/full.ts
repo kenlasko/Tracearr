@@ -38,6 +38,7 @@ import { uuidArraySql } from '../../utils/sqlArrays.js';
 import { localSessionSql } from '../../utils/localSession.js';
 
 export const fullRoutes: FastifyPluginAsync = async (app) => {
+  const readUsers = { preHandler: [app.requirePermission('users', 'read')] };
   /**
    * GET /:id/full - Get complete user details in one request
    *
@@ -49,7 +50,7 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
    * `identity` block (roster, aggregate trust, combined stats) is always
    * identity-wide regardless of scope.
    */
-  app.get('/:id/full', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.get('/:id/full', readUsers, async (request, reply) => {
     const params = userIdParamSchema.safeParse(request.params);
     if (!params.success) {
       return reply.badRequest('Invalid user ID');
@@ -93,6 +94,9 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
           identityName: users.name,
           identityContactEmail: users.contactEmail,
           role: users.role,
+          loginAccess: users.loginAccess,
+          lastLoginAt: users.lastLoginAt,
+          loginCount: users.loginCount,
           identityAggregateTrustScore: users.aggregateTrustScore,
           identityTotalViolations: users.totalViolations,
         })

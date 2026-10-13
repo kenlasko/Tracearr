@@ -8,7 +8,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: { role: 'viewer' } }) }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: { role: 'member' } }) }));
 vi.mock('@/hooks/useServer', () => ({ useServer: () => ({ isMultiServer: false }) }));
 vi.mock('@/hooks/useServerColorMap', () => ({ useServerColorMap: () => new Map() }));
 

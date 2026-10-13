@@ -25,7 +25,9 @@ tracearr:
     HOST: "0.0.0.0"
     PORT: "3000"  # containerPort, the Service targetPort and the probes all follow this
     LOG_LEVEL: info
+    # Origins other than Tracearr's own that may use a session; * only allows requests without one
     CORS_ORIGIN: "*"
+    # TRUST_PROXY: "true"  # one proxy hop; "2" for two chained proxies, or proxy IPs/CIDRs
     TZ: UTC
     # DATABASE_POOL_MAX: "50"
     # POLLER_ENABLED: "true"

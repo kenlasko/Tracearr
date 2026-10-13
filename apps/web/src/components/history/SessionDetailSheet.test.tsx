@@ -4,6 +4,9 @@ import { MemoryRouter } from 'react-router';
 import type { SessionWithDetails } from '@tracearr/shared';
 import { SessionDetailSheet } from './SessionDetailSheet';
 
+const auth = vi.hoisted(() => ({ user: { role: 'owner' } }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -36,6 +39,18 @@ function renderSheet(overrides: Partial<SessionWithDetails>, onOpenChange = vi.f
 }
 
 describe('SessionDetailSheet', () => {
+  it('links the person to their user page for an owner, and shows them unlinked to a member', () => {
+    const { unmount } = renderSheet({});
+    expect(screen.getByRole('link', { name: /alice/ })).toHaveAttribute('href', '/users/su-1');
+    unmount();
+
+    auth.user.role = 'member';
+    renderSheet({});
+    expect(screen.getByText('alice')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /alice/ })).toBeNull();
+    auth.user.role = 'owner';
+  });
+
   it('shows no progress percentage for a play without a total', () => {
     renderSheet({ progressMs: 3_600_000, totalDurationMs: null });
 

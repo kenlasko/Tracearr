@@ -11,6 +11,7 @@ import {
   plexAccounts,
   getRedis,
   getSetting,
+  setSetting,
   resetPasswordCommand,
   setUsernameCommand,
   setEmailCommand,
@@ -430,9 +431,15 @@ describe('admin cli commands', () => {
   });
 
   describe('enableLocalLoginCommand', () => {
-    it('flips the setting', async () => {
+    it('turns local login back on and keeps the other methods', async () => {
+      await setSetting('loginMethods', { local: false, plex: false, oidc: true, member: true });
       await enableLocalLoginCommand();
-      expect(await getSetting('localLoginEnabled')).toBe(true);
+      expect(await getSetting('loginMethods')).toEqual({
+        local: true,
+        plex: false,
+        oidc: true,
+        member: true,
+      });
     });
   });
 });

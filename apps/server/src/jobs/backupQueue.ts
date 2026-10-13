@@ -137,16 +137,13 @@ export async function scheduleBackupJob(schedule: {
       return;
   }
 
-  await backupQueue.add(
+  const tz = process.env.TZ || 'UTC';
+  await backupQueue.upsertJobScheduler(
     'scheduled-backup',
-    {},
-    {
-      repeat: { pattern: cron, tz: process.env.TZ || 'UTC' },
-      jobId: 'scheduled-backup',
-    }
+    { pattern: cron, tz },
+    { name: 'scheduled-backup', data: {} }
   );
 
-  const tz = process.env.TZ || 'UTC';
   console.log(`[Backup] Scheduled ${schedule.type} backup at cron: ${cron} (${tz})`);
 }
 

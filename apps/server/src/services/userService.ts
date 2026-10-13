@@ -493,6 +493,7 @@ export async function updateServerUser(
     email: string | null;
     thumbUrl: string | null;
     isServerAdmin: boolean;
+    isDisabled: boolean;
     lastActivityAt: Date | null;
   }>
 ): Promise<ServerUser> {
@@ -612,7 +613,12 @@ export async function syncUserFromMediaServer(
   serverId: string,
   mediaUser: MediaUser,
   options: SyncUserOptions = {}
-): Promise<{ serverUser: ServerUser; user: User; created: boolean } | null> {
+): Promise<{
+  serverUser: ServerUser;
+  user: User;
+  created: boolean;
+  newlyDisabled: boolean;
+} | null> {
   const { isPlexServer = false } = options;
 
   if (isPlexServer) {
@@ -667,7 +673,7 @@ export async function syncUserFromMediaServer(
       }
 
       const user = await requireUserById(existing.userId);
-      return { serverUser: updated[0]!, user, created: false };
+      return { serverUser: updated[0]!, user, created: false, newlyDisabled: false };
     }
 
     // Already folded into another account by a same-server merge. Creating it
@@ -736,7 +742,12 @@ export async function syncUserFromMediaServer(
       return { serverUser: serverUser!, user };
     });
 
-    return { serverUser: result.serverUser, user: result.user, created: true };
+    return {
+      serverUser: result.serverUser,
+      user: result.user,
+      created: true,
+      newlyDisabled: false,
+    };
   }
 
   // For Jellyfin/Emby: original flow using externalId
@@ -751,6 +762,7 @@ export async function syncUserFromMediaServer(
       email: accountEmail,
       thumbUrl: mediaUser.thumb ?? null,
       isServerAdmin: mediaUser.isAdmin,
+      isDisabled: mediaUser.isDisabled ?? false,
     };
 
     const advancedActivity = advancedActivityAt(mediaUser.lastActivityAt, existing.lastActivityAt);
@@ -766,7 +778,12 @@ export async function syncUserFromMediaServer(
     }
 
     const user = await requireUserById(existing.userId);
-    return { serverUser: updated, user, created: false };
+    return {
+      serverUser: updated,
+      user,
+      created: false,
+      newlyDisabled: !existing.isDisabled && updated.isDisabled,
+    };
   }
 
   // Already folded into another account by a same-server merge. Creating it
@@ -819,6 +836,7 @@ export async function syncUserFromMediaServer(
         email: accountEmail,
         thumbUrl: mediaUser.thumb ?? null,
         isServerAdmin: mediaUser.isAdmin,
+        isDisabled: mediaUser.isDisabled ?? false,
         joinedAt: mediaUser.joinedAt ?? null,
         lastActivityAt: mediaUser.lastActivityAt ?? null,
       })
@@ -833,7 +851,7 @@ export async function syncUserFromMediaServer(
     return { serverUser: serverUser!, user };
   });
 
-  return { serverUser: result.serverUser, user: result.user, created: true };
+  return { serverUser: result.serverUser, user: result.user, created: true, newlyDisabled: false };
 }
 
 /**

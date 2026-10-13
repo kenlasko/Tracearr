@@ -21,14 +21,16 @@ import {
   buildMultiServerFragment,
   buildServerAccessCondition,
 } from '../../utils/serverFiltering.js';
+import { scopedServerFragment } from '../../lib/scope.js';
 import { representativeAccountOrderSql } from '../../utils/representativeAccount.js';
 import { MEDIA_TYPE_SQL_FILTER_S } from '../../constants/index.js';
 
 export const usersRoutes: FastifyPluginAsync = async (app) => {
+  const readStats = { preHandler: [app.requirePermission('stats', 'read')] };
   /**
    * GET /users - User statistics (per identity)
    */
-  app.get('/users', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.get('/users', readStats, async (request, reply) => {
     const query = statsQuerySchema.safeParse(request.query);
     if (!query.success) {
       return reply.badRequest('Invalid query parameters');
@@ -43,7 +45,12 @@ export const usersRoutes: FastifyPluginAsync = async (app) => {
       return { data: [] };
     }
 
-    const serverFilterSu = buildMultiServerFragment(resolvedIds, 'su.server_id');
+    const serverFilterSu = scopedServerFragment(
+      resolvedIds,
+      request.scope,
+      'su.server_id',
+      sql`su.id`
+    );
     const serverFilterSu2 = buildMultiServerFragment(resolvedIds, 'su2.server_id');
 
     // Build date filter for JOIN condition
@@ -99,7 +106,7 @@ export const usersRoutes: FastifyPluginAsync = async (app) => {
   /**
    * GET /top-users - User leaderboard (per identity)
    */
-  app.get('/top-users', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.get('/top-users', readStats, async (request, reply) => {
     const query = statsQuerySchema.safeParse(request.query);
     if (!query.success) {
       return reply.badRequest('Invalid query parameters');
@@ -114,7 +121,12 @@ export const usersRoutes: FastifyPluginAsync = async (app) => {
       return { data: [] };
     }
 
-    const serverFilterSu = buildMultiServerFragment(resolvedIds, 'su.server_id');
+    const serverFilterSu = scopedServerFragment(
+      resolvedIds,
+      request.scope,
+      'su.server_id',
+      sql`su.id`
+    );
     const serverFilterSu2 = buildMultiServerFragment(resolvedIds, 'su2.server_id');
 
     // Build date filter for JOIN condition
@@ -210,7 +222,7 @@ export const usersRoutes: FastifyPluginAsync = async (app) => {
       identityName: r.identity_name,
       thumbUrl: r.thumb_url,
       serverId: r.server_id,
-      trustScore: r.aggregate_trust_score,
+      ...(request.scope === 'all' ? { trustScore: r.aggregate_trust_score } : {}),
       playCount: r.play_count,
       watchTimeHours: Math.round((Number(r.watch_time_ms) / (1000 * 60 * 60)) * 10) / 10,
       topMediaType: r.top_media_type,

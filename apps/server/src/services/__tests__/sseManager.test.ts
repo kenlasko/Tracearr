@@ -10,7 +10,7 @@ vi.mock('../liveServers.js', () => ({
 }));
 
 vi.mock('../../websocket/index.js', () => ({
-  broadcastToAll: vi.fn(),
+  broadcastToSessions: vi.fn(),
 }));
 
 vi.mock('../../jobs/poller/index.js', () => ({
@@ -145,17 +145,17 @@ describe('SSEManager.refreshConnectionStatuses', () => {
     );
   });
 
-  it('does not call broadcastToAll during the periodic refresh', async () => {
-    const { broadcastToAll } = await import('../../websocket/index.js');
+  it('does not call broadcastToSessions during the periodic refresh', async () => {
+    const { broadcastToSessions } = await import('../../websocket/index.js');
 
     await manager.initialize(cache, makePubSubService());
     await manager.addServer('jf-1', 'Jellyfin Server', 'jellyfin', 'http://jf.local', 'token');
 
-    vi.mocked(broadcastToAll).mockClear();
+    vi.mocked(broadcastToSessions).mockClear();
 
     (manager as unknown as PrivateManager).refreshConnectionStatuses();
 
-    expect(broadcastToAll).not.toHaveBeenCalled();
+    expect(broadcastToSessions).not.toHaveBeenCalled();
   });
 
   it('skips refresh gracefully when no cacheService is set', () => {

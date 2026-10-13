@@ -21,6 +21,7 @@ import {
 
 interface QueueMockShape {
   add: ReturnType<typeof vi.fn>;
+  upsertJobScheduler: ReturnType<typeof vi.fn>;
   close: ReturnType<typeof vi.fn>;
   getJobSchedulers: ReturnType<typeof vi.fn>;
   removeJobScheduler: ReturnType<typeof vi.fn>;
@@ -32,6 +33,7 @@ const { queueRef } = vi.hoisted(() => ({
 vi.mock('bullmq', () => {
   function MockQueue(this: QueueMockShape) {
     this.add = vi.fn();
+    this.upsertJobScheduler = vi.fn();
     this.close = vi.fn();
     this.getJobSchedulers = vi.fn().mockResolvedValue([]);
     this.removeJobScheduler = vi.fn();
