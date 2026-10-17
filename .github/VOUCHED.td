@@ -10,9 +10,11 @@ connorgallopo
 -d4rk-4lchemy AI Slop
 durzo
 -emre155 did not follow contributing, invalid diff, reported as spam
+-hasaarin AI generated bug report
 -hstorey219 AI generated bug report. Duplicated bug report
 -iokernel Slop PR, did not follow contributing guide.
 -ionbazan - Contributing guide not read or followed
+-landski Nonsense AI bug slop
 -mafyuh Slop bug report
 -nullable-eth AI Slop PR - Contributing guide ignored
 pelluch
