@@ -11,7 +11,9 @@ import sensible from '@fastify/sensible';
 import { randomUUID } from 'node:crypto';
 import type { AuthUser, DashboardStats } from '@tracearr/shared';
 import { REDIS_KEYS } from '@tracearr/shared';
+import type { SQL } from 'drizzle-orm';
 import { createMockActiveSession } from '../../test/fixtures.js';
+import { renderSql } from '../../test/helpers.js';
 
 // Mock the prepared statements module
 vi.mock('../../db/prepared.js', () => ({
@@ -39,6 +41,7 @@ vi.mock('../../services/cache.js', () => ({
 
 // Mock db.execute for engagement aggregate queries
 const mockDbExecute = vi.fn().mockResolvedValue({ rows: [{ count: 0 }] });
+const mockSelectWhere = vi.fn().mockResolvedValue([]);
 vi.mock('../../db/client.js', () => ({
   db: {
     execute: (...args: unknown[]) => mockDbExecute(...args),
@@ -46,9 +49,9 @@ vi.mock('../../db/client.js', () => ({
       from: vi.fn().mockReturnValue({
         // The server-filtered active-users query joins server_users to count
         // distinct identities, other server-filtered queries stay unjoined.
-        where: vi.fn().mockResolvedValue([]),
+        where: (...args: unknown[]) => mockSelectWhere(...args),
         innerJoin: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([]),
+          where: (...args: unknown[]) => mockSelectWhere(...args),
         }),
       }),
     }),
@@ -126,6 +129,7 @@ describe('Dashboard Stats Routes', () => {
         todayPlays: 25,
         todaySessions: 30,
         watchTimeHours: 12.5,
+        listenTimeHours: 1.5,
         alertsLast24h: 3,
         activeUsersToday: 8,
       };
@@ -161,7 +165,7 @@ describe('Dashboard Stats Routes', () => {
 
       // Mock prepared statement results
       vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 15 }]);
-      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 18000000 }]); // 5 hours
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 18000000, listenMs: 0 }]); // 5 hours
       vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 2 }]);
       vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 6 }]);
       mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 15 }] }); // Engagement validated plays
@@ -206,7 +210,7 @@ describe('Dashboard Stats Routes', () => {
       };
 
       vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 10 }]);
-      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 7200000 }]); // 2 hours
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 7200000, listenMs: 0 }]); // 2 hours
       vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 0 }]);
       vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 3 }]);
       mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 10 }] }); // Engagement validated plays
@@ -237,7 +241,7 @@ describe('Dashboard Stats Routes', () => {
       };
 
       vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 5 }]);
-      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 3600000 }]);
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 3600000, listenMs: 0 }]);
       vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 1 }]);
       vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 2 }]);
       mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 5 }] }); // Engagement validated plays
@@ -266,7 +270,7 @@ describe('Dashboard Stats Routes', () => {
       };
 
       vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 8 }]);
-      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 0 }]);
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 0, listenMs: 0 }]);
       vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 0 }]);
       vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 4 }]);
       mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 8 }] }); // Engagement validated plays
@@ -323,7 +327,7 @@ describe('Dashboard Stats Routes', () => {
 
       // 5.555... hours = 20000000 ms
       vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 0 }]);
-      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 20000000 }]);
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([{ totalMs: 20000000, listenMs: 0 }]);
       vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 0 }]);
       vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 0 }]);
       mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 0 }] }); // Engagement validated plays
@@ -338,6 +342,44 @@ describe('Dashboard Stats Routes', () => {
       expect(response.statusCode).toBe(200);
       const body = JSON.parse(response.body);
       expect(body.watchTimeHours).toBe(5.6);
+    });
+
+    it('reports listen time apart from watch time and counts music in todayPlays', async () => {
+      app = await buildTestApp(createOwnerUser());
+      vi.mocked(playsCountSince.execute).mockResolvedValue([{ count: 4 }]);
+      vi.mocked(watchTimeSince.execute).mockResolvedValue([
+        { totalMs: 18000000, listenMs: 5400000 },
+      ]);
+      vi.mocked(violationsCountSince.execute).mockResolvedValue([{ count: 0 }]);
+      vi.mocked(uniqueUsersSince.execute).mockResolvedValue([{ count: 1 }]);
+      mockDbExecute.mockResolvedValueOnce({ rows: [{ count: 4 }] });
+
+      const response = await app.inject({ method: 'GET', url: '/stats/dashboard' });
+
+      const body = JSON.parse(response.body);
+      expect(body.watchTimeHours).toBe(5);
+      expect(body.listenTimeHours).toBe(1.5);
+      const { sql: query } = renderSql(mockDbExecute.mock.calls[0]?.[0] as SQL);
+      expect(query).toContain("AND media_type IN ('movie', 'episode', 'track')");
+    });
+
+    it('counts music in todayPlays, todaySessions and activeUsersToday on the server-filtered path', async () => {
+      app = await buildTestApp(createOwnerUser());
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/stats/dashboard?serverId=${randomUUID()}`,
+      });
+
+      expect(JSON.parse(response.body).listenTimeHours).toBe(0);
+      const queries = mockDbExecute.mock.calls.map((call) => renderSql(call[0] as SQL).sql);
+      const todayPlaysQuery = queries.find((query) => query.includes('FROM sessions'));
+      expect(todayPlaysQuery).toContain("AND media_type IN ('movie', 'episode', 'track')");
+      const selectFilters = mockSelectWhere.mock.calls.map((call) => renderSql(call[0] as SQL));
+      expect(selectFilters).toHaveLength(3);
+      for (const { params } of selectFilters) {
+        expect(params).toEqual(expect.arrayContaining(['movie', 'episode', 'track']));
+      }
     });
 
     it('should return empty stats when non-owner requests server not in access list', async () => {

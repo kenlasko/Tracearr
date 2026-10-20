@@ -12,6 +12,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import { readdirSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sql } from 'drizzle-orm';
 import pg from 'pg';
 import type { TestProject } from 'vitest/node';
 
@@ -27,6 +28,8 @@ process.env.REDIS_URL ||= 'redis://localhost:6380';
 
 const WORKER_COUNT = 7;
 const TEMPLATE_DB = 'tracearr_test_template';
+// Hashed with the migrations; bump it when rebuildTemplate changes what a template holds
+const TEMPLATE_SETUP_VERSION = 1;
 const RUN_TOKEN_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const ORPHAN_TOKEN_PATTERN = /^tracearr_test_r([a-z0-9]+)_w\d+$/;
 
@@ -122,7 +125,7 @@ function computeTemplateHash(migrationsFolder: string, schemaVersion: number): s
     return `${file}:${mtimeMs}`;
   });
   return createHash('sha1')
-    .update(`${parts.join('|')}:${schemaVersion}`)
+    .update(`${parts.join('|')}:${schemaVersion}:${TEMPLATE_SETUP_VERSION}`)
     .digest('hex');
 }
 
@@ -174,6 +177,16 @@ async function rebuildTemplate(
         console.warn('[Test Setup] TimescaleDB init warning:', error);
       }
     }
+
+    // A copied database inherits policy next_start times already in the past, so its
+    // scheduler fires every policy as soon as it starts, and a policy refresh in flight
+    // fails a suite's own overlapping refresh_continuous_aggregate with 55P03
+    const { db } = await import('../db/client.js');
+    await db.execute(sql`
+      SELECT alter_job(job_id, scheduled => false)
+      FROM timescaledb_information.jobs
+      WHERE hypertable_name IS NOT NULL
+    `);
   } finally {
     // Postgres refuses CREATE DATABASE ... TEMPLATE while any session,
     // including idle pool connections, is still connected to the source db.

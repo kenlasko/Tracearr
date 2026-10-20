@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Highcharts from 'highcharts';
 import { HighchartsReact } from 'highcharts-react-official';
 import type { HourlyDistribution } from '@tracearr/shared';
@@ -27,6 +28,7 @@ export function HourlyDistributionChart({
   isLoading,
   height = 250,
 }: HourlyDistributionChartProps) {
+  const { t } = useTranslation('pages');
   const options = useMemo<Highcharts.Options>(() => {
     if (!data || data.length === 0) {
       return {};
@@ -65,7 +67,7 @@ export function HourlyDistributionChart({
       },
       yAxis: {
         title: {
-          text: 'Watches',
+          text: t('library.charts.hourly.watches'),
           style: {
             color: 'hsl(var(--muted-foreground))',
           },
@@ -100,13 +102,13 @@ export function HourlyDistributionChart({
         formatter: function () {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const label = (this as any).point?.category || this.x;
-          return `<b>${label}</b><br/>Watches: ${this.y}`;
+          return `<b>${label}</b><br/>${t('library.charts.watchesValue', { count: this.y ?? 0 })}`;
         },
       },
       series: [
         {
           type: 'column',
-          name: 'Watches',
+          name: t('library.charts.hourly.watches'),
           data: data.map((d) => d.watchCount),
         },
       ],
@@ -135,7 +137,7 @@ export function HourlyDistributionChart({
         ],
       },
     };
-  }, [data, height]);
+  }, [data, height, t]);
 
   if (isLoading) {
     return <ChartSkeleton height={height} />;
@@ -145,8 +147,8 @@ export function HourlyDistributionChart({
     return (
       <EmptyState
         icon={Clock}
-        title="No hourly data"
-        description="Watch distribution by hour will appear here once data is available"
+        title={t('library.charts.hourly.empty.title')}
+        description={t('library.charts.hourly.empty.description')}
       />
     );
   }

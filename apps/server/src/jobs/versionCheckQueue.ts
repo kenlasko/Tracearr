@@ -8,6 +8,7 @@
 import { Queue, Worker, type Job, type ConnectionOptions } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { everyAligned, getBullPrefix, queueConnectionOptions } from './queueConnection.js';
+import { WORKER_DEFAULTS, addSingleton, registerQueue, registerWorker } from './jobSafety.js';
 import { isMaintenance } from '../serverState.js';
 import {
   REDIS_KEYS,
@@ -119,6 +120,7 @@ export function initVersionCheckQueue(
   versionQueue.on('error', (err) => {
     if (!isMaintenance()) console.error('Version check queue error:', err);
   });
+  registerQueue(versionQueue);
 
   console.log('Version check queue initialized');
 }
@@ -156,8 +158,10 @@ export function startVersionCheckWorker(): void {
       connection: connectionOptions,
       prefix: bullPrefix,
       concurrency: 1, // Only one check at a time
+      ...WORKER_DEFAULTS,
     }
   );
+  registerWorker(versionWorker);
 
   versionWorker.on('error', (error) => {
     if (!isMaintenance()) console.error('Version check worker error:', error);
@@ -188,8 +192,7 @@ export async function scheduleVersionChecks(): Promise<void> {
     { name: 'scheduled-check', data: { type: 'check' } }
   );
 
-  // Stable jobId so repeated restarts collapse to a single waiting job
-  await versionQueue.add('startup-check', { type: 'check' }, { jobId: 'startup-check' });
+  await addSingleton(versionQueue, 'startup-check', { type: 'check' }, 'version-check-startup');
 
   console.log('Version checks scheduled (every 6 hours)');
 }
@@ -203,10 +206,11 @@ export async function forceVersionCheck(): Promise<void> {
     return;
   }
 
-  await versionQueue.add(
+  await addSingleton(
+    versionQueue,
     'forced-check',
     { type: 'check', force: true },
-    { jobId: `forced-${Date.now()}` }
+    'version-check-forced'
   );
 }
 

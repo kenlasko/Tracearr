@@ -18,61 +18,106 @@ if (!tag || !notesFile) {
 }
 
 const RELEASE_URL = `https://github.com/connorgallopo/Tracearr/releases/tag/${tag}`;
+const ISSUE_URL = 'https://github.com/connorgallopo/Tracearr/issues/';
 const DOCS_URL = 'https://docs.tracearr.com';
 const DISCORD_URL = 'https://discord.gg/a7n3sFd2Yw';
-// The same hosted icon the app's own Discord notifications use.
-const LOGO_URL =
-  'https://raw.githubusercontent.com/connorgallopo/Tracearr/main/apps/web/public/web-app-manifest-192x192-transparent.png';
+const BANNER_URL = 'https://tracearr.com/images/og-image.png';
+const IMAGE = 'ghcr.io/connorgallopo/tracearr';
 const ACCENT = 0x3498db;
 const IS_COMPONENTS_V2 = 1 << 15;
 // Component type ids and the link button style, from the Components reference.
 const ACTION_ROW = 1;
 const BUTTON = 2;
-const SECTION = 9;
 const TEXT = 10;
-const THUMBNAIL = 11;
+const MEDIA_GALLERY = 12;
 const SEPARATOR = 14;
 const CONTAINER = 17;
 const LINK_STYLE = 5;
-// The Components reference caps a message at 40 components and a button label at 80 characters.
+const SPACING_SMALL = 1;
+const SPACING_LARGE = 2;
+// The Components reference caps a message at 40 components, a button label at 80 characters
+// and the text across every text display at 4000 characters.
 const MAX_COMPONENTS = 40;
 const MAX_BUTTON_LABEL = 80;
+const MAX_TEXT = 4000;
 
 /**
  * @typedef {{ type: string; text: string; refs?: string[] }} Change
  * @typedef {{ title: string; body: string; docs?: string }} Highlight
- * @typedef {{ headline?: string; upgradeWarning?: string; highlights?: Highlight[]; changes?: Change[] }} Notes
+ * @typedef {{ date?: string; headline?: string; upgradeWarning?: string; highlights?: Highlight[]; changes?: Change[] }} Notes
  */
 /** @type {Notes} */
 const notes = JSON.parse(readFileSync(notesFile, 'utf8'));
 const version = tag.replace(/^v/, '');
 const isPrerelease = prerelease === 'true';
+const isPatch = !isPrerelease && !version.endsWith('.0');
 
+// Notes go first: when a long list is cut, what an operator must know survives.
 const SECTION_LABELS = {
-  new: ['new', 'new'],
-  improved: ['improved', 'improved'],
-  fix: ['fix', 'fixes'],
-  security: ['security fix', 'security fixes'],
-  note: ['note', 'notes'],
+  note: 'Before you update',
+  new: 'New',
+  improved: 'Improved',
+  fix: 'Fixes',
+  security: 'Security',
 };
-const counts = {};
-for (const change of notes.changes ?? []) counts[change.type] = (counts[change.type] ?? 0) + 1;
-const countsLine = Object.entries(SECTION_LABELS)
-  .filter(([type]) => counts[type])
-  .map(([type, [one, many]]) => `${counts[type]} ${counts[type] === 1 ? one : many}`)
-  .join(' · ');
 
 const text = (content) => ({ type: TEXT, content });
-const separator = (divider) => ({ type: SEPARATOR, divider, spacing: 1 });
+const separator = (spacing, divider = true) => ({ type: SEPARATOR, divider, spacing });
+const subtext = (line) => `-# ${line}`;
 const highlightBlock = (highlight) =>
   text(
-    `### ${highlight.title}\n${highlight.body}${highlight.docs ? ` [Docs](${highlight.docs})` : ''}`
+    [
+      `### ${highlight.title}`,
+      highlight.body,
+      highlight.docs && subtext(`[Read the docs](${highlight.docs})`),
+    ]
+      .filter(Boolean)
+      .join('\n')
   );
+const refLink = (ref) => `[${ref}](${ISSUE_URL}${ref.replace('#', '')})`;
 const changeLine = (change) => {
   let line = `- ${change.text}`;
-  if (change.refs?.length) line += ` (${change.refs.join(', ')})`;
+  if (change.refs?.length) line += ` (${change.refs.map(refLink).join(', ')})`;
   return line;
 };
+const textLength = (list) =>
+  list.reduce(
+    (sum, block) => sum + (block.content?.length ?? 0) + textLength(block.components ?? []),
+    0
+  );
+
+/** The changes grouped under headings, cut at a line when the budget runs out. */
+function changeList(changes, budget) {
+  const groups = Object.entries(SECTION_LABELS)
+    .map(([type, label]) => [label, changes.filter((change) => change.type === type)])
+    .filter(([, list]) => list.length > 0);
+  const lines = groups.flatMap(([label, list], index) => [
+    `${index > 0 ? '\n' : ''}### ${label}`,
+    ...list.map(changeLine),
+  ]);
+  const more = (n) => `\n${subtext(`and ${n} more in the [full notes](${RELEASE_URL})`)}`;
+  const out = [];
+  let shown = 0;
+  for (const line of lines) {
+    const left = changes.length - shown;
+    if (out.join('\n').length + line.length + 1 + more(left).length > budget) {
+      // Never leave a heading with nothing under it.
+      while (out.length > 0 && !out.at(-1).startsWith('- ')) out.pop();
+      return out.join('\n') + more(left);
+    }
+    out.push(line);
+    if (line.startsWith('- ')) shown++;
+  }
+  return out.join('\n');
+}
+
+// Discord renders <t:unix:D> as a long date in the reader's locale.
+function dateStamp(date) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date ?? '');
+  if (!match) return null;
+  const unix = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12) / 1000;
+  return `<t:${unix}:D>`;
+}
 
 // Stable releases page everyone plus the release alerts role; betas page the beta role only.
 // DISCORD_NO_MENTIONS posts the card silently, for a test run.
@@ -88,31 +133,35 @@ const allowedMentions = noMentions
     };
 
 const blocks = [];
-const title = `## Tracearr v${version}`;
-const subtitle = isPrerelease ? 'Beta release' : notes.headline;
-blocks.push({
-  type: SECTION,
-  components: [text(subtitle ? `${title}\n${subtitle}` : title)],
-  accessory: { type: THUMBNAIL, media: { url: LOGO_URL } },
-});
-if (notes.upgradeWarning) blocks.push(text(`**${notes.upgradeWarning}**`));
-blocks.push(separator(true));
+blocks.push({ type: MEDIA_GALLERY, items: [{ media: { url: BANNER_URL } }] });
 
-if (isPrerelease) {
-  // Every beta posts the whole file, so the card stays short and points at the release.
-  blocks.push(text(countsLine || 'Release notes on GitHub'));
-} else if (notes.highlights?.length) {
-  notes.highlights.forEach((highlight, index) => {
-    if (index > 0) blocks.push(separator(false));
-    blocks.push(highlightBlock(highlight));
-  });
-  blocks.push(separator(true));
-  blocks.push(text(countsLine));
-} else {
-  // Patch releases carry no highlights and a short list, so the list itself is the card.
-  const list = (notes.changes ?? []).map(changeLine).join('\n');
-  blocks.push(text(list || countsLine));
+// A beta carries the whole file for its base version, so its card reads as the release so far.
+const kind = isPrerelease
+  ? `Beta of ${version.replace(/-.*$/, '')}`
+  : isPatch
+    ? 'Patch release'
+    : 'Release';
+const header = [
+  `## Tracearr v${version}`,
+  subtext([kind, dateStamp(notes.date)].filter(Boolean).join(' · ')),
+  notes.headline && `**${notes.headline}**`,
+].filter(Boolean);
+blocks.push(text(header.join('\n')));
+if (notes.upgradeWarning) blocks.push(text(`> **Before you update:** ${notes.upgradeWarning}`));
+blocks.push(separator(SPACING_LARGE));
+
+for (const [index, highlight] of (notes.highlights ?? []).entries()) {
+  if (index > 0) blocks.push(separator(SPACING_SMALL, false));
+  blocks.push(highlightBlock(highlight));
 }
+if (notes.highlights?.length) blocks.push(separator(SPACING_LARGE));
+
+const footer = text(subtext(`\`docker pull ${IMAGE}:${version}\``));
+const used = textLength(blocks) + footer.content.length + (mentionLine?.length ?? 0);
+const list = changeList(notes.changes ?? [], MAX_TEXT - used);
+if (list) blocks.push(text(list));
+blocks.push(separator(SPACING_SMALL));
+blocks.push(footer);
 
 blocks.push({
   type: ACTION_ROW,
@@ -134,6 +183,10 @@ if (all.length > MAX_COMPONENTS) {
   console.error(
     `Card has ${all.length} components, over Discord's ${MAX_COMPONENTS}; trim the notes`
   );
+  process.exit(1);
+}
+if (textLength(components) > MAX_TEXT) {
+  console.error(`Card text is ${textLength(components)} characters, over Discord's ${MAX_TEXT}`);
   process.exit(1);
 }
 const longLabel = all.find(
