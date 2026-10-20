@@ -26,14 +26,24 @@ import {
 } from '@tracearr/shared';
 import { registerService, unregisterService } from './serviceTracker.js';
 import { liveServers } from './liveServers.js';
-import { PlexEventSource } from './mediaServer/plex/eventSource.js';
+import {
+  PlexEventSource,
+  type PlexEventSourceEvents,
+  type StaticTranscode,
+} from './mediaServer/plex/eventSource.js';
 import {
   JellyfinEmbyEventSource,
   type PluginSessionEvent,
   type PluginLibraryEvent,
   type PluginServerStats,
+  type PluginTranscodePullEvent,
 } from './mediaServer/shared/jellyfinEmbyEventSource.js';
 import { recordServerStatsSample } from './serverLiveStats.js';
+import { pollServerDownloads } from './downloads/activityLogPoll.js';
+import { deliveredFromTranscode } from './downloads/enrich.js';
+import { recordDownload } from './downloads/recorder.js';
+import { recordTranscodePullEvent } from './downloads/transcodePull.js';
+import { getServerUserByExternalId } from './userService.js';
 import { getRedis } from '../lib/redisShared.js';
 import { probeSsePlugin } from './mediaServer/shared/ssePluginProbe.js';
 import { broadcastToSessions } from '../websocket/index.js';
@@ -461,6 +471,50 @@ export class SSEManager extends EventEmitter {
       recordLibraryEvent({ serverId, serverName, type: 'removed', itemId: ratingKey });
     });
 
+    // An app download is converted first; the transfer's activity starts seconds after this
+    let lastStaticTranscode: StaticTranscode | null = null;
+    eventSource.on('transcode:static:ended', (transcode: StaticTranscode) => {
+      lastStaticTranscode = transcode;
+    });
+
+    // One at a time, so a burst of ranged requests collapses into the row the first one opens
+    let downloads = Promise.resolve();
+    eventSource.on(
+      'download:ended',
+      ({
+        userId,
+        ratingKey,
+        title,
+        partId,
+        deviceId,
+        startedAt,
+      }: PlexEventSourceEvents['download:ended']) => {
+        // A web or raw download carries no deviceID and is never converted
+        const delivered = deviceId ? deliveredFromTranscode(lastStaticTranscode, startedAt) : null;
+        if (delivered) lastStaticTranscode = null;
+        downloads = downloads
+          .then(async () => {
+            const user = await getServerUserByExternalId(serverId, userId);
+            await recordDownload({
+              serverId,
+              serverUserId: user?.id ?? null,
+              ratingKey,
+              title,
+              app: null,
+              device: null,
+              source: 'plex',
+              seenAt: new Date(),
+              partId,
+              deviceId,
+              delivered,
+            });
+          })
+          .catch((error: unknown) => {
+            console.error(`[SSEManager] Failed to record a download on ${serverName}:`, error);
+          });
+      }
+    );
+
     eventSource.on('connection:state', (state: SSEConnectionState) => {
       this.handleConnectionStateChange(serverId, serverName, state, eventSource.getStatus());
     });
@@ -562,6 +616,21 @@ export class SSEManager extends EventEmitter {
     // The plugin emits these today - see jellyfinEmbyEventSource.ts
     eventSource.on('library:event', ({ type, itemId }: PluginLibraryEvent) => {
       recordLibraryEvent({ serverId, serverName, type, itemId });
+    });
+
+    eventSource.on('download:event', () => {
+      void pollServerDownloads(serverId).catch((error: unknown) => {
+        console.error(`[SSEManager] Download poll failed for ${serverName}:`, error);
+      });
+    });
+
+    eventSource.on('download:transcoded', (event: PluginTranscodePullEvent) => {
+      void recordTranscodePullEvent(serverId, event).catch((error: unknown) => {
+        console.error(
+          `[SSEManager] Failed to record a converted download on ${serverName}:`,
+          error
+        );
+      });
     });
 
     // Plugin v0.4+ CPU/RAM samples feed the live-stats endpoint's rolling buffer
