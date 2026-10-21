@@ -59,6 +59,32 @@ export function toApiDayParams(value: TimeRangeValue): {
   };
 }
 
+const PRESET_DAYS: Partial<Record<TimeRangePeriod, number>> = {
+  day: 1,
+  week: 7,
+  month: 30,
+  year: 365,
+};
+
+export type DateWindow = { startDate: Date; endDate: Date } | null;
+
+/** The window History queries for a range: a preset counts back from now. */
+export function resolveWindow(
+  period: TimeRangePeriod,
+  startDate: string | undefined,
+  endDate: string | undefined
+): DateWindow {
+  if (startDate && endDate) {
+    return { startDate: new Date(startDate), endDate: new Date(endDate) };
+  }
+  if (period === 'all') return null;
+  const now = new Date();
+  return {
+    startDate: new Date(now.getTime() - (PRESET_DAYS[period] ?? 30) * 86_400_000),
+    endDate: now,
+  };
+}
+
 const DAY_PARAM = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 function parseDate(dateStr: string | null): Date | undefined {

@@ -769,9 +769,13 @@ export interface UserStats {
 }
 
 export interface LocationUserInfo {
-  id: string;
+  id: string; // Representative server_user id
   username: string;
+  identityName: string | null;
   thumbUrl: string | null;
+  serverId: string; // The representative account's server, which owns thumbUrl
+  serverUserIds: string[]; // Every account of the identity within the caller's servers
+  count: number; // Plays at this location
 }
 
 export interface LocationStats {
@@ -779,13 +783,13 @@ export interface LocationStats {
   region: string | null; // State/province
   country: string | null;
   isLocal: boolean;
-  lat: number;
-  lon: number;
+  lat: number | null; // Null when no session in the group has coordinates
+  lon: number | null;
   count: number;
   lastActivity?: Date;
   firstActivity?: Date;
-  // Contextual data - populated based on filters
-  users?: LocationUserInfo[]; // Top users at this location (when not filtering by userId)
+  users?: LocationUserInfo[]; // Every person, count DESC then name; always returned, one entry under a user filter
+  peopleCount: number;
   deviceCount?: number; // Unique devices from this location
   // Per-server breakdown ordered by count DESC; servers[0] is the dominant server
   servers?: { serverId: string; count: number }[];
@@ -804,7 +808,6 @@ export interface LocationFilterOptions {
     identityName: string | null;
     serverUserIds: string[];
   }[];
-  servers: { id: string; name: string }[];
   mediaTypes: MediaType[];
 }
 

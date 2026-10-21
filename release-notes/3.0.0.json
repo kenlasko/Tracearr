@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "date": "2026-10-20",
+  "date": "2026-10-21",
   "headline": "Download tracking and Telegram",
   "highlights": [
     {
@@ -46,6 +46,28 @@
     {
       "type": "new",
       "text": "converted downloads record the quality the app received, not the file on the server"
+    },
+    {
+      "type": "new",
+      "text": "the map has a list of locations ranked by streams that follows the part of the map in view"
+    },
+    {
+      "type": "new",
+      "text": "selecting a location shows its people, devices, first and last seen, and latest streams",
+      "refs": ["#439"]
+    },
+    {
+      "type": "new",
+      "text": "overlapping locations merge into an area that lists its places and people"
+    },
+    {
+      "type": "new",
+      "text": "a location links to History filtered to its city and region",
+      "refs": ["#1353"]
+    },
+    {
+      "type": "fix",
+      "text": "the map shows every location instead of the 500 busiest, and its totals count all of them"
     },
     {
       "type": "note",

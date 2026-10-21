@@ -11,6 +11,20 @@
 
   "postUpdateOptions": ["pnpmDedupe"],
 
+  // Vendor apt packages in the Dockerfiles, pinned through an ARG under a
+  // "# renovate:" comment. The version is part of the layer, so a bump rebuilds it
+  // instead of reusing the registry build cache.
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)Dockerfile(\\.[^/]+)?$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG \\w+_VERSION=(?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "deb"
+    }
+  ],
+
   "packageRules": [
     // ----- hard blocks -----
 
@@ -239,6 +253,42 @@
       "dependencyDashboardApproval": true,
       "groupName": "Postgres and TimescaleDB images",
       "labels": ["dep-docker", "dep-database"]
+    },
+
+    // ----- vendor apt pins (customManagers above) -----
+    // Renovate reads the amd64 index; the arm64 builds install the same version.
+
+    // Same approval gate as the images above. PG15 stops at TimescaleDB 2.28.x.
+    {
+      "matchDatasources": ["deb"],
+      "matchPackageNames": ["timescaledb-2-postgresql-15"],
+      "registryUrls": [
+        "https://packagecloud.io/timescale/timescaledb/debian?suite=bookworm&components=main&binaryArch=amd64"
+      ],
+      "allowedVersions": "/^2\\.28\\./",
+      "dependencyDashboardApproval": true,
+      "groupName": "Postgres and TimescaleDB images",
+      "labels": ["dep-docker", "dep-database"]
+    },
+
+    // Redis 8 only, matching the redis:8-alpine image in compose and helm.
+    {
+      "matchDatasources": ["deb"],
+      "matchPackageNames": ["redis-server"],
+      "registryUrls": [
+        "https://packages.redis.io/deb?suite=bookworm&components=main&binaryArch=amd64"
+      ],
+      "allowedVersions": "/^6:8\\./",
+      "labels": ["dep-docker"]
+    },
+
+    {
+      "matchDatasources": ["deb"],
+      "matchPackageNames": ["tailscale"],
+      "registryUrls": [
+        "https://pkgs.tailscale.com/stable/debian?suite=bookworm&components=main&binaryArch=amd64"
+      ],
+      "labels": ["dep-docker"]
     },
 
     // ----- helm chart -----

@@ -100,6 +100,8 @@ function buildHistoryFilterConditions(
     geoCountries,
     geoCity,
     geoRegion,
+    geoCityMissing,
+    geoRegionMissing,
     network,
     transcodeDecisions,
     subtitleBurnIn,
@@ -201,6 +203,8 @@ function buildHistoryFilterConditions(
   }
   if (geoCity) conditions.push(sql`s.geo_city = ${geoCity}`);
   if (geoRegion) conditions.push(sql`s.geo_region = ${geoRegion}`);
+  if (geoCityMissing) conditions.push(sql`s.geo_city IS NULL`);
+  if (geoRegionMissing) conditions.push(sql`s.geo_region IS NULL`);
   if (network === 'local') conditions.push(localSessionSql('s'));
   if (network === 'remote') conditions.push(sql`NOT ${localSessionSql('s')}`);
 

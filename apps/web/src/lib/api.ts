@@ -324,6 +324,8 @@ function appendHistoryFilterParams(
   if (params.geoCountries?.length) searchParams.set('geoCountries', params.geoCountries.join(','));
   if (params.geoCity) searchParams.set('geoCity', params.geoCity);
   if (params.geoRegion) searchParams.set('geoRegion', params.geoRegion);
+  if (params.geoCityMissing) searchParams.set('geoCityMissing', 'true');
+  if (params.geoRegionMissing) searchParams.set('geoRegionMissing', 'true');
   if (params.network) searchParams.set('network', params.network);
   if (params.transcodeDecisions?.length)
     searchParams.set('transcodeDecisions', params.transcodeDecisions.join(','));
