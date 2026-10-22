@@ -76,16 +76,40 @@ export function groupIntoAreas(
     count: p.count,
     r: radius([p], p.count),
   }));
+  // A lone place keeps its radius and an area's is capped at AREA_MAX_PX, so two circles that
+  // overlap are less than one cell apart and sit in the 3×3 cells around either one.
+  const cell = 2 * groups.reduce((max, g) => Math.max(max, g.r), AREA_MAX_PX);
   // Merging grows a circle, which can reach a group it missed, so repeat until a pass merges nothing.
   for (;;) {
     const merged: Group[] = [];
+    const cells = new Map<string, number[]>();
     for (const g of groups) {
-      const into = merged.find((m) => Math.hypot(m.x - g.x, m.y - g.y) < m.r + g.r);
+      const cx = Math.floor(g.x / cell);
+      const cy = Math.floor(g.y / cell);
+      // The earliest overlapping group wins, as a scan of `merged` in order would find it.
+      let at = merged.length;
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          for (const i of cells.get(`${cx + dx},${cy + dy}`) ?? []) {
+            if (i >= at) break;
+            const m = merged[i];
+            if (m && Math.hypot(m.x - g.x, m.y - g.y) < m.r + g.r) {
+              at = i;
+              break;
+            }
+          }
+        }
+      }
+      const into = merged[at];
       if (into) {
         into.members.push(...g.members);
         into.count += g.count;
         into.r = radius(into.members, into.count);
       } else {
+        const key = `${cx},${cy}`;
+        const list = cells.get(key);
+        if (list) list.push(merged.length);
+        else cells.set(key, [merged.length]);
         merged.push(g);
       }
     }

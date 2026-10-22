@@ -36,6 +36,7 @@ vi.mock('@tanstack/react-virtual', () => ({
 
 vi.mock('@/hooks/queries', () => ({
   useLocationStats: vi.fn(),
+  useLocationPeople: vi.fn(),
   useHistorySessions: () => ({
     data: undefined,
     isLoading: false,
@@ -53,10 +54,11 @@ vi.mock('@/hooks/useServerColorMap', () => ({
   useServerColorMap: () => new Map(),
 }));
 
-import { useLocationStats } from '@/hooks/queries';
+import { useLocationPeople, useLocationStats } from '@/hooks/queries';
 import { useServer } from '@/hooks/useServer';
 
 const mockUseLocationStats = vi.mocked(useLocationStats);
+const mockUseLocationPeople = vi.mocked(useLocationPeople);
 const mockUseServer = vi.mocked(useServer);
 
 function renderMap() {
@@ -110,9 +112,28 @@ function withLocations(
   } as unknown as ReturnType<typeof useLocationStats>);
 }
 
+function withPeople(locations: LocationStats[] | undefined) {
+  mockUseLocationPeople.mockReturnValue({
+    data: locations && { data: locations },
+  } as unknown as ReturnType<typeof useLocationPeople>);
+}
+
+function person(username: string, count: number) {
+  return {
+    id: username,
+    username,
+    identityName: null,
+    thumbUrl: null,
+    serverId: 'server-1',
+    serverUserIds: [username],
+    count,
+  };
+}
+
 describe('Map', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    withPeople(undefined);
     mockUseServer.mockReturnValue({
       selectedServerIds: [],
       selectedServers: [],
@@ -331,6 +352,39 @@ describe('Map', () => {
     expect(screen.getByRole('heading', { name: 'Trenton' })).toBeInTheDocument();
   });
 
+  it("shows the list's people while the place's people load, then every person", async () => {
+    const listed = { ...trenton, users: [person('ann', 3)], peopleCount: 2 };
+    withLocations([listed]);
+    const page = () => (
+      <MemoryRouter initialEntries={['/map?period=custom&from=2026-06-09&to=2026-06-10']}>
+        <MapPage />
+      </MemoryRouter>
+    );
+    const { rerender } = render(page());
+    await screen.findByTestId('stream-map');
+    await userEvent.click(screen.getByRole('button', { name: /Trenton/ }));
+
+    expect(mockUseLocationPeople).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        timeRange: {
+          period: 'custom',
+          startDate: new Date(2026, 5, 9).toISOString(),
+          endDate: new Date(2026, 5, 11).toISOString(),
+        },
+      }),
+      { place: locationKey(trenton) }
+    );
+    const names = () =>
+      within(screen.getByTestId('location-people'))
+        .getAllByRole('button')
+        .map((b) => b.textContent);
+    expect(names()).toEqual([expect.stringContaining('ann')]);
+
+    withPeople([{ ...listed, users: [person('ann', 3), person('bob', 1)] }]);
+    rerender(page());
+    expect(names()).toEqual([expect.stringContaining('ann'), expect.stringContaining('bob')]);
+  });
+
   it('returns focus to the row that opened the panel after Back', async () => {
     withLocations([trenton]);
     renderMap();
@@ -367,6 +421,25 @@ describe('Map', () => {
       expect(screen.getByRole('heading', { name: 'map.areaName' })).toBeInTheDocument();
       expect(streamMap.props.selectedMembers).toEqual(new Set(area));
       expect(screen.queryByRole('link', { name: /map\.viewInHistory/ })).not.toBeInTheDocument();
+    });
+
+    it('asks for the people inside the box around the members and lists them', async () => {
+      withPeople([
+        { ...trenton, users: [person('ann', 3)] },
+        { ...ewing, users: [person('bob', 2)] },
+      ]);
+      await openArea();
+      expect(mockUseLocationPeople).toHaveBeenLastCalledWith(expect.anything(), {
+        west: -74.8,
+        south: 40.2,
+        east: -74.7,
+        north: 40.27,
+      });
+      expect(
+        within(screen.getByTestId('area-people'))
+          .getAllByRole('button')
+          .map((b) => b.textContent)
+      ).toEqual([expect.stringContaining('ann'), expect.stringContaining('bob')]);
     });
 
     it('opens the place panel for a place picked in the area panel', async () => {

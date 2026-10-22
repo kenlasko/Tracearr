@@ -14,7 +14,7 @@ import {
   locationHistoryParams,
   locationKey,
 } from '@/components/map/locationKey';
-import type { ViewBounds } from '@/components/map/maplibre';
+import { hasMapPosition, type ViewBounds } from '@/components/map/maplibre';
 import { ServerLegend } from '@/components/server';
 import {
   Select,
@@ -28,10 +28,11 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { X, Flame, CircleDot } from 'lucide-react';
 import { ErrorState } from '@/components/library/ErrorState';
-import { useLocationStats } from '@/hooks/queries';
+import { useLocationPeople, useLocationStats } from '@/hooks/queries';
 import { useServer } from '@/hooks/useServer';
 import { useServerColorMap } from '@/hooks/useServerColorMap';
 import { resolveWindow, useTimeRange } from '@/hooks/useTimeRange';
+import type { LocationPeopleSelector } from '@/lib/api';
 
 type Selection = { kind: 'place'; key: string } | { kind: 'area'; members: string[] } | null;
 
@@ -77,11 +78,7 @@ export function Map() {
   // Build API params including time range
   const apiParams = useMemo(
     () => ({
-      timeRange: {
-        period: timeRange.period,
-        startDate: timeRange.startDate?.toISOString(),
-        endDate: timeRange.endDate?.toISOString(),
-      },
+      timeRange: rangeParams,
       serverUserId: filters.serverUserId,
       serverUserIds: filters.serverUserIds,
       serverIds: selectedServerIds.length ? selectedServerIds : undefined,
@@ -216,9 +213,13 @@ export function Map() {
     [selection]
   );
   const selectedMembers = useMemo(() => new Set(selectedKeys), [selectedKeys]);
+  const byKey = useMemo(
+    () => new globalThis.Map(locations.map((l) => [locationKey(l), l] as const)),
+    [locations]
+  );
   const selectedFound = useMemo(
-    () => selectedKeys.flatMap((k) => locations.find((l) => locationKey(l) === k) ?? []),
-    [selectedKeys, locations]
+    () => selectedKeys.flatMap((k) => byKey.get(k) ?? []),
+    [selectedKeys, byKey]
   );
 
   // While a refetch is in flight the panel keeps what it showed. Once the new results are in,
@@ -231,14 +232,43 @@ export function Map() {
     else if (selectedFound.length === 1) setSelection({ kind: 'place', key: locationKey(only) });
     else setSelection({ kind: 'area', members: selectedFound.map(locationKey) });
   }
-  const shown =
-    selectedFound.length > 0
-      ? selectedFound
-      : selection !== null && locationsLoading
-        ? lastSelected
-        : [];
-  const selectedLocation = selection?.kind === 'place' ? shown[0] : undefined;
-  const selectedArea = selection?.kind === 'area' && shown.length > 0 ? shown : undefined;
+  const shown = useMemo(
+    () =>
+      selectedFound.length > 0
+        ? selectedFound
+        : selection !== null && locationsLoading
+          ? lastSelected
+          : [],
+    [selectedFound, selection, locationsLoading, lastSelected]
+  );
+
+  // The list carries a few people per place; the panel fetches all of them and shows the list's
+  // until they arrive. An area's members are all placed, so the box around them covers it.
+  const peopleOf = useMemo((): LocationPeopleSelector | null => {
+    if (selection?.kind === 'place') return { place: selection.key };
+    const placed = shown.filter(hasMapPosition);
+    const [first] = placed;
+    if (first === undefined) return null;
+    const box = { west: first.lon, south: first.lat, east: first.lon, north: first.lat };
+    for (const l of placed) {
+      box.west = Math.min(box.west, l.lon);
+      box.south = Math.min(box.south, l.lat);
+      box.east = Math.max(box.east, l.lon);
+      box.north = Math.max(box.north, l.lat);
+    }
+    return box;
+  }, [selection, shown]);
+  const { data: people } = useLocationPeople(apiParams, peopleOf);
+  const panelPlaces = useMemo(() => {
+    const full = new globalThis.Map(people?.data.map((l) => [locationKey(l), l.users] as const));
+    return shown.map((l) => {
+      const users = full.get(locationKey(l));
+      return users ? { ...l, users } : l;
+    });
+  }, [shown, people]);
+  const selectedLocation = selection?.kind === 'place' ? panelPlaces[0] : undefined;
+  const selectedArea =
+    selection?.kind === 'area' && panelPlaces.length > 0 ? panelPlaces : undefined;
 
   const closePanel = () => {
     const [key] = selectedKeys;

@@ -19,6 +19,7 @@ import {
 import { and, eq, gte, inArray, isNull, lte } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from '../../db/client.js';
+import { getSessionsCompressionHorizon } from '../../db/timescale.js';
 import {
   servers,
   serverUserExternalAliases,
@@ -329,10 +330,18 @@ async function resolveVanishedPendingSession(
         return null;
       }
 
+      // A row persisted from this pending entry starts no earlier than the entry; started_at is
+      // the compression orderby, so the bound spares the lookup every older compressed batch.
       const [existingById] = await db
         .select({ id: sessions.id })
         .from(sessions)
-        .where(and(eq(sessions.id, stillPending.id), isNull(sessions.stoppedAt)))
+        .where(
+          and(
+            eq(sessions.id, stillPending.id),
+            gte(sessions.startedAt, new Date(stillPending.startedAt - 60_000)),
+            isNull(sessions.stoppedAt)
+          )
+        )
         .limit(1);
       if (existingById) {
         await cache.deletePendingSession(serverId, pendingKey);
@@ -370,7 +379,7 @@ async function resolveVanishedPendingSession(
     try {
       await broadcastViolations(
         lockResult.violationResults,
-        lockResult.insertedSession.id,
+        lockResult.insertedSession,
         pubSubService
       );
     } catch (err) {
@@ -616,7 +625,13 @@ async function resolvePendingSession(
       const [existingById] = await db
         .select({ id: sessions.id })
         .from(sessions)
-        .where(and(eq(sessions.id, updatedData.id), isNull(sessions.stoppedAt)))
+        .where(
+          and(
+            eq(sessions.id, updatedData.id),
+            gte(sessions.startedAt, new Date(updatedData.startedAt - 60_000)),
+            isNull(sessions.stoppedAt)
+          )
+        )
         .limit(1);
       if (existingById) {
         // A concurrent caller already persisted this row. The pending entry is
@@ -670,7 +685,7 @@ async function resolvePendingSession(
 
   if (violationResults.length > 0 && pubSubService) {
     try {
-      await broadcastViolations(violationResults, insertedSession.id, pubSubService);
+      await broadcastViolations(violationResults, insertedSession, pubSubService);
     } catch (err) {
       console.error('[Poller] Failed to broadcast violations:', err);
     }
@@ -1253,7 +1268,13 @@ async function processServerSessions(
               const touchResult = await db
                 .update(sessions)
                 .set({ lastSeenAt: new Date() })
-                .where(and(eq(sessions.id, existing.id), isNull(sessions.stoppedAt)))
+                .where(
+                  and(
+                    eq(sessions.id, existing.id),
+                    gte(sessions.startedAt, new Date(existing.startedAt.getTime() - 60_000)),
+                    isNull(sessions.stoppedAt)
+                  )
+                )
                 .returning({ id: sessions.id });
 
               if (touchResult.length === 0) {
@@ -1497,7 +1518,7 @@ async function processServerSessions(
                   `[Poller] Stale recovery session ${processed.sessionKey} was terminated by rule, skipping cache add`
                 );
                 try {
-                  await broadcastViolations(violationResults, insertedSession.id, pubSubService);
+                  await broadcastViolations(violationResults, insertedSession, pubSubService);
                 } catch (err) {
                   console.error('[Poller] Failed to broadcast violations:', err);
                 }
@@ -1518,7 +1539,7 @@ async function processServerSessions(
               cachedSessionKeys.add(sessionKey);
 
               try {
-                await broadcastViolations(violationResults, insertedSession.id, pubSubService);
+                await broadcastViolations(violationResults, insertedSession, pubSubService);
               } catch (err) {
                 console.error('[Poller] Failed to broadcast violations:', err);
               }
@@ -1574,7 +1595,7 @@ async function processServerSessions(
 
               // Broadcast violations for new session
               try {
-                await broadcastViolations(violationResults, insertedSession.id, pubSubService);
+                await broadcastViolations(violationResults, insertedSession, pubSubService);
               } catch (err) {
                 console.error('[Poller] Failed to broadcast violations:', err);
               }
@@ -1702,10 +1723,18 @@ async function processServerSessions(
           // resurrect the session into updatedSessions/cache.
           let wasStoppedConcurrently = false;
           if (hasChanges || flushElapsed) {
+            // started_at is the compression orderby; without it an id-only update reads every
+            // compressed batch of the hypertable on each flush
             const updateResult = await db
               .update(sessions)
               .set(updatePayload)
-              .where(and(eq(sessions.id, existingSession.id), isNull(sessions.stoppedAt)))
+              .where(
+                and(
+                  eq(sessions.id, existingSession.id),
+                  gte(sessions.startedAt, new Date(existingSession.startedAt.getTime() - 60_000)),
+                  isNull(sessions.stoppedAt)
+                )
+              )
               .returning({ id: sessions.id });
 
             if (updateResult.length === 0) {
@@ -1750,7 +1779,7 @@ async function processServerSessions(
                 { activeAutomations, activeSessions: ruleEvalSessions, recentSessions }
               );
               if (violations.length > 0 && pubSubService) {
-                await broadcastViolations(violations, existingSession.id, pubSubService);
+                await broadcastViolations(violations, existingSession, pubSubService);
               }
             } catch (error) {
               console.error(
@@ -1785,7 +1814,7 @@ async function processServerSessions(
                 { activeAutomations, activeSessions: ruleEvalSessions, recentSessions }
               );
               if (violations.length > 0 && pubSubService) {
-                await broadcastViolations(violations, existingSession.id, pubSubService);
+                await broadcastViolations(violations, existingSession, pubSubService);
               }
             } catch (error) {
               console.error(
@@ -2116,7 +2145,7 @@ async function pollServers(): Promise<void> {
  */
 export async function forceStopSessions(
   rows: (typeof sessions.$inferSelect)[],
-  stoppedAt: Date = new Date()
+  stopTimeOf: (row: typeof sessions.$inferSelect) => Date = () => new Date()
 ): Promise<number> {
   let stopped = 0;
   let dashboardStatsDirty = false;
@@ -2124,7 +2153,7 @@ export async function forceStopSessions(
     for (const row of rows) {
       const { wasUpdated, needsRetry, retryData } = await stopSessionAtomic({
         session: row,
-        stoppedAt,
+        stoppedAt: stopTimeOf(row),
         forceStopped: true,
       });
       clearDbWriteTracking(row.id);
@@ -2169,7 +2198,9 @@ export async function forceStopSessions(
  * Sessions with insufficient play time (< MIN_PLAY_TIME_MS) are still recorded for
  * audit purposes but can be filtered from stats queries.
  */
-export async function sweepStaleSessions(): Promise<number> {
+export async function sweepStaleSessions(
+  options: { includeCompressed?: boolean } = {}
+): Promise<number> {
   if (!acquireRunGuard(sweepGuard, 'stale sweep')) return 0;
 
   try {
@@ -2178,10 +2209,10 @@ export async function sweepStaleSessions(): Promise<number> {
       Date.now() - SESSION_LIMITS.STALE_SESSION_TIMEOUT_SECONDS * 1000
     );
 
-    // Only check recent chunks to avoid locking all TimescaleDB partitions.
-    // Active sessions can only exist in recent data - anything older would have
-    // been force-stopped by previous sweeps. 7 days gives ample buffer.
-    const chunkBound = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Uncompressed chunks answer from idx_sessions_open_last_seen whatever their age. Compressed
+    // ones have no index on stopped_at, so reading them decompresses all of history: the recurring
+    // sweep stays above the horizon and startPoller reads below it once.
+    const horizon = options.includeCompressed ? null : await getSessionsCompressionHorizon();
 
     // Find all active sessions that haven't been seen recently
     const staleSessions = await db
@@ -2191,7 +2222,7 @@ export async function sweepStaleSessions(): Promise<number> {
         and(
           isNull(sessions.stoppedAt), // Still active
           lte(sessions.lastSeenAt, staleThreshold), // Not seen recently
-          gte(sessions.startedAt, chunkBound) // Only recent chunks (reduces lock count)
+          horizon ? gte(sessions.startedAt, horizon) : undefined
         )
       );
 
@@ -2201,8 +2232,15 @@ export async function sweepStaleSessions(): Promise<number> {
 
     console.log(`[Poller] Force-stopping ${staleSessions.length} stale session(s)`);
 
+    // A row swept in the normal course stops now, as it always has. One unseen for longer than
+    // the poller could have missed it was left open through downtime, and stops where the last
+    // poll saw it so the outage is not credited as play time.
+    const now = new Date();
+    const downtimeMs = 2 * SESSION_LIMITS.STALE_SESSION_TIMEOUT_SECONDS * 1000;
     await forceStopSessions(
-      staleSessions.filter((session) => shouldForceStopStaleSession(session.lastSeenAt))
+      staleSessions.filter((session) => shouldForceStopStaleSession(session.lastSeenAt)),
+      (session) =>
+        now.getTime() - session.lastSeenAt.getTime() > downtimeMs ? session.lastSeenAt : now
     );
 
     return staleSessions.length;
@@ -2271,6 +2309,7 @@ export function startPoller(config: Partial<PollerConfig> = {}): void {
     console.log(
       `Starting stale session sweep with ${SESSION_LIMITS.STALE_SWEEP_INTERVAL_MS}ms interval`
     );
+    void sweepStaleSessions({ includeCompressed: true });
     staleSweepInterval = setInterval(
       () => void sweepStaleSessions(),
       SESSION_LIMITS.STALE_SWEEP_INTERVAL_MS

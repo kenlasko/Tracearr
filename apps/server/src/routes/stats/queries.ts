@@ -249,7 +249,7 @@ export async function queryConcurrentStreams(params: {
         ${MEDIA_TYPE_SQL_FILTER}
         ${serverFilter}
         AND stopped_at >= ${rangeStart}
-        AND started_at <= ${rangeEnd}
+        AND started_at < ${rangeEnd}
     ),
     events AS (
       SELECT started_at AS event_time,

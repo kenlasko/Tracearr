@@ -85,8 +85,8 @@ describe('LocationList', () => {
     expect(within(third).getByText('map.noMapPosition')).toBeInTheDocument();
   });
 
-  it('shows the people there as avatars, then the rest as +N', () => {
-    const people = ['ann', 'bob', 'cat', 'dan', 'eve'].map((username, i) => ({
+  it('shows the people the list carries as avatars, then the rest of peopleCount as +N', () => {
+    const people = ['ann', 'bob', 'cat'].map((username, i) => ({
       id: `su-${i}`,
       username,
       identityName: null,
@@ -98,7 +98,6 @@ describe('LocationList', () => {
     renderList({ locations: [location({ users: people, peopleCount: 5 })] });
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('C')).toBeInTheDocument();
-    expect(screen.queryByText('D')).not.toBeInTheDocument();
     expect(screen.getByText('+2')).toBeInTheDocument();
   });
 

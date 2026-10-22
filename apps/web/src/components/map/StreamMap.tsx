@@ -77,6 +77,7 @@ const SELECTED_ZOOM = 9;
 const FIT_MAX_ZOOM = 8;
 const AREA_FIT = { padding: 120, maxZoom: 12, duration: 600 };
 const REGROUP_MS = 250;
+const ZOOM_STEP = 0.25;
 
 const CLICKABLE_LAYERS = ['pts-auto', 'circles'];
 
@@ -174,15 +175,16 @@ export function StreamMap({
     return (zoom: number) => groupIntoAreas(areaPoints, mercatorAt(zoom), maxCount, size);
   }, [areaPoints, perServer, placedLocations]);
 
-  const built = useMemo<{ style: StyleSpecification; areas?: Area[] } | null>(() => {
+  const built = useMemo<{ style: StyleSpecification; areas?: Area[]; zoom: number } | null>(() => {
     if (basemapOk === null) return null;
+    // oxlint-disable-next-line react/refs
+    const zoom = zoomRef.current;
     const s = buildBaseStyle({ dark, basemapOk, lang });
-    if (!hasData) return { style: s };
+    if (!hasData) return { style: s, zoom };
 
     // The style carries the grouping for the current zoom: a style rebuild diffs the source
     // data, so anything set apart from it would be reverted.
-    // oxlint-disable-next-line react/refs
-    const areas = viewMode === 'circles' ? groupAt(zoomRef.current) : undefined;
+    const areas = viewMode === 'circles' ? groupAt(zoom) : undefined;
     s.sources.streams = {
       type: 'geojson',
       data: locationsGeojson(locations, perServer, areas),
@@ -231,7 +233,7 @@ export function StreamMap({
         },
       });
     }
-    return { style: s, areas };
+    return { style: s, areas, zoom };
   }, [
     basemapOk,
     dark,
@@ -272,6 +274,7 @@ export function StreamMap({
   useEffect(() => {
     if (!map || !built) return;
     let areas = built.areas;
+    let areasZoom = built.zoom;
     shownRef.current = areas ?? places;
     let pending = 0;
     let frame = 0;
@@ -284,10 +287,11 @@ export function StreamMap({
       highlight(map, shown, hovered, selected);
     };
 
-    const regroup = () => {
+    const regroup = (zoom: number) => {
       const prev = areas;
-      if (!prev || !map.getSource('streams')) return;
-      const next = groupAt(map.getZoom());
+      if (!prev || zoom === areasZoom || !map.getSource('streams')) return;
+      areasZoom = zoom;
+      const next = groupAt(zoom);
       if (
         JSON.stringify(next.map((a) => a.members)) === JSON.stringify(prev.map((a) => a.members))
       ) {
@@ -321,20 +325,28 @@ export function StreamMap({
       frame = requestAnimationFrame(step);
     };
 
+    // Mid-zoom the grouping follows quarter steps; once the camera stops it matches the exact zoom.
     const onZoom = () => {
       zoomRef.current = map.getZoom();
       pending ||= requestAnimationFrame(() => {
         pending = 0;
-        regroup();
+        regroup(Math.round(map.getZoom() / ZOOM_STEP) * ZOOM_STEP);
       });
     };
+    const settle = () => {
+      cancelAnimationFrame(pending);
+      pending = 0;
+      regroup(map.getZoom());
+    };
 
-    regroup();
-    map.on('load', regroup);
+    settle();
+    map.on('load', settle);
     map.on('zoom', onZoom);
+    map.on('moveend', settle);
     return () => {
-      map.off('load', regroup);
+      map.off('load', settle);
       map.off('zoom', onZoom);
+      map.off('moveend', settle);
       cancelAnimationFrame(pending);
       cancelAnimationFrame(frame);
     };

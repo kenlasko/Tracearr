@@ -92,7 +92,8 @@ function queriedWindowDays(url: string): number {
     </MemoryRouter>
   );
   const filters = queries.useHistorySessions.mock.calls[0]?.[0] as HistoryFilters;
-  return Math.round((filters.endDate!.getTime() - filters.startDate!.getTime()) / 86_400_000);
+  const end = filters.endDate?.getTime() ?? Date.now();
+  return Math.round((end - filters.startDate!.getTime()) / 86_400_000);
 }
 
 describe('History date window', () => {
@@ -108,8 +109,8 @@ describe('History date window', () => {
     expect(queriedWindowDays('/history?period=week')).toBe(7);
   });
 
-  it('uses the custom range dates', () => {
-    expect(queriedWindowDays('/history?period=custom&from=2026-10-01&to=2026-10-11')).toBe(10);
+  it('uses the custom range dates through the whole last day', () => {
+    expect(queriedWindowDays('/history?period=custom&from=2026-10-01&to=2026-10-11')).toBe(11);
   });
 
   it('leaves the window open for period=all', () => {

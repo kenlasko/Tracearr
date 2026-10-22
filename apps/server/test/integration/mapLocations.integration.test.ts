@@ -63,6 +63,14 @@ async function getLocations(query: string) {
   return response.json() as { data: LocationStats[]; summary: LocationStatsSummary };
 }
 
+async function getPeople(query: string) {
+  const app = await buildApp(locationsRoutes);
+  const response = await app.inject({ method: 'GET', url: `/locations/people?${query}` });
+  await app.close();
+  expect(response.statusCode).toBe(200);
+  return (response.json() as { data: LocationStats[] }).data;
+}
+
 async function historyPlayCount(params: URLSearchParams) {
   const app = await buildApp(sessionRoutes);
   const response = await app.inject({ method: 'GET', url: `/history/aggregates?${params}` });
@@ -245,16 +253,58 @@ describe('GET /stats/locations', () => {
     }
   });
 
-  it('includes the whole end day of a custom range like History', async () => {
+  it('ends a custom range just before endDate like History, whatever zone the server is in', async () => {
     const { play } = await seedAccount();
-    const endDate = new Date(2026, 5, 10);
-    const startDate = new Date(2026, 5, 9);
-    await play({ startedAt: new Date(2026, 5, 10, 20, 0, 0) });
+    // June 10 for a browser at UTC+10: the server must not stretch the end to its own midnight.
+    const startDate = new Date('2026-06-09T14:00:00.000Z');
+    const endDate = new Date('2026-06-10T14:00:00.000Z');
+    await play({ startedAt: new Date('2026-06-10T13:59:00.000Z') });
+    await play({ startedAt: endDate });
     const range = `startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
 
     const { data } = await getLocations(`period=custom&${range}`);
 
     expect(data.map((r) => r.count)).toEqual([1]);
     expect(await historyPlayCount(new URLSearchParams(range))).toBe(1);
+  });
+
+  it('carries the first three people in the list and every person from /locations/people', async () => {
+    const server = await createTestServer({ type: 'plex' });
+    for (const [name, plays] of [
+      ['Dee', 1],
+      ['Ann', 4],
+      ['Cal', 2],
+      ['Bea', 3],
+    ] as const) {
+      const user = await createTestUser({ role: 'member', name });
+      const serverUser = await createTestServerUser({ userId: user.id, serverId: server.id });
+      for (let i = 0; i < plays; i++) {
+        await createTestSession({ serverId: server.id, serverUserId: serverUser.id, ...OGDEN });
+      }
+    }
+    await createTestSession({
+      serverId: server.id,
+      serverUserId: (await seedAccount()).serverUser.id,
+      ...PARIS,
+    });
+
+    const { data } = await getLocations('period=all');
+    const ogden = data.find((r) => r.city === 'Ogden');
+    expect(ogden?.peopleCount).toBe(4);
+    expect(ogden?.users?.map((u) => u.identityName)).toEqual(['Ann', 'Bea', 'Cal']);
+
+    const every = ['Ann', 'Bea', 'Cal', 'Dee'];
+    const key = JSON.stringify([ogden?.country, ogden?.region, ogden?.city, ogden?.isLocal]);
+    const byPlace = await getPeople(`period=all&place=${encodeURIComponent(key)}`);
+    expect(byPlace.map((r) => r.city)).toEqual(['Ogden']);
+    expect(byPlace[0]?.users?.map((u) => u.identityName)).toEqual(every);
+
+    const box = `west=${ogden?.lon}&south=${ogden?.lat}&east=${ogden?.lon}&north=${ogden?.lat}`;
+    const byBox = await getPeople(`period=all&${box}`);
+    expect(byBox.map((r) => r.city)).toEqual(['Ogden']);
+    expect(byBox[0]?.users?.map((u) => u.identityName)).toEqual(every);
+
+    const filtered = await getPeople(`period=all&mediaType=episode&${box}`);
+    expect(filtered).toEqual([]);
   });
 });

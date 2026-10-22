@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
-import type { LocationStats } from '@tracearr/shared';
+import { LOCATION_LIST_PEOPLE, type LocationStats } from '@tracearr/shared';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +11,6 @@ import { hasMapPosition, inView, type ViewBounds } from './maplibre';
 import { locationKey, locationName } from './locationKey';
 
 const ROW_HEIGHT = 44;
-const MAX_AVATARS = 3;
 
 interface LocationListProps {
   /** Ranked by streams. */
@@ -131,7 +130,7 @@ function LocationRow({
   const { t } = useTranslation(['pages']);
   const place = [location.region, location.country].filter(Boolean).join(' · ');
   const people = location.users ?? [];
-  const shown = people.slice(0, MAX_AVATARS);
+  const shown = people.slice(0, LOCATION_LIST_PEOPLE);
   const more = location.peopleCount - shown.length;
 
   return (

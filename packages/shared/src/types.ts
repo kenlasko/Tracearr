@@ -778,6 +778,9 @@ export interface LocationUserInfo {
   count: number; // Plays at this location
 }
 
+/** The people each location of the /stats/locations list carries; the list draws this many avatars. */
+export const LOCATION_LIST_PEOPLE = 3;
+
 export interface LocationStats {
   city: string | null;
   region: string | null; // State/province
@@ -788,7 +791,9 @@ export interface LocationStats {
   count: number;
   lastActivity?: Date;
   firstActivity?: Date;
-  users?: LocationUserInfo[]; // Every person, count DESC then name; always returned, one entry under a user filter
+  // Count DESC then name: the first LOCATION_LIST_PEOPLE in the list, every person from
+  // /stats/locations/people. One entry under a user filter.
+  users?: LocationUserInfo[];
   peopleCount: number;
   deviceCount?: number; // Unique devices from this location
   // Per-server breakdown ordered by count DESC; servers[0] is the dominant server
@@ -815,6 +820,10 @@ export interface LocationStatsResponse {
   data: LocationStats[];
   summary: LocationStatsSummary;
   availableFilters: LocationFilterOptions;
+}
+
+export interface LocationPeopleResponse {
+  data: LocationStats[];
 }
 
 export interface LibraryStats {

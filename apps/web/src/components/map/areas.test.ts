@@ -1,10 +1,52 @@
 import { describe, expect, it } from 'vitest';
-import { type AreaPoint, circleRadius, groupIntoAreas } from './areas';
+import { type Area, type AreaPoint, circleRadius, groupIntoAreas, mercatorAt } from './areas';
 
 const flat = (lon: number, lat: number) => ({ x: lon, y: lat });
 
 function point(key: string, lon: number, lat: number, count: number): AreaPoint {
   return { key, lon, lat, count };
+}
+
+function rank(a: AreaPoint, b: AreaPoint) {
+  return b.count - a.count || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
+}
+
+/** Scans every group so far for each group, pass after pass. */
+function referenceGroups(points: AreaPoint[], project: typeof flat, maxCount: number): Area[] {
+  const radius = (members: AreaPoint[], count: number) =>
+    circleRadius(count, maxCount, members.length > 1);
+  let groups = [...points].sort(rank).map((p) => ({
+    anchor: p,
+    ...project(p.lon, p.lat),
+    members: [p],
+    count: p.count,
+    r: radius([p], p.count),
+  }));
+  for (;;) {
+    const merged: typeof groups = [];
+    for (const g of groups) {
+      const into = merged.find((m) => Math.hypot(m.x - g.x, m.y - g.y) < m.r + g.r);
+      if (into) {
+        into.members.push(...g.members);
+        into.count += g.count;
+        into.r = radius(into.members, into.count);
+      } else {
+        merged.push(g);
+      }
+    }
+    if (merged.length === groups.length) break;
+    groups = merged;
+  }
+  return groups.map(({ anchor, members, count }) => {
+    const keys = members.sort(rank).map((m) => m.key);
+    return {
+      key: keys.length > 1 ? `area:${anchor.key}` : anchor.key,
+      members: keys,
+      lon: anchor.lon,
+      lat: anchor.lat,
+      count,
+    };
+  });
 }
 
 describe('circleRadius', () => {
@@ -71,5 +113,36 @@ describe('groupIntoAreas', () => {
         100
       )
     ).toEqual(expected);
+  });
+
+  it('merges circles that straddle a grid cell boundary', () => {
+    const areas = groupIntoAreas(
+      [
+        point('w', -2, 0, 1),
+        point('e', 2, 0, 1),
+        point('nw', 958, 958, 1),
+        point('se', 962, 962, 1),
+      ],
+      flat,
+      1
+    );
+    expect(areas.map((a) => a.members)).toEqual([
+      ['e', 'w'],
+      ['nw', 'se'],
+    ]);
+  });
+
+  it('matches a scan of every group on thousands of random places', () => {
+    let seed = 7;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const points = Array.from({ length: 3000 }, (_, i) =>
+      point(`p${i}`, random() * 360 - 180, random() * 140 - 70, 1 + Math.floor(random() ** 3 * 400))
+    );
+    const maxCount = Math.max(...points.map((p) => p.count));
+    for (const zoom of [2, 4, 6, 8]) {
+      expect(groupIntoAreas(points, mercatorAt(zoom), maxCount)).toEqual(
+        referenceGroups(points, mercatorAt(zoom), maxCount)
+      );
+    }
   });
 });

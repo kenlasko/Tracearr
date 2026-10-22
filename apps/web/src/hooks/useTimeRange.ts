@@ -66,9 +66,18 @@ const PRESET_DAYS: Partial<Record<TimeRangePeriod, number>> = {
   year: 365,
 };
 
-export type DateWindow = { startDate: Date; endDate: Date } | null;
+/** The exclusive end of a picked last day: the start of the next day in the browser's zone. */
+export function nextLocalDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+}
 
-/** The window History queries for a range: a preset counts back from now. */
+export type DateWindow = { startDate: Date; endDate?: Date } | null;
+
+/**
+ * The window History queries for a range, from apiParams, so its end is already exclusive. A
+ * preset counts back from now and has no end, so a refetch still finds sessions started after
+ * the window was computed.
+ */
 export function resolveWindow(
   period: TimeRangePeriod,
   startDate: string | undefined,
@@ -78,11 +87,7 @@ export function resolveWindow(
     return { startDate: new Date(startDate), endDate: new Date(endDate) };
   }
   if (period === 'all') return null;
-  const now = new Date();
-  return {
-    startDate: new Date(now.getTime() - (PRESET_DAYS[period] ?? 30) * 86_400_000),
-    endDate: now,
-  };
+  return { startDate: new Date(Date.now() - (PRESET_DAYS[period] ?? 30) * 86_400_000) };
 }
 
 const DAY_PARAM = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -147,13 +152,13 @@ export function useTimeRange() {
     [setSearchParams]
   );
 
-  // Helper to get API params for backend calls
+  // The session routes read [startDate, endDate), so the end is the day after the last picked one
   const apiParams = useMemo(() => {
     if (value.period === 'custom' && value.startDate && value.endDate) {
       return {
         period: value.period,
         startDate: value.startDate.toISOString(),
-        endDate: value.endDate.toISOString(),
+        endDate: nextLocalDay(value.endDate).toISOString(),
       };
     }
     return { period: value.period };

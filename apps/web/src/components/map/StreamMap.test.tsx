@@ -26,6 +26,10 @@ vi.mock('pmtiles', () => ({
 }));
 vi.mock('@protomaps/basemaps', () => ({ layers: () => [], namedFlavor: () => ({}) }));
 vi.mock('@/components/theme-provider', () => ({ useTheme: () => ({ accentHue: 200 }) }));
+vi.mock('./areas', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./areas')>();
+  return { ...actual, groupIntoAreas: vi.fn(actual.groupIntoAreas) };
+});
 vi.mock('./maplibre', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./maplibre')>()),
   isWebglSupported: () => true,
@@ -276,6 +280,30 @@ describe('StreamMap', () => {
     expect(fake.source.setData).toHaveBeenCalledWith(pairAt(12));
     expect(pairAt(12).features).toHaveLength(2);
     expect(frames.size).toBe(0);
+  });
+
+  it('groups once per quarter zoom step while zooming and at the exact zoom once it stops', () => {
+    fake.zoom = 2;
+    render(<StreamMap locations={pair} />);
+    const grouped = vi.mocked(groupIntoAreas);
+    expect(grouped).toHaveBeenCalledTimes(1);
+
+    zoomTo(2.05);
+    flushFrames();
+    expect(grouped).toHaveBeenCalledTimes(1);
+    zoomTo(2.2);
+    flushFrames();
+    expect(grouped).toHaveBeenCalledTimes(2);
+    zoomTo(2.3);
+    flushFrames();
+    expect(grouped).toHaveBeenCalledTimes(2);
+
+    zoomTo(2.31);
+    fire('moveend');
+    expect(frames.size).toBe(0);
+    expect(grouped).toHaveBeenCalledTimes(3);
+    fire('moveend');
+    expect(grouped).toHaveBeenCalledTimes(3);
   });
 
   it('groups by the per-server circles it draws in multi-server mode', () => {

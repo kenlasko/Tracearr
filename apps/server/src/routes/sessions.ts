@@ -149,12 +149,7 @@ function buildHistoryFilterConditions(
     conditions.push(sql`s.media_type <> 'trailer'`);
   }
   if (startDate) conditions.push(sql`s.started_at >= ${startDate}`);
-  if (endDate) {
-    // Adjust endDate to end of day (23:59:59.999) to include all sessions from that day
-    const endOfDay = new Date(endDate);
-    endOfDay.setHours(23, 59, 59, 999);
-    conditions.push(sql`s.started_at <= ${endOfDay}`);
-  }
+  if (endDate) conditions.push(sql`s.started_at < ${endDate}`);
 
   // Full-text search across multiple fields
   if (search) {
@@ -322,10 +317,7 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (endDate) {
-      // Adjust endDate to end of day (23:59:59.999) to include all sessions from that day
-      const endOfDay = new Date(endDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      conditions.push(sql`s.started_at <= ${endOfDay}`);
+      conditions.push(sql`s.started_at < ${endDate}`);
     }
 
     // Build the WHERE clause
@@ -1108,7 +1100,7 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
    * Query params:
    * - serverId: Filter by specific server
    * - startDate: Filter by start date (ISO 8601)
-   * - endDate: Filter by end date (ISO 8601)
+   * - endDate: Filter by end date, exclusive (ISO 8601)
    * - includeAllCountries: When true, returns all countries with hasSessions indicator
    *                        (for rules builder). When false/omitted, returns only
    *                        countries with sessions (for history page).
@@ -1191,9 +1183,7 @@ export const sessionRoutes: FastifyPluginAsync = async (app) => {
       serverConditions.push(sql`s.started_at >= ${startDate}`);
     }
     if (endDate) {
-      const endOfDay = new Date(endDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      serverConditions.push(sql`s.started_at <= ${endOfDay}`);
+      serverConditions.push(sql`s.started_at < ${endDate}`);
     }
 
     // Helper to build WHERE clause with additional conditions
