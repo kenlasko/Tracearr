@@ -104,19 +104,24 @@ export async function terminateSession(
     };
   }
 
+  const logBase = {
+    sessionId: session.id,
+    sessionStartedAt: session.startedAt,
+    serverId: session.serverId,
+    serverUserId: session.serverUserId,
+    trigger,
+    triggeredByUserId: triggeredByUserId ?? null,
+    ruleId: ruleId ?? null,
+    violationId: violationId ?? null,
+    reason: reason ?? null,
+  };
+
   // The switch force-stopped the server's streams; anything queued before it ends here.
   if (session.server.historicalAt) {
     const logEntries = await db
       .insert(terminationLogs)
       .values({
-        sessionId: session.id,
-        serverId: session.serverId,
-        serverUserId: session.serverUserId,
-        trigger,
-        triggeredByUserId: triggeredByUserId ?? null,
-        ruleId: ruleId ?? null,
-        violationId: violationId ?? null,
-        reason: reason ?? null,
+        ...logBase,
         success: false,
         errorMessage: 'Server is historical',
       })
@@ -147,14 +152,7 @@ export async function terminateSession(
     const logEntries = await db
       .insert(terminationLogs)
       .values({
-        sessionId: session.id,
-        serverId: session.serverId,
-        serverUserId: session.serverUserId,
-        trigger,
-        triggeredByUserId: triggeredByUserId ?? null,
-        ruleId: ruleId ?? null,
-        violationId: violationId ?? null,
-        reason: reason ?? null,
+        ...logBase,
         success: false,
         errorMessage: 'No session ID available for termination',
       })
@@ -261,14 +259,7 @@ export async function terminateSession(
   const logEntries = await db
     .insert(terminationLogs)
     .values({
-      sessionId: session.id,
-      serverId: session.serverId,
-      serverUserId: session.serverUserId,
-      trigger,
-      triggeredByUserId: triggeredByUserId ?? null,
-      ruleId: ruleId ?? null,
-      violationId: violationId ?? null,
-      reason: reason ?? null,
+      ...logBase,
       success,
       errorMessage,
     })

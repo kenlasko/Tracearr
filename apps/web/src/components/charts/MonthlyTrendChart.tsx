@@ -6,18 +6,13 @@ import type { PatternsResponse, TrendBucket } from '@tracearr/shared';
 import { ChartSkeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { TrendingUp } from 'lucide-react';
-import { formatTrendDate, parseChartDate } from './chartUtils';
+import { formatTrendDate, parseChartDate, toIsoDate } from '@/lib/dateFormat';
 
 const DAY_MS = 86_400_000;
 const MIN_TICK_INTERVAL: Record<TrendBucket, number> = {
   day: DAY_MS,
   week: 7 * DAY_MS,
   month: 28 * DAY_MS,
-};
-
-const localDay = (ms: number | string) => {
-  const d = new Date(ms);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 const isEmpty = (trend: PatternsResponse['trend'] | undefined) =>
@@ -62,7 +57,7 @@ export function MonthlyTrendChart({ trend, isLoading, height = 250 }: MonthlyTre
         minTickInterval: MIN_TICK_INTERVAL[bucket],
         labels: {
           formatter: function () {
-            return formatTrendDate(localDay(this.value), bucket);
+            return formatTrendDate(toIsoDate(new Date(this.value)), bucket);
           },
           style: {
             color: 'hsl(var(--muted-foreground))',
@@ -110,7 +105,7 @@ export function MonthlyTrendChart({ trend, isLoading, height = 250 }: MonthlyTre
         },
         formatter: function () {
           const watches = t('library.charts.watchesValue', { count: this.y ?? 0 });
-          return `<b>${formatTrendDate(localDay(this.x), bucket)}</b><br/>${watches}`;
+          return `<b>${formatTrendDate(toIsoDate(new Date(this.x)), bucket)}</b><br/>${watches}`;
         },
       },
       series: [

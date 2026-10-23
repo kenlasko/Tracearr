@@ -1066,6 +1066,8 @@ export const terminationLogs = pgTable(
     // (hypertables don't support foreign key references to their primary key)
     // The relationship is maintained via Drizzle ORM relations
     sessionId: uuid('session_id').notNull(),
+    // Null only on rows whose session was already gone when the column was filled
+    sessionStartedAt: timestamp('session_started_at', { withTimezone: true }),
     serverId: uuid('server_id')
       .notNull()
       .references(() => servers.id, { onDelete: 'cascade' }),

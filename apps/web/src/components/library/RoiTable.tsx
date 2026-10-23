@@ -1,7 +1,7 @@
 import { BarChart } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import type { LibraryRoiQueryInput, RoiResponse, Server } from '@tracearr/shared';
+import { formatIsoDay } from '@/lib/dateFormat';
 import { DataTablePager } from '@/components/ui/data-table';
 import {
   Select,
@@ -183,9 +183,7 @@ export function RoiTable({
               <TableCell>{item.totalWatchHours.toFixed(1)}</TableCell>
               <TableCell>{item.watchHoursPerGb.toFixed(2)}</TableCell>
               <TableCell>
-                {item.lastWatchedAt
-                  ? format(parseISO(item.lastWatchedAt), 'MMM d, yyyy')
-                  : t('common:labels.never')}
+                {item.lastWatchedAt ? formatIsoDay(item.lastWatchedAt) : t('common:labels.never')}
               </TableCell>
             </TableRow>
           ))}

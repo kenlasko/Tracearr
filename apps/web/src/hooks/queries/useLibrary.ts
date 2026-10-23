@@ -9,7 +9,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { serverScopeFromIds, serverScopeKey } from '@tracearr/shared';
-import { api, getBrowserTimezone } from '@/lib/api';
+import { api } from '@/lib/api';
+import { browserTimeZone } from '@/lib/dateFormat';
 import type { ApiLibraryParams } from '@/hooks/useTimeRange';
 import type { LibraryStatusResponse } from '@/lib/api';
 import type {
@@ -38,7 +39,7 @@ const LIBRARY_STALE_TIME = 1000 * 60 * 5;
  * Backend deduplicates item counts and sums storage across servers.
  */
 export function useLibraryStats(serverIds: string[], libraryId?: string | null) {
-  const timezone = getBrowserTimezone();
+  const timezone = browserTimeZone();
   const sortedIds = serverScopeKey(serverScopeFromIds(serverIds));
   return useQuery<LibraryStatsResponse>({
     queryKey: ['library', 'stats', sortedIds, libraryId, timezone],
@@ -59,7 +60,7 @@ export function useLibraryGrowth(
   startDate?: string,
   endDate?: string
 ) {
-  const timezone = getBrowserTimezone();
+  const timezone = browserTimeZone();
   const sortedIds = serverScopeKey(serverScopeFromIds(serverIds));
   return useQuery<LibraryGrowthResponse>({
     queryKey: ['library', 'growth', sortedIds, libraryId, period, startDate, endDate, timezone],
@@ -79,7 +80,7 @@ export function useLibraryQuality(
   startDate?: string,
   endDate?: string
 ) {
-  const timezone = getBrowserTimezone();
+  const timezone = browserTimeZone();
   return useQuery<LibraryQualityResponse>({
     queryKey: ['library', 'quality', serverId, period, mediaType, timezone, startDate, endDate],
     queryFn: () =>
@@ -101,7 +102,7 @@ export function useLibraryStorageScoped(
   startDate?: string,
   endDate?: string
 ) {
-  const timezone = getBrowserTimezone();
+  const timezone = browserTimeZone();
   const sortedIds = serverScopeKey(serverScopeFromIds(serverIds));
   return useQuery<LibraryStorageResponse>({
     queryKey: ['library', 'storage', 'scoped', sortedIds, period, timezone, startDate, endDate],
@@ -218,7 +219,7 @@ export function useLibraryPatterns(
   libraryId: string | null,
   range: ApiLibraryParams
 ) {
-  const timezone = getBrowserTimezone();
+  const timezone = browserTimeZone();
   const sortedIds = serverScopeKey(serverScopeFromIds(serverIds));
   const { period, startDate, endDate } = range;
   return useQuery<PatternsResponse>({

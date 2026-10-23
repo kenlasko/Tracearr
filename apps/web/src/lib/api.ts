@@ -176,9 +176,10 @@ export type {
   PlexAccount,
   PlexAccountsResponse,
 };
-import { API_BASE_PATH, getClientTimezone } from '@tracearr/shared';
+import { API_BASE_PATH } from '@tracearr/shared';
 
 import { BASE_PATH } from '@/lib/basePath';
+import { browserTimeZone } from '@/lib/dateFormat';
 export { BASE_PATH, BASE_URL, imageProxyUrl } from '@/lib/basePath';
 import { MAINTENANCE_EVENT } from '@/hooks/useMaintenanceMode';
 import type { ApiLibraryParams } from '@/hooks/useTimeRange';
@@ -444,10 +445,6 @@ export interface PlaysBreakdownOptions {
   self?: boolean;
   groupBy?: PlaysGroupBy;
 }
-
-// Re-export shared timezone helper for backwards compatibility
-// Uses Intl API which works in both browser and React Native
-export const getBrowserTimezone = getClientTimezone;
 
 // Types for Plex server selection during signup (from check-pin endpoint)
 export interface PlexServerConnection {
@@ -1208,7 +1205,7 @@ class ApiClient {
     if (serverId) params.set('serverId', serverId);
     // Always include timezone for consistent chart display
     // Use provided timezone or fall back to browser's timezone
-    params.set('timezone', timeRange?.timezone ?? getBrowserTimezone());
+    params.set('timezone', timeRange?.timezone ?? browserTimeZone());
     return params;
   }
 
@@ -1228,7 +1225,7 @@ class ApiClient {
         params.append('serverIds', id);
       }
     }
-    params.set('timezone', timeRange?.timezone ?? getBrowserTimezone());
+    params.set('timezone', timeRange?.timezone ?? browserTimeZone());
     return params;
   }
 
@@ -1241,11 +1238,11 @@ class ApiClient {
         }
       }
       // Include timezone so "today" is calculated in user's local timezone
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<DashboardStats>(`/stats/dashboard?${params.toString()}`);
     },
     me: () => {
-      const params = new URLSearchParams({ timezone: getBrowserTimezone() });
+      const params = new URLSearchParams({ timezone: browserTimeZone() });
       return this.request<MyStats>(`/stats/me?${params.toString()}`);
     },
     myTitles: (serverIds?: string[]) => {
@@ -1486,7 +1483,7 @@ class ApiClient {
         }
       }
       if (libraryId) params.set('libraryId', libraryId);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<LibraryStatsResponse>(`/library/stats?${params.toString()}`);
     },
     growth: (
@@ -1506,7 +1503,7 @@ class ApiClient {
       params.set('period', period);
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<LibraryGrowthResponse>(`/library/growth?${params.toString()}`);
     },
     quality: (
@@ -1522,7 +1519,7 @@ class ApiClient {
       params.set('mediaType', mediaType);
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<LibraryQualityResponse>(`/library/quality?${params.toString()}`);
     },
     storage: (
@@ -1538,7 +1535,7 @@ class ApiClient {
       params.set('period', period);
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<LibraryStorageResponse>(`/library/storage?${params.toString()}`);
     },
     // Scoped variant: one request over the whole selection, so the server's
@@ -1556,7 +1553,7 @@ class ApiClient {
       params.set('period', period);
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<LibraryStorageResponse>(`/library/storage?${params.toString()}`);
     },
     duplicates: (serverIds?: string[], page: number = 1, pageSize: number = 20) => {
@@ -1636,7 +1633,7 @@ class ApiClient {
       params.set('period', range.period);
       if (range.startDate) params.set('startDate', range.startDate);
       if (range.endDate) params.set('endDate', range.endDate);
-      params.set('timezone', getBrowserTimezone());
+      params.set('timezone', browserTimeZone());
       return this.request<PatternsResponse>(`/library/patterns?${params.toString()}`);
     },
     roi: (

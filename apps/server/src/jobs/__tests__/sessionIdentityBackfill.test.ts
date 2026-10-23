@@ -254,6 +254,18 @@ describe('hasStampableSessionsBefore', () => {
     }
     expect(params.filter((p) => p === '2026-08-01T00:00:00.000Z')).toHaveLength(3);
   });
+
+  it('filters keys through unnest so planning does not copy the array per chunk', async () => {
+    const execute = mockExecute({ rows: [{ stampable: false }] });
+
+    await hasStampableSessionsBefore(new Date('2026-08-01T00:00:00Z'), 'server-1', ['rk-1']);
+
+    const { sql: text } = renderSql(execute.mock.calls[0]![0] as SQL);
+    expect(text).not.toMatch(/rating_key = ANY/);
+    for (const probe of text.split(/\)\s*OR EXISTS/)) {
+      expect(probe).toMatch(/s\.rating_key IN \(SELECT unnest\(\$\d+::text\[\]\)\)/);
+    }
+  });
 });
 
 describe('probe / batch predicate drift', () => {

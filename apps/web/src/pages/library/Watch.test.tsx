@@ -33,6 +33,11 @@ vi.mock('@/hooks/useTimeRange', async (importOriginal) => ({
   useTimeRange: () => ({ value: customRange }),
 }));
 
+vi.mock('@/lib/dateFormat', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/dateFormat')>()),
+  weekdayName: (day: number, width: string) => `${width}-day-${day}`,
+}));
+
 vi.mock('@/components/library', () => ({
   ErrorState: () => null,
   BingeHighlightsTable: () => null,
@@ -151,5 +156,23 @@ describe('LibraryWatch', () => {
     render(<LibraryWatch />);
     expect(screen.getByText(/library.watch.busiest/)).toBeInTheDocument();
     expect(screen.getByText(/library.watch.quietest/)).toBeInTheDocument();
+  });
+
+  it('names the peak day with the formatting locale weekday name', () => {
+    mockUseLibraryWatch.mockReturnValue(watchResponse(10));
+    mockUseLibraryPatterns.mockReturnValue({
+      data: {
+        peakTimes: {
+          hourlyDistribution: [{ hour: 20, watchCount: 3, totalWatchMs: 0, pctOfTotal: 0 }],
+          peakHour: 20,
+          peakDayOfWeek: 5,
+        },
+        trend: { bucket: 'day', points: [], busiest: null, quietest: null },
+      },
+      isLoading: false,
+      isError: false,
+    });
+    render(<LibraryWatch />);
+    expect(screen.getByText(/long-day-5/)).toBeInTheDocument();
   });
 });

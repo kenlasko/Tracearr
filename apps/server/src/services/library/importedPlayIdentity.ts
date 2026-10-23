@@ -213,7 +213,7 @@ async function foldedShows(titles: string[]): Promise<Map<string, string | null>
       FROM sessions s
       JOIN media m ON m.id = s.show_media_id
       WHERE s.media_type = 'episode' AND s.show_media_id IS NOT NULL
-        AND trim(s.grandparent_title) = ANY(${sql.param(titles)}::text[])
+        AND trim(s.grandparent_title) IN (SELECT unnest(${sql.param(titles)}::text[]))
       GROUP BY trim(s.grandparent_title)
     `)
   ).rows as Array<{ title: string; id: string; n: number }>;

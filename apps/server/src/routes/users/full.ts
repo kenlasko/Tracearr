@@ -33,7 +33,12 @@ import { violationAliasConditions } from '../../services/automations/aliasFilter
 import { hasServerAccess, buildServerAccessCondition } from '../../utils/serverFiltering.js';
 import { serverOrderBy } from '../../utils/serverOrder.js';
 import { PLAY_COUNT } from '../../constants/index.js';
-import { queryUserDevices, queryUserLocations, serverUserIdAnyFragment } from './queries.js';
+import {
+  queryTerminationHistory,
+  queryUserDevices,
+  queryUserLocations,
+  serverUserIdAnyFragment,
+} from './queries.js';
 import { uuidArraySql } from '../../utils/sqlArrays.js';
 import { localSessionSql } from '../../utils/localSession.js';
 
@@ -85,7 +90,6 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
           thumbUrl: serverUsers.thumbUrl,
           isServerAdmin: serverUsers.isServerAdmin,
           trustScore: serverUsers.trustScore,
-          sessionCount: sql<number>`(select count(*)::int from ${sessions} where ${sessions.serverUserId} = ${serverUsers.id})`,
           joinedAt: serverUsers.joinedAt,
           lastActivityAt: serverUsers.lastActivityAt,
           removedAt: serverUsers.removedAt,
@@ -138,7 +142,6 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
           username: serverUsers.username,
           thumbUrl: serverUsers.thumbUrl,
           trustScore: serverUsers.trustScore,
-          sessionCount: sql<number>`(select count(*)::int from ${sessions} where ${sessions.serverUserId} = ${serverUsers.id})`,
           removedAt: serverUsers.removedAt,
           mergedIn: sql<boolean>`exists (
             select 1 from ${userMergeAudits}
@@ -153,6 +156,19 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
         .orderBy(...serverOrderBy(), serverUsers.id);
 
       const identityIds = identityServerUserRows.map((su) => su.id);
+
+      // One grouped read instead of a correlated count per row: sessions has no
+      // time bound here, so every plan of it walks all chunks and planning dominates.
+      const sessionCounts = new Map<string, number>();
+      if (identityIds.length > 0) {
+        const countRows = await tx
+          .select({ serverUserId: sessions.serverUserId, count: sql<number>`count(*)::int` })
+          .from(sessions)
+          .where(sql`${sessions.serverUserId} = ANY(${uuidArraySql(identityIds)})`)
+          .groupBy(sessions.serverUserId);
+        for (const row of countRows) sessionCounts.set(row.serverUserId, row.count);
+      }
+      const sessionCountOf = (serverUserId: string) => sessionCounts.get(serverUserId) ?? 0;
 
       // scope=identity fans every scoped panel query out across the whole
       // accessible identity; otherwise they stay anchored on just this account.
@@ -345,40 +361,11 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
       const violationsTotal = violationsCountResult[0]?.count ?? 0;
 
       // 7. Get termination history (recent, limited)
-      const terminationData = await tx
-        .select({
-          id: terminationLogs.id,
-          sessionId: terminationLogs.sessionId,
-          serverId: terminationLogs.serverId,
-          serverName: servers.name,
-          serverUserId: terminationLogs.serverUserId,
-          trigger: terminationLogs.trigger,
-          triggeredByUserId: terminationLogs.triggeredByUserId,
-          triggeredByUsername: users.username,
-          ruleId: terminationLogs.ruleId,
-          ruleName: automations.name,
-          violationId: terminationLogs.violationId,
-          reason: terminationLogs.reason,
-          success: terminationLogs.success,
-          errorMessage: terminationLogs.errorMessage,
-          createdAt: terminationLogs.createdAt,
-          mediaTitle: sessions.mediaTitle,
-          mediaType: sessions.mediaType,
-          grandparentTitle: sessions.grandparentTitle,
-          seasonNumber: sessions.seasonNumber,
-          episodeNumber: sessions.episodeNumber,
-          year: sessions.year,
-          artistName: sessions.artistName,
-          albumName: sessions.albumName,
-        })
-        .from(terminationLogs)
-        .leftJoin(users, eq(terminationLogs.triggeredByUserId, users.id))
-        .leftJoin(automations, eq(terminationLogs.ruleId, automations.id))
-        .leftJoin(sessions, eq(terminationLogs.sessionId, sessions.id))
-        .leftJoin(servers, eq(terminationLogs.serverId, servers.id))
-        .where(sql`${terminationLogs.serverUserId} = ANY(${scopedIdArray})`)
-        .orderBy(desc(terminationLogs.createdAt))
-        .limit(terminationsLimit);
+      const terminationData = await queryTerminationHistory(
+        tx,
+        sql`${terminationLogs.serverUserId} = ANY(${scopedIdArray})`,
+        { limit: terminationsLimit }
+      );
 
       // Get terminations count
       const terminationsCountResult = await tx
@@ -398,6 +385,7 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
       return {
         user: {
           ...serverUserFields,
+          sessionCount: sessionCountOf(serverUser.id),
           stats: {
             totalSessions: stats?.totalSessions ?? 0,
             totalWatchTime: Number(stats?.totalWatchTime ?? 0),
@@ -408,7 +396,10 @@ export const fullRoutes: FastifyPluginAsync = async (app) => {
           aggregateTrustScore: identityAggregateTrustScore,
           totalViolations: identityTotalViolations,
           contactEmail: identityContactEmail,
-          serverUsers: identityServerUserRows,
+          serverUsers: identityServerUserRows.map((su) => ({
+            ...su,
+            sessionCount: sessionCountOf(su.id),
+          })),
           stats: {
             totalSessions: identityStats?.totalSessions ?? 0,
             totalWatchTime: Number(identityStats?.totalWatchTime ?? 0),

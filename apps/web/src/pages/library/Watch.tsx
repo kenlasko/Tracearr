@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Eye, Clock, CheckCircle2, Flame, BarChart3 } from 'lucide-react';
 import type { Server } from '@tracearr/shared';
-import { StatCard, formatWatchTime } from '@/components/ui/stat-card';
+import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ErrorState, BingeHighlightsTable, MostWatchedSection } from '@/components/library';
@@ -15,22 +15,8 @@ import { PerServerCardGrid } from '@/components/server';
 import { useLibraryWatch, useLibraryPatterns } from '@/hooks/queries';
 import { useServer } from '@/hooks/useServer';
 import { toApiLibraryParams, useTimeRange } from '@/hooks/useTimeRange';
-import { formatTrendDate } from '@/components/charts/chartUtils';
-import { getHour12 } from '@/lib/timeFormat';
+import { weekdayName, formatWatchTime, formatTrendDate, formatHourOfDay } from '@/lib/dateFormat';
 import type { TimeRangeValue } from '@/components/ui/time-range-picker';
-
-function formatPeakHour(hour: number | undefined): string {
-  if (hour === undefined) return '-';
-  const date = new Date(2024, 0, 1, hour);
-  return date.toLocaleTimeString(undefined, { hour: 'numeric', hour12: getHour12() });
-}
-
-function formatPeakDay(day: number | undefined): string {
-  if (day === undefined) return '';
-  // Create a date for the given day of week (Jan 7, 2024 is a Sunday)
-  const refDate = new Date(2024, 0, 7 + day);
-  return refDate.toLocaleDateString(undefined, { weekday: 'long' });
-}
 
 interface ServerCompletionCardProps {
   server: Server;
@@ -154,8 +140,8 @@ export function LibraryWatch() {
         <StatCard
           icon={Flame}
           label={t('library.watch.peakHour')}
-          value={formatPeakHour(peak?.peakHour)}
-          subValue={formatPeakDay(peak?.peakDayOfWeek)}
+          value={peak ? formatHourOfDay(peak.peakHour) : '-'}
+          subValue={peak ? weekdayName(peak.peakDayOfWeek, 'long') : ''}
           isLoading={patterns.isLoading}
         />
       </div>
@@ -225,7 +211,7 @@ export function LibraryWatch() {
               </CardTitle>
               {peak && (
                 <Badge variant="outline">
-                  {t('library.watch.peak')} {formatPeakHour(peak.peakHour)}
+                  {t('library.watch.peak')} {formatHourOfDay(peak.peakHour)}
                 </Badge>
               )}
             </div>

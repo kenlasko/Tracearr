@@ -1,7 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { format } from 'date-fns';
 import { ChevronDown, ExternalLink } from 'lucide-react';
 import { buildMediaServerItemUrl, formatMediaTech } from '@tracearr/shared';
 import type { MediaAvailabilityEntry, MediaRequestEntry, ServerType } from '@tracearr/shared';
@@ -28,6 +27,7 @@ import { heroRequestLine, type Translate } from '@/components/requests/format';
 import { BASE_URL } from '@/lib/basePath';
 import { cn } from '@/lib/utils';
 import { formatBytes } from '@/lib/formatters';
+import { formatDate } from '@/lib/dateFormat';
 
 export interface HeroServerLookupEntry {
   name: string;
@@ -53,7 +53,7 @@ interface DetailHeroProps {
 function heroRequestText(request: MediaRequestEntry, t: Translate): string {
   const { identityName, username } = request.requester;
   const name = identityName ?? username ?? t('requests.unattributed');
-  return heroRequestLine(request, name, t, 'MMM d, yyyy');
+  return heroRequestLine(request, name, t);
 }
 
 /** Two-letter glyph, mirroring PosterCard's fallback treatment at hero scale. */
@@ -382,11 +382,13 @@ export function DetailHero({
                     const removed = entry.removedAt != null;
                     const dateText = removed
                       ? t('media.detail.hero.availability.addedRemoved', {
-                          added: format(new Date(entry.addedAt), 'MMM d, yyyy'),
-                          removed: format(new Date(entry.removedAt as string), 'MMM d, yyyy'),
+                          added: formatDate(new Date(entry.addedAt), { dateStyle: 'medium' }),
+                          removed: formatDate(new Date(entry.removedAt as string), {
+                            dateStyle: 'medium',
+                          }),
                         })
                       : t('media.detail.hero.availability.added', {
-                          date: format(new Date(entry.addedAt), 'MMM d, yyyy'),
+                          date: formatDate(new Date(entry.addedAt), { dateStyle: 'medium' }),
                         });
                     // A witnessed replacement tells the swap as one line, dated by
                     // the removal event rather than the server's claimed added date
@@ -394,7 +396,9 @@ export function DetailHero({
                       entry.replaces && !removed
                         ? joinMeta([
                             t('media.detail.hero.availability.added', {
-                              date: format(new Date(entry.replaces.addedAt), 'MMM d, yyyy'),
+                              date: formatDate(new Date(entry.replaces.addedAt), {
+                                dateStyle: 'medium',
+                              }),
                             }),
                             entry.replaces.videoResolution
                               ? formatMediaTech(entry.replaces.videoResolution)
@@ -403,7 +407,9 @@ export function DetailHero({
                               ? formatBytes(entry.replaces.fileSize, 1, { minUnit: 'GB' })
                               : null,
                             t('media.detail.hero.availability.replaced', {
-                              date: format(new Date(entry.replaces.removedAt), 'MMM d, yyyy'),
+                              date: formatDate(new Date(entry.replaces.removedAt), {
+                                dateStyle: 'medium',
+                              }),
                             }),
                             entry.videoResolution ? formatMediaTech(entry.videoResolution) : null,
                             entry.fileSize != null

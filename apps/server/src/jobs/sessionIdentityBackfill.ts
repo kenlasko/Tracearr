@@ -471,9 +471,10 @@ export async function backfillSessionIdentityBatch(
  * Existence probe for identity work remaining below a cutoff on one server's
  * rating keys - the sync tail asks it about the keys it upserted to decide
  * whether compressed history still needs the maintenance walk. Mirrors the
- * three passes of backfillSessionIdentityBatch in one statement. The key
- * filter is what keeps it cheap: compressed segments are skipped on the
- * rating_key bloom filter, and uncompressed chunks use sessions_server_rating_idx.
+ * three passes of backfillSessionIdentityBatch in one statement. The keys go
+ * in through unnest, not = ANY: the planner copies an ANY array into every
+ * chunk's plan, so planning memory grows with keys times chunks (175 MB for
+ * 1,000 keys over 139 chunks), while unnest planned 18k keys there in 64 MB.
  */
 export async function hasStampableSessionsBefore(
   cutoff: Date,
@@ -482,7 +483,7 @@ export async function hasStampableSessionsBefore(
 ): Promise<boolean> {
   const before = cutoff.toISOString();
   const scope = sql`s.server_id = ${serverId}::uuid
-        AND s.rating_key = ANY(${sql.param(ratingKeys)}::text[])
+        AND s.rating_key IN (SELECT unnest(${sql.param(ratingKeys)}::text[]))
         AND s.started_at < ${before}::timestamptz`;
   const result = await db.execute(sql`
     SELECT EXISTS (

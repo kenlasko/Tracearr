@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { formatCustomRange, type TimeRangePeriod } from '@/components/ui/time-range-picker';
+import { type TimeRangePeriod } from '@/components/ui/time-range-picker';
+import { formatCustomRange } from '@/lib/dateFormat';
 import {
   ErrorState,
   InlineErrorState,

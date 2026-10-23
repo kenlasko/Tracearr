@@ -12,7 +12,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { gzipSync, createGzip } from 'node:zlib';
 import { Redis } from 'ioredis';
 import { API_BASE_PATH, API_V2_BASE_PATH, REDIS_KEYS, WS_EVENTS } from '@tracearr/shared';
-import { createBetterAuthHandler } from './lib/betterAuthRequest.js';
+import { createBetterAuthHandler, deriveScheme } from './lib/betterAuthRequest.js';
 import { getBasePath } from './lib/basePath.js';
 import { registerOriginPolicy, trustProxyFromEnv } from './lib/origins.js';
 
@@ -99,6 +99,7 @@ import { publicApiRateLimitKey } from './utils/publicApiRateLimitKey.js';
 import { registerErrorHandler } from './utils/errors.js';
 import { REQUEST_LOG_REDACT } from './utils/logger.js';
 import { resolveWebAsset } from './utils/webRoot.js';
+import { escapeHtml } from './utils/sanitizeText.js';
 import { geoipService } from './services/geoip.js';
 import { tailscaleService } from './services/tailscale.js';
 import { geoasnService } from './services/geoasn.js';
@@ -626,7 +627,14 @@ async function buildApp() {
       // SPA fallback — always inject <base> tag so relative asset paths (./assets/...)
       // resolve correctly on nested routes like /library/watch
       const baseHref = BASE_PATH ? `${BASE_PATH}/` : '/';
-      const html = cachedIndexHtml.replace('<head>', `<head>\n    <base href="${baseHref}">`);
+      // Link preview crawlers need og:image as an absolute URL.
+      const ogImage = escapeHtml(
+        `${deriveScheme(request)}://${request.host}${baseHref}images/og_image.png`
+      );
+      const html = cachedIndexHtml.replace(
+        '<head>',
+        `<head>\n    <base href="${baseHref}">\n    <meta property="og:image" content="${ogImage}" />`
+      );
       reply.header('Cache-Control', 'no-cache');
       return reply.type('text/html').send(html);
     });
