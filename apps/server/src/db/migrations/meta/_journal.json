@@ -827,6 +827,13 @@
       "when": 1792522366158,
       "tag": "0117_media_downloads",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1792719038058,
+      "tag": "0118_drop_unused_indexes",
+      "breakpoints": true
     }
   ]
 }

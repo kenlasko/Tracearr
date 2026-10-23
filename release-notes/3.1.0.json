@@ -1,0 +1,60 @@
+{
+  "version": "3.1.0",
+  "date": "2026-10-22",
+  "changes": [
+    {
+      "type": "improved",
+      "text": "notifications that can't reach a destination name the host and address tried instead of \"fetch failed\""
+    },
+    {
+      "type": "improved",
+      "text": "Telegram errors show Telegram's own reason and point at a bad bot token or a supergroup's new chat ID"
+    },
+    {
+      "type": "improved",
+      "text": "Storage ROI, Watch and Most Watched follow the date range picker and count the same plays by media identity"
+    },
+    {
+      "type": "improved",
+      "text": "imported play history counts on the Library tabs, including titles no longer in the library"
+    },
+    {
+      "type": "improved",
+      "text": "Stale Content loads in under a second on large libraries instead of many seconds"
+    },
+    {
+      "type": "improved",
+      "text": "history and user session pages read only the days on screen instead of every session"
+    },
+    {
+      "type": "improved",
+      "text": "library syncs stop pausing after pages a slow server already took long to return, and fetch Plex genres in parallel"
+    },
+    {
+      "type": "fix",
+      "text": "Telegram and other notifications no longer fail with \"fetch failed\" on slow internet that takes over 250 ms to connect"
+    },
+    {
+      "type": "fix",
+      "text": "Telegram alerts held back by its rate limit now wait it out instead of being dropped after three quick retries"
+    },
+    {
+      "type": "fix",
+      "text": "Helm chart StatefulSets no longer stay OutOfSync in Argo CD over their volume claim templates",
+      "refs": ["#1360"]
+    },
+    {
+      "type": "note",
+      "text": "imported plays with the same name and year as a library title count as that title"
+    },
+    {
+      "type": "note",
+      "text": "Most Watched counts plays of two minutes or more, a resumed watch once, instead of runtime watched"
+    },
+    {
+      "type": "note",
+      "text": "Argo CD renders the Helm chart without cluster access, so set secrets.existingSecret or both secrets there",
+      "docs": "https://docs.tracearr.com/getting-started/installation/kubernetes"
+    }
+  ]
+}

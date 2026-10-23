@@ -112,9 +112,9 @@ import type {
   DuplicateFilesResponse,
   StaleResponse,
   WatchResponse,
-  CompletionResponse,
   PatternsResponse,
   RoiResponse,
+  LibraryRoiQueryInput,
   TopMoviesResponse,
   TopShowsResponse,
   LibraryCodecsResponse,
@@ -181,6 +181,7 @@ import { API_BASE_PATH, getClientTimezone } from '@tracearr/shared';
 import { BASE_PATH } from '@/lib/basePath';
 export { BASE_PATH, BASE_URL, imageProxyUrl } from '@/lib/basePath';
 import { MAINTENANCE_EVENT } from '@/hooks/useMaintenanceMode';
+import type { ApiLibraryParams } from '@/hooks/useTimeRange';
 
 /** A settings write: loginMethods takes any subset of its switches, as the server's schema does. */
 export type SettingsUpdate = Omit<Partial<Settings>, 'loginMethods'> & {
@@ -1603,36 +1604,28 @@ class ApiClient {
       params.set('sortOrder', sortOrder);
       return this.request<StaleResponse>(`/library/stale?${params.toString()}`);
     },
-    watch: (serverIds?: string[], libraryId?: string, page: number = 1, pageSize: number = 20) => {
-      const params = new URLSearchParams();
-      if (serverIds?.length) {
-        for (const id of serverIds) {
-          params.append('serverIds', id);
-        }
-      }
-      if (libraryId) params.set('libraryId', libraryId);
-      params.set('page', String(page));
-      params.set('pageSize', String(pageSize));
-      return this.request<WatchResponse>(`/library/watch?${params.toString()}`);
-    },
-    completion: (
-      serverId?: string,
-      libraryId?: string,
-      aggregateLevel: string = 'item',
-      page: number = 1,
-      pageSize: number = 20,
-      mediaType?: 'movie' | 'episode'
+    watch: (
+      serverIds: string[] | undefined,
+      libraryId: string | undefined,
+      range: ApiLibraryParams
     ) => {
       const params = new URLSearchParams();
-      if (serverId) params.set('serverId', serverId);
+      if (serverIds?.length) {
+        for (const id of serverIds) {
+          params.append('serverIds', id);
+        }
+      }
       if (libraryId) params.set('libraryId', libraryId);
-      params.set('aggregateLevel', aggregateLevel);
-      params.set('page', String(page));
-      params.set('pageSize', String(pageSize));
-      if (mediaType) params.set('mediaType', mediaType);
-      return this.request<CompletionResponse>(`/library/completion?${params.toString()}`);
+      params.set('period', range.period);
+      if (range.startDate) params.set('startDate', range.startDate);
+      if (range.endDate) params.set('endDate', range.endDate);
+      return this.request<WatchResponse>(`/library/watch?${params.toString()}`);
     },
-    patterns: (serverIds?: string[], libraryId?: string, periodWeeks: number = 12) => {
+    patterns: (
+      serverIds: string[] | undefined,
+      libraryId: string | undefined,
+      range: ApiLibraryParams
+    ) => {
       const params = new URLSearchParams();
       if (serverIds?.length) {
         for (const id of serverIds) {
@@ -1640,18 +1633,23 @@ class ApiClient {
         }
       }
       if (libraryId) params.set('libraryId', libraryId);
-      params.set('periodWeeks', String(periodWeeks));
+      params.set('period', range.period);
+      if (range.startDate) params.set('startDate', range.startDate);
+      if (range.endDate) params.set('endDate', range.endDate);
       params.set('timezone', getBrowserTimezone());
       return this.request<PatternsResponse>(`/library/patterns?${params.toString()}`);
     },
     roi: (
-      serverIds?: string[],
-      libraryId?: string,
+      serverIds: string[] | undefined,
+      libraryId: string | undefined,
+      period: string,
+      startDate: string | undefined,
+      endDate: string | undefined,
       page: number = 1,
       pageSize: number = 20,
-      mediaType?: 'movie' | 'show' | 'artist',
-      sortBy: 'watch_hours_per_gb' | 'value_score' | 'file_size' | 'title' = 'watch_hours_per_gb',
-      sortOrder: 'asc' | 'desc' = 'asc'
+      mediaType?: 'movie' | 'show',
+      sortBy: LibraryRoiQueryInput['sortBy'] = 'watch_hours_per_gb',
+      sortOrder: 'asc' | 'desc' = 'desc'
     ) => {
       const params = new URLSearchParams();
       if (serverIds?.length) {
@@ -1660,12 +1658,14 @@ class ApiClient {
         }
       }
       if (libraryId) params.set('libraryId', libraryId);
+      params.set('period', period);
+      if (startDate) params.set('startDate', startDate);
+      if (endDate) params.set('endDate', endDate);
       params.set('page', String(page));
       params.set('pageSize', String(pageSize));
       if (mediaType) params.set('mediaType', mediaType);
       params.set('sortBy', sortBy);
       params.set('sortOrder', sortOrder);
-      params.set('timezone', getBrowserTimezone());
       return this.request<RoiResponse>(`/library/roi?${params.toString()}`);
     },
     topMovies: (

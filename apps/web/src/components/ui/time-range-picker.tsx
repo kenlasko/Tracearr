@@ -22,6 +22,10 @@ interface TimeRangePickerProps {
   className?: string;
 }
 
+export function formatCustomRange(startDate: Date, endDate: Date): string {
+  return `${format(startDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`;
+}
+
 const PRESETS: { value: TimeRangePeriod; label: string }[] = [
   { value: 'week', label: '7d' },
   { value: 'month', label: '30d' },
@@ -59,7 +63,7 @@ export function TimeRangePicker({ value, onChange, className }: TimeRangePickerP
 
   const formatDateRange = () => {
     if (value.startDate && value.endDate) {
-      return `${format(value.startDate, 'MMM d')} - ${format(value.endDate, 'MMM d, yyyy')}`;
+      return formatCustomRange(value.startDate, value.endDate);
     }
     return 'Custom';
   };

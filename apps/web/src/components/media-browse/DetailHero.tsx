@@ -259,8 +259,7 @@ export function DetailHero({
   const year = data?.year ?? stub?.year ?? null;
   const mediaType = data?.mediaType;
   const availability = data?.availability;
-  const removedEverywhere =
-    !!availability && availability.length > 0 && availability.every((a) => a.removedAt != null);
+  const removedEverywhere = !!availability && availability.every((a) => a.removedAt != null);
   const posterUrl = removedEverywhere ? null : (data?.posterUrl ?? stub?.posterUrl ?? null);
   const posterVersion = data?.posterVersion ?? stub?.posterVersion ?? null;
   const dominantColor = data?.dominantColor ?? stub?.dominantColor ?? null;
@@ -376,7 +375,7 @@ export function DetailHero({
             <>
               {metaLine && <p className="text-muted-foreground mt-1 text-[13px]">{metaLine}</p>}
 
-              {availability && availability.length > 0 && (
+              {availability && (availability.length > 0 || removedEverywhere) && (
                 <div className="mt-3.5 flex flex-col gap-1.5">
                   {availability.map((entry) => {
                     const server = serverById.get(entry.serverId);

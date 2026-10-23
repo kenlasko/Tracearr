@@ -540,14 +540,8 @@
         },
         "columns": {
           "hoursPerGb": "",
-          "value": ""
-        },
-        "category": {
-          "low": "",
-          "moderate": "",
-          "high": ""
-        },
-        "deletionSuggested": ""
+          "lastWatched": ""
+        }
       },
       "matchBadge": {
         "exact": "",
@@ -567,7 +561,7 @@
       "peakHour": "Godzina szczytu",
       "viewingHours": "Godziny oglądania",
       "peak": "Szczyt:",
-      "monthlyTrends": "Miesięczne trendy",
+      "viewingTrend": "",
       "busiest": "Najbardziej aktywny:",
       "quietest": "Najspokojniejszy:",
       "bingeHighlights": "Maratony serialowe",
@@ -589,12 +583,6 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "tiers": {
-          "highlyAddictive": "",
-          "addictive": "",
-          "bingeable": "",
-          "casual": ""
         }
       },
       "percentWatchedValue": "",
@@ -700,8 +688,7 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "uniqueItems_other": ""
+        }
       },
       "growth": {
         "empty": {

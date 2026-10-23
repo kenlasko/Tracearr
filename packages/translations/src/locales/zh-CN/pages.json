@@ -513,14 +513,8 @@
         },
         "columns": {
           "hoursPerGb": "",
-          "value": ""
-        },
-        "category": {
-          "low": "",
-          "moderate": "",
-          "high": ""
-        },
-        "deletionSuggested": ""
+          "lastWatched": ""
+        }
       },
       "matchBadge": {
         "exact": "",
@@ -540,7 +534,7 @@
       "peakHour": "高峰小时",
       "viewingHours": "查看时间",
       "peak": "峰值：",
-      "monthlyTrends": "每月趋势",
+      "viewingTrend": "",
       "busiest": "最重要的版本：",
       "quietest": "安静：",
       "bingeHighlights": "追剧亮点",
@@ -562,12 +556,6 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "tiers": {
-          "highlyAddictive": "",
-          "addictive": "",
-          "bingeable": "",
-          "casual": ""
         }
       },
       "percentWatchedValue": "",
@@ -667,8 +655,7 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "uniqueItems_other": ""
+        }
       },
       "growth": {
         "empty": {

@@ -1,5 +1,5 @@
 import type Highcharts from 'highcharts';
-import type { PlaysMediaGroup, Server } from '@tracearr/shared';
+import type { PlaysMediaGroup, Server, TrendBucket } from '@tracearr/shared';
 
 /**
  * Parse a date string to timestamp for Highcharts datetime axis.
@@ -13,6 +13,14 @@ export function parseChartDate(dateStr: string): number {
   }
   // Date-only: "2026-01-28" -> local midnight
   return new Date(dateStr + 'T00:00:00').getTime();
+}
+
+/** Short label for the start of a trend bucket (YYYY-MM-DD): a month name for months, a date otherwise. */
+export function formatTrendDate(start: string, bucket: TrendBucket): string {
+  return new Date(parseChartDate(start)).toLocaleDateString(
+    undefined,
+    bucket === 'month' ? { month: 'short', year: '2-digit' } : { month: 'short', day: 'numeric' }
+  );
 }
 
 /**

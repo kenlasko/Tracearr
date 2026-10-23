@@ -52,7 +52,7 @@ spec:
     {{- else }}
     # External Redis
     - ports:
-        - port: 6379
+        - port: {{ include "tracearr.externalRedisPort" . }}
           protocol: TCP
     {{- end }}
     # Outbound: media servers (any port), push notifications, GeoIP, Discord webhooks

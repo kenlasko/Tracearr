@@ -5,9 +5,10 @@
  * Supports both manual (admin-initiated) and automatic (rule-triggered) terminations.
  */
 
-import { and, eq, desc, gte } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { db } from '../db/client.js';
 import { terminationLogs, sessions } from '../db/schema.js';
+import { sessionRowById } from '../db/sessionRow.js';
 import { createMediaServerClient } from './mediaServer/index.js';
 import { getCacheService, getPubSubService } from './cache.js';
 import { toRuleSession } from './automations/events/contextAssembly.js';
@@ -205,13 +206,7 @@ export async function terminateSession(
         durationMs,
         forceStopped: true,
       })
-      .where(
-        and(
-          eq(sessions.id, session.id),
-          // started_at is the compression orderby; an id-only update reads every compressed batch
-          gte(sessions.startedAt, new Date(session.startedAt.getTime() - 60_000))
-        )
-      );
+      .where(sessionRowById(session));
 
     await dispatchSessionStopped(
       toRuleSession(session, { state: 'stopped', stoppedAt: now, durationMs }),

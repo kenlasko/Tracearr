@@ -59,6 +59,9 @@ export interface SessionIdentity {
   parentRatingKey: string | null;
   grandparentRatingKey: string | null;
   itemMediaType: string;
+  /** The item's own title and year, for an import to tell a reused key from a renamed item. */
+  itemTitle?: string | null;
+  itemYear?: number | null;
 }
 
 /**
@@ -89,6 +92,8 @@ export async function batchGetLibraryItemIdentity(
       grandparentRatingKey: libraryItems.grandparentRatingKey,
       showMediaId: media.showMediaId,
       itemMediaType: libraryItems.mediaType,
+      itemTitle: libraryItems.title,
+      itemYear: libraryItems.year,
     })
     .from(libraryItems)
     .leftJoin(media, eq(media.id, libraryItems.mediaId))
@@ -111,6 +116,8 @@ export async function batchGetLibraryItemIdentity(
       parentRatingKey: r.parentRatingKey,
       grandparentRatingKey: r.grandparentRatingKey,
       itemMediaType: r.itemMediaType,
+      itemTitle: r.itemTitle,
+      itemYear: r.itemYear,
     });
   }
 

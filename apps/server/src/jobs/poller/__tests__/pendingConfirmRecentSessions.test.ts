@@ -19,6 +19,7 @@ const {
   mockConfirmAndPersistSession,
   mockBatchFindActiveSessionsByKey,
   mockBatchGetRecentUserSessions,
+  mockRequestSyncForUnknownKeys,
   mockDb,
 } = vi.hoisted(() => {
   function chainResolving(result: unknown[]) {
@@ -57,6 +58,7 @@ const {
   };
 
   return {
+    mockRequestSyncForUnknownKeys: vi.fn(),
     mockCreateMediaServerClient: vi.fn().mockReturnValue({
       getSessions: vi.fn().mockResolvedValue([{}]),
     }),
@@ -116,6 +118,9 @@ vi.mock('../../../services/sseManager.js', () => ({
   sseManager: { isInFallback: vi.fn().mockReturnValue(false), nudgeReconnect: vi.fn() },
 }));
 vi.mock('../../notificationQueue.js', () => ({ enqueueNotification: vi.fn() }));
+vi.mock('../../../services/libraryEventSync.js', () => ({
+  requestSyncForUnknownKeys: mockRequestSyncForUnknownKeys,
+}));
 vi.mock('../database.js', () => ({
   onActiveAutomationsRefill: vi.fn(),
   getActiveAutomations: vi.fn().mockResolvedValue([]),
@@ -328,6 +333,37 @@ describe('poller confirms a pending session with the confirming user recent-sess
     // from the upfront new-sessions batch (which this tick calls with []).
     const calledArgs = mockBatchGetRecentUserSessions.mock.calls.map((c) => c[0]);
     expect(calledArgs).toContainEqual(['su-B']);
+  });
+
+  it('offers a playing rating key the library does not hold to a targeted sync', async () => {
+    await triggerServerPoll('server-1');
+
+    expect(mockRequestSyncForUnknownKeys).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'server-1' }),
+      ['rk-1']
+    );
+  });
+
+  it('does not offer a live TV channel key to a targeted sync', async () => {
+    mockMapMediaSession.mockReturnValue({
+      sessionKey: 'sk-42',
+      ratingKey: 'channel-7',
+      externalUserId: 'ext-1',
+      username: 'alice',
+      userThumb: '',
+      mediaTitle: 'Evening News',
+      mediaType: 'live',
+      state: 'playing',
+      ipAddress: '1.2.3.4',
+      deviceId: 'device-1',
+    });
+
+    await triggerServerPoll('server-1');
+
+    expect(mockRequestSyncForUnknownKeys).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'server-1' }),
+      []
+    );
   });
 
   it('memoizes the backfill: a second session for the same user in one tick does not refetch', async () => {

@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { config } from 'dotenv';
 import Fastify, { type FastifyInstance } from 'fastify';
 import helmet from '@fastify/helmet';
@@ -23,6 +24,10 @@ const PROJECT_ROOT = resolve(__dirname, '../../..');
 
 // Load .env from project root
 config({ path: resolve(PROJECT_ROOT, '.env'), quiet: true });
+
+// Node drops a dual-stack connect attempt after 250ms rather than racing it, so a host whose
+// IPv4 handshake is slower than that fails outright when the IPv6 fallback is unreachable.
+setDefaultAutoSelectFamilyAttemptTimeout(2_500);
 
 // Set global DNS cache (must be after dotenv so DNS_CACHE_MAX_TTL is available)
 await import('./utils/dnsCache.js');

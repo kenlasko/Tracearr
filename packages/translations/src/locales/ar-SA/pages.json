@@ -558,14 +558,8 @@
         },
         "columns": {
           "hoursPerGb": "",
-          "value": ""
-        },
-        "category": {
-          "low": "",
-          "moderate": "",
-          "high": ""
-        },
-        "deletionSuggested": ""
+          "lastWatched": ""
+        }
       },
       "matchBadge": {
         "exact": "",
@@ -585,7 +579,7 @@
       "peakHour": "ساعة الذروة",
       "viewingHours": "عرض الساعات",
       "peak": "ذروة:",
-      "monthlyTrends": "الاتجاهات الشهرية",
+      "viewingTrend": "",
       "busiest": "مشغول:",
       "quietest": "هادئ:",
       "bingeHighlights": "أبرز جلسات المشاهدة المتواصلة",
@@ -607,12 +601,6 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "tiers": {
-          "highlyAddictive": "",
-          "addictive": "",
-          "bingeable": "",
-          "casual": ""
         }
       },
       "percentWatchedValue": "",
@@ -722,8 +710,7 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "uniqueItems_other": ""
+        }
       },
       "growth": {
         "empty": {

@@ -111,3 +111,9 @@ NetworkPolicy all read this, so tracearr.env.PORT is the only place to set it. *
 {{- define "tracearr.containerPort" -}}
 {{- index (.Values.tracearr.env | default dict) "PORT" | default 3000 | int -}}
 {{- end }}
+
+{{/* Port of externalRedis.url, 6379 when the URL has none */}}
+{{- define "tracearr.externalRedisPort" -}}
+{{- $port := regexFind ":[0-9]+(/|$)" (.Values.externalRedis.url | trimPrefix "redis://" | trimPrefix "rediss://") | trimPrefix ":" | trimSuffix "/" }}
+{{- default 6379 $port | int -}}
+{{- end }}

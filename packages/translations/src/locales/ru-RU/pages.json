@@ -540,14 +540,8 @@
         },
         "columns": {
           "hoursPerGb": "",
-          "value": ""
-        },
-        "category": {
-          "low": "",
-          "moderate": "",
-          "high": ""
-        },
-        "deletionSuggested": ""
+          "lastWatched": ""
+        }
       },
       "matchBadge": {
         "exact": "",
@@ -567,7 +561,7 @@
       "peakHour": "Пик час",
       "viewingHours": "Часы просмотра",
       "peak": "Пик:",
-      "monthlyTrends": "Тенденции за месяц",
+      "viewingTrend": "",
       "busiest": "",
       "quietest": "Тихий тест:",
       "bingeHighlights": "Лучшие марафоны",
@@ -589,12 +583,6 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "tiers": {
-          "highlyAddictive": "",
-          "addictive": "",
-          "bingeable": "",
-          "casual": ""
         }
       },
       "percentWatchedValue": "",
@@ -700,8 +688,7 @@
         "empty": {
           "title": "",
           "description": ""
-        },
-        "uniqueItems_other": ""
+        }
       },
       "growth": {
         "empty": {
