@@ -23,7 +23,7 @@ import {
   createTestSession,
   createTestLibraryItem,
 } from '@tracearr/test-utils/factories';
-import { countedSessionSql } from '../../src/constants/index.js';
+import { countedSessionSql } from '../../src/db/sessions/rules.js';
 import { db } from '../../src/db/client.js';
 import { users, media, sessions, libraryItems } from '../../src/db/schema.js';
 import authPlugin from '../../src/plugins/auth.js';
@@ -740,7 +740,7 @@ describe('public API v2 /history and /streams', () => {
     });
 
     afterEach(async () => {
-      await cache.syncActiveSessions([]);
+      await cache.incrementalSyncActiveSessions([], await cache.getActiveSessionIds(), [], false);
     });
 
     it('carries the identity block per stream, enriched from session rows, with empty rating keys as null', async () => {
@@ -787,26 +787,31 @@ describe('public API v2 /history and /streams', () => {
       // The poller stores '' for absent rating keys; the factory cannot
       await db.update(sessions).set({ ratingKey: '' }).where(eq(sessions.id, withoutIdentity.id));
 
-      await cache.syncActiveSessions([
-        fakeActiveSession({
-          id: withIdentity.id,
-          serverId: server.id,
-          serverName: server.name,
-          serverType: 'plex',
-          serverUserId: su.id,
-          username: su.username,
-          ratingKey: 'rk-s',
-        }),
-        fakeActiveSession({
-          id: withoutIdentity.id,
-          serverId: server.id,
-          serverName: server.name,
-          serverType: 'plex',
-          serverUserId: su.id,
-          username: su.username,
-          ratingKey: '',
-        }),
-      ]);
+      await cache.incrementalSyncActiveSessions(
+        [
+          fakeActiveSession({
+            id: withIdentity.id,
+            serverId: server.id,
+            serverName: server.name,
+            serverType: 'plex',
+            serverUserId: su.id,
+            username: su.username,
+            ratingKey: 'rk-s',
+          }),
+          fakeActiveSession({
+            id: withoutIdentity.id,
+            serverId: server.id,
+            serverName: server.name,
+            serverType: 'plex',
+            serverUserId: su.id,
+            username: su.username,
+            ratingKey: '',
+          }),
+        ],
+        [],
+        [],
+        false
+      );
 
       const res = await app.inject({
         method: 'GET',

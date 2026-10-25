@@ -12,12 +12,17 @@ vi.mock('../../db/client.js', () => ({
     select: () => ({ from: () => ({ where: () => ({ limit: mockLimit }) }) }),
     update: () => ({ set: () => ({ where: () => ({ returning: mockReturning }) }) }),
   },
+  createRawPgClient: () => ({ connect: vi.fn(), query: vi.fn(), end: vi.fn(async () => {}) }),
 }));
 vi.mock('../mediaServer/index.js', () => ({
   createMediaServerClient: () => ({ getUsers: mockGetUsers, getLibraries: mockGetLibraries }),
   PlexClient: class {},
 }));
-vi.mock('../userService.js', () => ({ syncUserFromMediaServer: vi.fn() }));
+vi.mock('../userService.js', () => ({
+  loadServerAccounts: vi.fn(),
+  recomputeIdentityAggregates: vi.fn(),
+  syncUserFromMediaServer: vi.fn(),
+}));
 vi.mock('../serverIdentity.js', () => ({ ensureServerIdentifier: vi.fn() }));
 vi.mock('../../lib/revoke.js', () => ({ revokeSessionsForServerUsers: vi.fn() }));
 vi.mock('../../lib/scope.js', () => ({ clearScope: vi.fn() }));
@@ -76,7 +81,7 @@ describe('syncServer revocation', () => {
 
     await syncServer('srv-1', { syncUsers: true, syncLibraries: false });
 
-    expect(revokeSessionsForServerUsers).toHaveBeenCalledExactlyOnceWith([]);
+    expect(revokeSessionsForServerUsers).not.toHaveBeenCalled();
     expect(clearScope).toHaveBeenCalledExactlyOnceWith('u-back');
   });
 });
