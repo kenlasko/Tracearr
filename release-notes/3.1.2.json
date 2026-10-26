@@ -1,10 +1,14 @@
 {
   "version": "3.1.2",
-  "date": "2026-10-25",
+  "date": "2026-10-26",
   "changes": [
     {
       "type": "new",
       "text": "the owner can link their own Jellyfin or Emby account from Settings → Servers → Connections"
+    },
+    {
+      "type": "fix",
+      "text": "a player left sitting at the end of an episode no longer records a watched play each time it reconnects"
     },
     {
       "type": "fix",
@@ -14,6 +18,18 @@
     {
       "type": "fix",
       "text": "Agregarr coming-soon placeholders are no longer stored, so newsletters and library counts skip them"
+    },
+    {
+      "type": "fix",
+      "text": "quality changes no longer use up a sync's 20 media-added alerts when nothing listens for media upgrades"
+    },
+    {
+      "type": "fix",
+      "text": "one library failing to sync, such as a Movies scan timing out on a slow Plex, no longer stops the other libraries"
+    },
+    {
+      "type": "fix",
+      "text": "a Plex item whose full metadata takes too long to load no longer fails its library's sync; it keeps its stored genres"
     },
     {
       "type": "fix",
