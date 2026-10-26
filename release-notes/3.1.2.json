@@ -3,9 +3,17 @@
   "date": "2026-10-25",
   "changes": [
     {
+      "type": "new",
+      "text": "the owner can link their own Jellyfin or Emby account from Settings → Servers → Connections"
+    },
+    {
       "type": "fix",
       "text": "Plexamp playback no longer records every queued track as a download or trips the Download burst policy",
       "refs": ["#1367"]
+    },
+    {
+      "type": "fix",
+      "text": "Agregarr coming-soon placeholders are no longer stored, so newsletters and library counts skip them"
     },
     {
       "type": "fix",
@@ -36,8 +44,21 @@
       "text": "Media Overview shelves show a show's total size and best resolution"
     },
     {
+      "type": "fix",
+      "text": "copy buttons work when Tracearr is opened over plain HTTP"
+    },
+    {
+      "type": "fix",
+      "text": "the v2 public API's users endpoints return the display name set in Tracearr as identity_name",
+      "refs": ["#1370"]
+    },
+    {
       "type": "improved",
       "text": "the date format picker in Settings → General lists the formats themselves instead of countries"
+    },
+    {
+      "type": "improved",
+      "text": "on Unraid, Tracearr warns the owner when its database is on a user share and shows the path to switch to"
     },
     {
       "type": "improved",
